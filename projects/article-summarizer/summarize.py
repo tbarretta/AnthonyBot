@@ -90,7 +90,40 @@ def save_summary(title: str, url: str, summary: str, output_dir: str = "summarie
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Fetch, summarize, and read an article aloud.")
+    popular_voices = [
+        "en-US-AndrewNeural (default, American male)",
+        "en-US-BrianNeural  (American male, deep)",
+        "en-US-ChristopherNeural (American male, warm)",
+        "en-US-GuyNeural    (American male, crisp)",
+        "en-US-EricNeural   (American male)",
+        "en-GB-RyanNeural   (British male)",
+        "en-GB-ThomasNeural (British male)",
+        "en-AU-WilliamMultilingualNeural (Australian male)",
+        "en-US-AriaNeural   (American female)",
+        "en-US-JennyNeural  (American female)",
+        "en-GB-SoniaNeural  (British female)",
+    ]
+    voice_list = "\n  ".join(popular_voices)
+
+    parser = argparse.ArgumentParser(
+        description="Fetch an article from a URL, summarize it with Claude, and read it aloud.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=f"""
+examples:
+  python summarize.py https://example.com/article
+  python summarize.py https://example.com/article --no-tts
+  python summarize.py https://example.com/article --save
+  python summarize.py https://example.com/article --save-audio
+  python summarize.py https://example.com/article --save-audio --voice en-GB-RyanNeural
+  python summarize.py https://example.com/article --no-tts --save --save-audio
+
+popular voices:
+  {voice_list}
+
+tip:
+  Run `edge-tts --list-voices` in your venv for the full list of available voices.
+"""
+    )
     parser.add_argument("url", help="URL of the article to summarize")
     parser.add_argument("--no-tts", action="store_true", help="Skip text-to-speech, print only")
     parser.add_argument("--save", action="store_true", help="Save summary to a text file")
