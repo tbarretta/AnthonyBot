@@ -15,6 +15,9 @@ import anthropic
 import edge_tts
 import yt_dlp
 
+# Resolve paths relative to this script's directory
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 def fetch_transcript(url: str) -> tuple[str, str]:
     """Fetch auto-generated captions from a YouTube video. Returns (title, transcript)."""
@@ -151,8 +154,10 @@ def speak(text: str):
     engine.runAndWait()
 
 
-def save_audio(title: str, summary: str, voice: str = "en-US-AndrewNeural", output_dir: str = "summaries") -> str:
+def save_audio(title: str, summary: str, voice: str = "en-US-AndrewNeural", output_dir: str = None) -> str:
     """Save summary as an MP3 file using edge-tts."""
+    if output_dir is None:
+        output_dir = os.path.join(SCRIPT_DIR, "summaries")
     os.makedirs(output_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_title = "".join(c if c.isalnum() or c in " -_" else "" for c in title)[:50].strip()
@@ -168,8 +173,10 @@ def save_audio(title: str, summary: str, voice: str = "en-US-AndrewNeural", outp
     return filename
 
 
-def save_summary(title: str, url: str, summary: str, output_dir: str = "summaries"):
+def save_summary(title: str, url: str, summary: str, output_dir: str = None):
     """Save summary to a text file."""
+    if output_dir is None:
+        output_dir = os.path.join(SCRIPT_DIR, "summaries")
     os.makedirs(output_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_title = "".join(c if c.isalnum() or c in " -_" else "" for c in title)[:50].strip()
