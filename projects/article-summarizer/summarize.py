@@ -10,9 +10,10 @@ import os
 import argparse
 from datetime import datetime
 
+import asyncio
 import anthropic
 import pyttsx3
-from gtts import gTTS
+import edge_tts
 from newspaper import Article
 
 
@@ -57,15 +58,17 @@ def speak(text: str):
     engine.runAndWait()
 
 
-def save_audio(title: str, summary: str, output_dir: str = "summaries") -> str:
-    """Save summary as an MP3 file using gTTS."""
+def save_audio(title: str, summary: str, voice: str = "en-US-AndrewNeural", output_dir: str = "summaries") -> str:
+    """Save summary as an MP3 file using edge-tts."""
     os.makedirs(output_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_title = "".join(c if c.isalnum() or c in " -_" else "" for c in title)[:50].strip()
     filename = f"{output_dir}/{timestamp}_{safe_title}.mp3"
-    print(f"🎙️  Generating audio file...")
-    tts = gTTS(text=summary, lang="en", slow=False)
-    tts.save(filename)
+    print(f"🎙️  Generating audio file with voice '{voice}'...")
+    async def _generate():
+        communicate = edge_tts.Communicate(summary, voice)
+        await communicate.save(filename)
+    asyncio.run(_generate())
     print(f"💾 Audio saved to {filename}")
     return filename
 
@@ -92,6 +95,7 @@ def main():
     parser.add_argument("--no-tts", action="store_true", help="Skip text-to-speech, print only")
     parser.add_argument("--save", action="store_true", help="Save summary to a text file")
     parser.add_argument("--save-audio", action="store_true", help="Save summary as an MP3 file")
+    parser.add_argument("--voice", default="en-US-AndrewNeural", help="Edge TTS voice name (default: en-US-AndrewNeural)")
     args = parser.parse_args()
 
     try:
@@ -107,7 +111,7 @@ def main():
             save_summary(title, args.url, summary)
 
         if args.save_audio:
-            save_audio(title, summary)
+            save_audio(title, summary, voice=args.voice)
 
         if not args.no_tts:
             speak(summary)
