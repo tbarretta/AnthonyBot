@@ -150,7 +150,11 @@ tip:
             save_audio(title, summary, voice=args.voice)
 
         if not args.no_tts and not args.save_audio:
-            speak(summary)
+            import shutil
+            if shutil.which("espeak") or shutil.which("espeak-ng"):
+                speak(summary)
+            else:
+                print("⚠️  Live TTS skipped (espeak not installed). Use --save-audio to generate an MP3.")
 
     except Exception as e:
         print(f"❌ Error: {e}", file=sys.stderr)
