@@ -18,3 +18,4 @@ node_modules/
 *.key
 *.token
 secrets/
+venv/
