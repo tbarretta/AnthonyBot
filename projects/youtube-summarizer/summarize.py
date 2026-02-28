@@ -144,17 +144,8 @@ Transcript:
 
 
 def speak(text: str):
-    """Read text aloud using pyttsx3."""
-    try:
-        import pyttsx3
-        print("🔊 Reading summary aloud...")
-        engine = pyttsx3.init()
-        engine.setProperty("rate", 175)
-        engine.setProperty("volume", 1.0)
-        engine.say(text)
-        engine.runAndWait()
-    except Exception as e:
-        print(f"⚠️  TTS playback unavailable ({e}). Use --save-audio to generate an MP3 instead.")
+    """Placeholder — live TTS not supported on WSL. Use --save-audio instead."""
+    print("⚠️  Live TTS is not supported on this system. Use --save-audio to generate an MP3.")
 
 
 def save_audio(title: str, summary: str, voice: str = "en-US-AndrewNeural", output_dir: str = None) -> str:
@@ -253,11 +244,7 @@ tip:
             save_audio(title, summary, voice=args.voice)
 
         if not args.no_tts and not args.save_audio:
-            import shutil
-            if shutil.which("espeak") or shutil.which("espeak-ng"):
-                speak(summary)
-            else:
-                print("⚠️  Live TTS skipped (espeak not installed). Use --save-audio to generate an MP3.")
+            print("ℹ️  Live TTS is not supported on WSL. Use --save-audio to generate an MP3.")
 
     except Exception as e:
         print(f"❌ Error: {e}", file=sys.stderr)
