@@ -17,21 +17,28 @@ export ANTHROPIC_API_KEY=your_key_here
 
 ## Usage
 
+Use `./run.sh` — it handles the virtual environment automatically:
+
 ```bash
-# Summarize and read aloud
-python summarize.py https://example.com/article
+# Print summary only
+./run.sh --no-tts https://example.com/article
 
-# Print only, no TTS
-python summarize.py https://example.com/article --no-tts
+# Save summary as text file
+./run.sh --save --no-tts https://example.com/article
 
-# Save summary to file
-python summarize.py https://example.com/article --save
+# Save summary as MP3
+./run.sh --save-audio https://example.com/article
 
-# Both
-python summarize.py https://example.com/article --no-tts --save
+# Save both text and MP3
+./run.sh --save --save-audio https://example.com/article
+
+# Save MP3 with a different voice
+./run.sh --save-audio --voice en-GB-RyanNeural https://example.com/article
 ```
+
+> **Note:** Live TTS playback is not supported on WSL. Use `--save-audio` to generate an MP3.
 
 ## Requirements
 
 - Python 3.10+
-- `espeak-ng` (system package for TTS): `sudo apt install espeak-ng`
+- `ANTHROPIC_API_KEY` environment variable set

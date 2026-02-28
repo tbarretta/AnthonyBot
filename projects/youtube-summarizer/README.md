@@ -17,25 +17,26 @@ pip install -r requirements.txt
 
 ## Usage
 
-```bash
-# Summarize and read aloud
-python summarize.py https://www.youtube.com/watch?v=VIDEO_ID
+Use `./run.sh` — it handles the virtual environment automatically:
 
-# Print only, no TTS
-python summarize.py https://youtu.be/VIDEO_ID --no-tts
+```bash
+# Print summary only
+./run.sh --no-tts https://www.youtube.com/watch?v=VIDEO_ID
 
 # Save summary as text file
-python summarize.py https://www.youtube.com/watch?v=VIDEO_ID --save
+./run.sh --save --no-tts https://www.youtube.com/watch?v=VIDEO_ID
 
 # Save summary as MP3
-python summarize.py https://www.youtube.com/watch?v=VIDEO_ID --save-audio
+./run.sh --save-audio https://www.youtube.com/watch?v=VIDEO_ID
+
+# Save both text and MP3
+./run.sh --save --save-audio https://www.youtube.com/watch?v=VIDEO_ID
 
 # Save MP3 with a different voice
-python summarize.py https://www.youtube.com/watch?v=VIDEO_ID --save-audio --voice en-GB-RyanNeural
-
-# All options combined
-python summarize.py https://www.youtube.com/watch?v=VIDEO_ID --no-tts --save --save-audio
+./run.sh --save-audio --voice en-GB-RyanNeural https://www.youtube.com/watch?v=VIDEO_ID
 ```
+
+> **Note:** Live TTS playback is not supported on WSL. Use `--save-audio` to generate an MP3.
 
 ## Options
 
