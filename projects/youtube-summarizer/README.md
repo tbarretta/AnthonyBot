@@ -38,6 +38,8 @@ Use `./run.sh` — it handles the virtual environment automatically:
 
 > **Note:** Live TTS playback is not supported on WSL. Use `--save-audio` to generate an MP3.
 
+> **Always wrap URLs in quotes.** YouTube URLs contain `&` which the shell interprets as a background operator without them — causing the script to hang.
+
 ## Options
 
 | Flag | Description |

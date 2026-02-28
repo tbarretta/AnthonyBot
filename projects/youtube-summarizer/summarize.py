@@ -158,14 +158,11 @@ def save_audio(title: str, summary: str, voice: str = "en-US-AndrewNeural", outp
     print(f"🎙️  Generating audio with voice '{voice}'...")
 
     edge_tts_bin = os.path.join(SCRIPT_DIR, "venv", "bin", "edge-tts")
-    print("🔧 DEBUG: starting edge-tts subprocess...")
     subprocess.run(
         [edge_tts_bin, "--voice", voice, "--text", summary, "--write-media", filename],
         check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
     )
-    print("🔧 DEBUG: edge-tts subprocess finished")
     print(f"💾 Audio saved to {filename}")
-    print("🔧 DEBUG: returning from save_audio")
     return filename
 
 
@@ -208,12 +205,15 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=f"""
 examples:
-  python summarize.py https://www.youtube.com/watch?v=VIDEO_ID
-  python summarize.py https://youtu.be/VIDEO_ID --no-tts
-  python summarize.py https://www.youtube.com/watch?v=VIDEO_ID --save
-  python summarize.py https://www.youtube.com/watch?v=VIDEO_ID --save-audio
-  python summarize.py https://www.youtube.com/watch?v=VIDEO_ID --save-audio --voice en-GB-RyanNeural
-  python summarize.py https://www.youtube.com/watch?v=VIDEO_ID --no-tts --save --save-audio
+  ./run.sh --no-tts "https://www.youtube.com/watch?v=VIDEO_ID"
+  ./run.sh --save --no-tts "https://youtu.be/VIDEO_ID"
+  ./run.sh --save-audio "https://www.youtube.com/watch?v=VIDEO_ID"
+  ./run.sh --save --save-audio "https://www.youtube.com/watch?v=VIDEO_ID"
+  ./run.sh --save-audio --voice en-GB-RyanNeural "https://www.youtube.com/watch?v=VIDEO_ID"
+
+note:
+  Always wrap the URL in quotes — YouTube URLs contain & which the shell
+  will interpret as a background operator without them.
 
 popular voices:
   {voice_list}
@@ -243,14 +243,10 @@ tip:
             save_summary(title, args.url, summary)
 
         if args.save_audio:
-            print("🔧 DEBUG: calling save_audio...")
             save_audio(title, summary, voice=args.voice)
-            print("🔧 DEBUG: save_audio returned")
 
         if not args.no_tts and not args.save_audio:
             print("ℹ️  Live TTS is not supported on WSL. Use --save-audio to generate an MP3.")
-
-        print("🔧 DEBUG: reaching sys.exit(0)")
     except Exception as e:
         print(f"❌ Error: {e}", file=sys.stderr)
         sys.exit(1)
