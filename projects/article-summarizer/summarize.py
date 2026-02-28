@@ -8,13 +8,14 @@ Usage: python summarize.py <url> [--no-tts] [--save]
 import sys
 import os
 import argparse
+import subprocess
 from datetime import datetime
 
-import asyncio
 import anthropic
 import pyttsx3
-import edge_tts
 from newspaper import Article
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def fetch_article(url: str) -> tuple[str, str]:
@@ -53,17 +54,20 @@ def speak(text: str):
     print("⚠️  Live TTS is not supported on this system. Use --save-audio to generate an MP3.")
 
 
-def save_audio(title: str, summary: str, voice: str = "en-US-AndrewNeural", output_dir: str = "summaries") -> str:
-    """Save summary as an MP3 file using edge-tts."""
+def save_audio(title: str, summary: str, voice: str = "en-US-AndrewNeural", output_dir: str = None) -> str:
+    """Save summary as an MP3 file using edge-tts CLI."""
+    if output_dir is None:
+        output_dir = os.path.join(SCRIPT_DIR, "summaries")
     os.makedirs(output_dir, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     safe_title = "".join(c if c.isalnum() or c in " -_" else "" for c in title)[:50].strip()
     filename = f"{output_dir}/{timestamp}_{safe_title}.mp3"
     print(f"🎙️  Generating audio file with voice '{voice}'...")
-    async def _generate():
-        communicate = edge_tts.Communicate(summary, voice)
-        await communicate.save(filename)
-    asyncio.run(_generate())
+    edge_tts_bin = os.path.join(SCRIPT_DIR, "venv", "bin", "edge-tts")
+    subprocess.run(
+        [edge_tts_bin, "--voice", voice, "--text", summary, "--write-media", filename],
+        check=True
+    )
     print(f"💾 Audio saved to {filename}")
     return filename
 

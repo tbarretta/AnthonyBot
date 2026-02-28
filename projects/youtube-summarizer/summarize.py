@@ -8,11 +8,10 @@ Usage: python summarize.py <youtube_url> [options]
 import sys
 import os
 import argparse
-import asyncio
 from datetime import datetime
 
+import subprocess
 import anthropic
-import edge_tts
 import yt_dlp
 
 # Resolve paths relative to this script's directory
@@ -149,7 +148,7 @@ def speak(text: str):
 
 
 def save_audio(title: str, summary: str, voice: str = "en-US-AndrewNeural", output_dir: str = None) -> str:
-    """Save summary as an MP3 file using edge-tts."""
+    """Save summary as an MP3 file using edge-tts CLI."""
     if output_dir is None:
         output_dir = os.path.join(SCRIPT_DIR, "summaries")
     os.makedirs(output_dir, exist_ok=True)
@@ -158,11 +157,11 @@ def save_audio(title: str, summary: str, voice: str = "en-US-AndrewNeural", outp
     filename = f"{output_dir}/{timestamp}_{safe_title}.mp3"
     print(f"🎙️  Generating audio with voice '{voice}'...")
 
-    async def _generate():
-        communicate = edge_tts.Communicate(summary, voice)
-        await communicate.save(filename)
-
-    asyncio.run(_generate())
+    edge_tts_bin = os.path.join(SCRIPT_DIR, "venv", "bin", "edge-tts")
+    subprocess.run(
+        [edge_tts_bin, "--voice", voice, "--text", summary, "--write-media", filename],
+        check=True
+    )
     print(f"💾 Audio saved to {filename}")
     return filename
 
