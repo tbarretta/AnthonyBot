@@ -50,12 +50,15 @@ Article:
 
 def speak(text: str):
     """Read text aloud using pyttsx3."""
-    print("🔊 Reading summary aloud...")
-    engine = pyttsx3.init()
-    engine.setProperty("rate", 175)   # words per minute
-    engine.setProperty("volume", 1.0)
-    engine.say(text)
-    engine.runAndWait()
+    try:
+        print("🔊 Reading summary aloud...")
+        engine = pyttsx3.init()
+        engine.setProperty("rate", 175)   # words per minute
+        engine.setProperty("volume", 1.0)
+        engine.say(text)
+        engine.runAndWait()
+    except Exception as e:
+        print(f"⚠️  TTS playback unavailable ({e}). Use --save-audio to generate an MP3 instead.")
 
 
 def save_audio(title: str, summary: str, voice: str = "en-US-AndrewNeural", output_dir: str = "summaries") -> str:
@@ -146,7 +149,7 @@ tip:
         if args.save_audio:
             save_audio(title, summary, voice=args.voice)
 
-        if not args.no_tts:
+        if not args.no_tts and not args.save_audio:
             speak(summary)
 
     except Exception as e:
