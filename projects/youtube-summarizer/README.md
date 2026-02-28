@@ -21,19 +21,19 @@ Use `./run.sh` — it handles the virtual environment automatically:
 
 ```bash
 # Print summary only
-./run.sh --no-tts https://www.youtube.com/watch?v=VIDEO_ID
+./run.sh --no-tts "https://www.youtube.com/watch?v=VIDEO_ID"
 
 # Save summary as text file
-./run.sh --save --no-tts https://www.youtube.com/watch?v=VIDEO_ID
+./run.sh --save --no-tts "https://www.youtube.com/watch?v=VIDEO_ID"
 
 # Save summary as MP3
-./run.sh --save-audio https://www.youtube.com/watch?v=VIDEO_ID
+./run.sh --save-audio "https://www.youtube.com/watch?v=VIDEO_ID"
 
 # Save both text and MP3
-./run.sh --save --save-audio https://www.youtube.com/watch?v=VIDEO_ID
+./run.sh --save --save-audio "https://www.youtube.com/watch?v=VIDEO_ID"
 
 # Save MP3 with a different voice
-./run.sh --save-audio --voice en-GB-RyanNeural https://www.youtube.com/watch?v=VIDEO_ID
+./run.sh --save-audio --voice en-GB-RyanNeural "https://www.youtube.com/watch?v=VIDEO_ID"
 ```
 
 > **Note:** Live TTS playback is not supported on WSL. Use `--save-audio` to generate an MP3.
