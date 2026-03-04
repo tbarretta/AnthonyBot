@@ -60,20 +60,17 @@
 
       <div>
         <label class="block text-sm font-medium text-gray-400 mb-1">How much do you want it? <span class="text-red-500">*</span></label>
-        <div class="flex gap-2 mt-2">
-          {% for value, label in form.desire_rating.field.choices %}
-          <label class="cursor-pointer">
-            <input type="radio" name="desire_rating" value="{{ value }}"
-              {% if form.desire_rating.value|stringformat:"s" == value|stringformat:"s" %}checked{% endif %}
-              class="sr-only peer">
-            <span class="text-xl peer-checked:scale-125 block transition-transform select-none
-              {% if form.desire_rating.value|stringformat:"s" == value|stringformat:"s" %}text-yellow-400{% else %}text-gray-700 hover:text-yellow-600{% endif %}">
-              ★
-            </span>
-          </label>
+        <input type="hidden" name="desire_rating" id="desire_rating_input" value="{{ form.desire_rating.value|default:'' }}">
+        <div class="flex gap-1 mt-2" id="star_widget" role="group" aria-label="Desire rating">
+          {% for i in "12345" %}
+          <button type="button" data-value="{{ forloop.counter }}"
+            class="star-btn text-3xl leading-none transition-all duration-100 focus:outline-none select-none"
+            aria-label="{{ forloop.counter }} star{% if forloop.counter > 1 %}s{% endif %}">
+            ☆
+          </button>
           {% endfor %}
         </div>
-        <p class="text-xs text-gray-600 mt-1">1 = Nice to have · 5 = Really want this!</p>
+        <p class="text-xs text-gray-600 mt-2" id="star_label">1 = Nice to have &nbsp;·&nbsp; 5 = Really want this!</p>
         {% for error in form.desire_rating.errors %}
         <p class="text-red-400 text-xs mt-1">{{ error }}</p>
         {% endfor %}
@@ -142,4 +139,55 @@
     </a>
   </div>
 </form>
+
+<script>
+(function () {
+  const labels = [
+    "",
+    "1 ★ — Nice to have",
+    "2 ★★ — Wouldn't mind it",
+    "3 ★★★ — Would love it",
+    "4 ★★★★ — Really want this!",
+    "5 ★★★★★ — Need this in my life!"
+  ];
+
+  const input   = document.getElementById("desire_rating_input");
+  const widget  = document.getElementById("star_widget");
+  const hint    = document.getElementById("star_label");
+  const buttons = widget.querySelectorAll(".star-btn");
+
+  let selected = parseInt(input.value) || 0;
+
+  function paint(hovered) {
+    buttons.forEach((btn, i) => {
+      const val = i + 1;
+      if (val <= hovered) {
+        btn.textContent = "★";
+        btn.style.color = "var(--color-primary)";
+        btn.style.transform = val === hovered ? "scale(1.3)" : "scale(1.1)";
+      } else {
+        btn.textContent = "☆";
+        btn.style.color = "var(--color-text-muted)";
+        btn.style.transform = "scale(1)";
+      }
+    });
+    hint.textContent = hovered
+      ? labels[hovered]
+      : (selected ? labels[selected] : "1 = Nice to have · 5 = Really want this!");
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("mouseenter", () => paint(parseInt(btn.dataset.value)));
+    btn.addEventListener("mouseleave", () => paint(selected));
+    btn.addEventListener("click", () => {
+      selected = parseInt(btn.dataset.value);
+      input.value = selected;
+      paint(selected);
+    });
+  });
+
+  // Restore saved value (edit mode)
+  if (selected) paint(selected);
+})();
+</script>
 {% endblock %}
