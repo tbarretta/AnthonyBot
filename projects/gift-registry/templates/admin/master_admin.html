@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Master Admin — Gift Registry{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-white">⚡ Master Admin</h1>
+    <p class="text-gray-500 text-sm mt-1">System overview and management tools.</p>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="grid grid-cols-3 gap-4 mb-8">
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center">
+    <p class="text-3xl font-bold text-white">{{ stats.users }}</p>
+    <p class="text-gray-500 text-sm mt-1">Users</p>
+  </div>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center">
+    <p class="text-3xl font-bold text-white">{{ stats.families }}</p>
+    <p class="text-gray-500 text-sm mt-1">Families</p>
+  </div>
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-5 text-center">
+    <p class="text-3xl font-bold text-white">{{ stats.items }}</p>
+    <p class="text-gray-500 text-sm mt-1">Wishlist Items</p>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <!-- Left: Activity Log -->
+  <div class="lg:col-span-2 space-y-4">
+
+    <!-- Activity log -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between gap-4 flex-wrap">
+        <h2 class="font-semibold text-white">Activity Log</h2>
+        <form method="get" class="flex items-center gap-2">
+          <select name="event_type"
+            class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-gray-300 text-sm focus:outline-none focus:border-[var(--color-primary)]"
+            onchange="this.form.submit()">
+            <option value="">All events</option>
+            {% for et in event_types %}
+            <option value="{{ et.0 }}" {% if event_filter == et.0 %}selected{% endif %}>{{ et.1 }}</option>
+            {% endfor %}
+          </select>
+          {% if event_filter %}
+          <a href="{% url 'master_admin' %}" class="text-xs text-gray-600 hover:text-gray-400">Clear</a>
+          {% endif %}
+        </form>
+      </div>
+
+      {% if log_page.object_list %}
+      <div class="divide-y divide-gray-800">
+        {% for entry in log_page.object_list %}
+        <div class="px-6 py-3 text-sm">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-gray-300">{{ entry.description }}</span>
+              {% if entry.family %}
+              <span class="text-gray-600 text-xs ml-1">({{ entry.family.name }})</span>
+              {% endif %}
+            </div>
+            <span class="text-gray-600 text-xs flex-shrink-0 ml-4">{{ entry.timestamp|date:"M j, g:i a" }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if log_page.has_other_pages %}
+      <div class="px-6 py-4 border-t border-gray-800 flex items-center justify-between text-sm">
+        <span class="text-gray-600">Page {{ log_page.number }} of {{ log_page.paginator.num_pages }}</span>
+        <div class="flex gap-2">
+          {% if log_page.has_previous %}
+          <a href="?page={{ log_page.previous_page_number }}{% if event_filter %}&event_type={{ event_filter }}{% endif %}"
+            class="border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white px-3 py-1 rounded-lg transition-colors">← Prev</a>
+          {% endif %}
+          {% if log_page.has_next %}
+          <a href="?page={{ log_page.next_page_number }}{% if event_filter %}&event_type={{ event_filter }}{% endif %}"
+            class="border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white px-3 py-1 rounded-lg transition-colors">Next →</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% else %}
+      <div class="px-6 py-8 text-center text-gray-600 text-sm">No activity yet.</div>
+      {% endif %}
+    </div>
+
+    <!-- Users -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between gap-4 flex-wrap">
+        <h2 class="font-semibold text-white">Users</h2>
+        <form method="get" class="flex items-center gap-2">
+          <input type="text" name="q" value="{{ user_query }}" placeholder="Search by name or email…"
+            class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-gray-300 text-sm placeholder-gray-600 focus:outline-none focus:border-[var(--color-primary)] w-52">
+          <button type="submit" class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1.5 rounded-lg transition-colors">Search</button>
+          {% if user_query %}
+          <a href="{% url 'master_admin' %}" class="text-xs text-gray-600 hover:text-gray-400">Clear</a>
+          {% endif %}
+        </form>
+      </div>
+      <div class="divide-y divide-gray-800">
+        {% for u in users %}
+        <div class="flex items-center justify-between px-6 py-3">
+          <div>
+            <p class="text-white text-sm font-medium">
+              {{ u.name }}
+              {% if u.is_master_admin %}<span class="text-yellow-500 text-xs ml-1">⚡ Admin</span>{% endif %}
+              {% if not u.is_email_verified %}<span class="text-gray-600 text-xs ml-1">(unverified)</span>{% endif %}
+            </p>
+            <p class="text-gray-600 text-xs">{{ u.email }}</p>
+          </div>
+          <form method="post" action="{% url 'admin_reset_password' %}">
+            {% csrf_token %}
+            <input type="hidden" name="email" value="{{ u.email }}">
+            <button type="submit"
+              onclick="return confirm('Send password reset to {{ u.email }}?')"
+              class="text-xs border border-gray-700 hover:border-gray-500 text-gray-500 hover:text-gray-300 px-3 py-1 rounded-lg transition-colors">
+              Reset PW
+            </button>
+          </form>
+        </div>
+        {% empty %}
+        <div class="px-6 py-8 text-center text-gray-600 text-sm">No users found.</div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right: Families -->
+  <div>
+    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-800">
+        <h2 class="font-semibold text-white">Families</h2>
+      </div>
+      {% for f in families %}
+      <div class="px-6 py-4 {% if not forloop.last %}border-b border-gray-800{% endif %}">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-white text-sm font-medium">{{ f.name }}</p>
+          <span class="text-xs text-gray-600">{{ f.memberships.count }} member{{ f.memberships.count|pluralize }}</span>
+        </div>
+        <div class="space-y-1">
+          {% for m in f.memberships.all %}
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-gray-400">{{ m.user.name }}</span>
+            <span class="text-gray-700">{{ m.role }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="px-6 py-8 text-center text-gray-600 text-sm">No families yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

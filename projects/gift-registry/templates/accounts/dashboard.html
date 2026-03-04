@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Gift Registry{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-white">Welcome back, {{ request.user.name }} 👋</h1>
+  <p class="text-gray-500 text-sm mt-1">Here's what's going on in your registry.</p>
+</div>
+
+{% if pending_requests %}
+<div class="mb-6 bg-yellow-900/20 border border-yellow-700/40 rounded-xl p-4">
+  <h2 class="text-yellow-400 font-semibold text-sm mb-3">⏳ Pending Access Requests</h2>
+  <div class="space-y-2">
+    {% for req in pending_requests %}
+    <div class="flex items-center justify-between bg-gray-900 rounded-lg px-4 py-3">
+      <span class="text-sm text-gray-300">
+        <strong class="text-white">{{ req.from_user.name }}</strong> wants to view your wishlist
+        <span class="text-gray-600 text-xs ml-1">({{ req.family.name }})</span>
+      </span>
+      <div class="flex gap-2">
+        <form method="post" action="{% url 'respond_in_app' access_id=req.pk action='approve' %}">
+          {% csrf_token %}
+          <button type="submit" class="text-xs bg-green-800 hover:bg-green-700 text-green-200 px-3 py-1 rounded-lg transition-colors">Approve</button>
+        </form>
+        <form method="post" action="{% url 'respond_in_app' access_id=req.pk action='deny' %}">
+          {% csrf_token %}
+          <button type="submit" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 px-3 py-1 rounded-lg transition-colors">Decline</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+  <!-- Wishlist summary -->
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 md:col-span-2">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-semibold text-white">My Wishlist</h2>
+      <div class="flex items-center gap-3">
+        <span class="text-xs text-gray-500">{{ item_count }} / {{ item_limit }} items</span>
+        <a href="{% url 'my_wishlist' %}"
+          class="text-xs bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-3 py-1 rounded-lg transition-colors">
+          View all
+        </a>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="w-full bg-gray-800 rounded-full h-1.5 mb-4">
+      <div class="bg-[var(--color-primary)] h-1.5 rounded-full transition-all"
+        style="width: {% widthratio item_count item_limit 100 %}%"></div>
+    </div>
+
+    {% if my_items %}
+    <div class="space-y-3">
+      {% for item in my_items %}
+      <div class="flex items-center gap-3 text-sm">
+        {% if item.image %}
+        <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-10 h-10 rounded-lg object-cover flex-shrink-0">
+        {% else %}
+        <div class="w-10 h-10 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0 text-lg">🎁</div>
+        {% endif %}
+        <div class="flex-1 min-w-0">
+          <p class="text-white font-medium truncate">{{ item.name }}</p>
+          <p class="text-gray-500 text-xs">
+            ${{ item.price }}
+            · {% for i in "12345" %}{% if forloop.counter <= item.desire_rating %}⭐{% endif %}{% endfor %}
+          </p>
+        </div>
+        <a href="{% url 'edit_item' item_id=item.pk %}" class="text-gray-600 hover:text-gray-400 text-xs flex-shrink-0">Edit</a>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-600 text-sm">Your wishlist is empty. <a href="{% url 'add_item' %}" class="text-[var(--color-primary)] hover:underline">Add your first item →</a></p>
+    {% endif %}
+  </div>
+
+  <!-- Families -->
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+    <h2 class="font-semibold text-white mb-4">My Families</h2>
+    {% if memberships %}
+    <div class="space-y-3">
+      {% for m in memberships %}
+      <a href="{% url 'family_detail' family_id=m.family.pk %}"
+        class="block bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-gray-600 rounded-lg px-4 py-3 transition-colors">
+        <p class="text-white text-sm font-medium">{{ m.family.name }}</p>
+        <p class="text-gray-500 text-xs mt-0.5">
+          {{ m.role|capfirst }}
+          {% if m.is_admin %}· <a href="{% url 'family_admin' family_id=m.family.pk %}" class="text-[var(--color-primary)] hover:underline">Manage</a>{% endif %}
+        </p>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-600 text-sm">You're not in any families yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Quick actions -->
+<div class="flex gap-3 flex-wrap">
+  <a href="{% url 'add_item' %}"
+    class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+    + Add Item
+  </a>
+  <a href="{% url 'preferences' %}"
+    class="border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+    Preferences
+  </a>
+</div>
+{% endblock %}

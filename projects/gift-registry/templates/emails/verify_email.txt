@@ -1,0 +1,10 @@
+Hi {{ user.name }},
+
+Please verify your email address to activate your Gift Registry account:
+{{ verify_url }}
+
+This link expires in 24 hours.
+
+If you didn't create an account, you can safely ignore this email.
+
+— The Gift Registry Team

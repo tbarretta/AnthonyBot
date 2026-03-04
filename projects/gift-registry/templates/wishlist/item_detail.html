@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}{{ item.name }} — Gift Registry{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+  <a href="{% url 'view_member_wishlist' family_id=family.pk user_id=owner.pk %}"
+    class="text-gray-600 hover:text-gray-400 text-sm">← {{ owner.name }}'s Wishlist</a>
+</div>
+
+<div class="max-w-2xl">
+  <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+
+    {% if item.image %}
+    <img src="{{ item.image.url }}" alt="{{ item.name }}"
+      class="w-full h-64 object-cover">
+    {% endif %}
+
+    <div class="p-6">
+      <div class="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            <h1 class="text-2xl font-bold text-white">{{ item.name }}</h1>
+            {% if item.is_purchased %}
+            <span class="text-sm bg-green-900/40 text-green-400 border border-green-800/40 px-2 py-0.5 rounded">Purchased</span>
+            {% endif %}
+            {% if item.is_soft_removed %}
+            <span class="text-sm bg-gray-800 text-gray-500 border border-gray-700 px-2 py-0.5 rounded">
+              {{ item.get_soft_remove_reason_display }}
+            </span>
+            {% endif %}
+          </div>
+          <p class="text-yellow-400">
+            {% for i in "12345" %}{% if forloop.counter <= item.desire_rating %}★{% else %}☆{% endif %}{% endfor %}
+            <span class="text-gray-600 text-sm ml-1">{{ item.desire_rating }} / 5</span>
+          </p>
+        </div>
+        <p class="text-3xl font-bold text-white flex-shrink-0">${{ item.price }}</p>
+      </div>
+
+      <p class="text-gray-400 text-sm leading-relaxed mb-6">{{ item.description }}</p>
+
+      {% if item.purchase_link %}
+      <a href="{{ item.purchase_link }}" target="_blank" rel="noopener"
+        class="inline-flex items-center gap-2 border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors mb-6">
+        🔗 View purchase link
+      </a>
+      {% endif %}
+
+      <hr class="border-gray-800 mb-6">
+
+      <!-- Purchase toggle -->
+      <div class="flex items-start gap-4">
+        <div class="flex-1">
+          {% if purchased_by_me %}
+          <p class="text-green-400 font-medium text-sm mb-1">✅ You've marked this as purchased</p>
+          <p class="text-gray-600 text-xs">Only you can see this. The gift owner won't know.</p>
+          {% elif item.is_purchased %}
+          <p class="text-gray-400 font-medium text-sm mb-1">🛒 This item has been purchased</p>
+          <p class="text-gray-600 text-xs">Someone else already got this one.</p>
+          {% else %}
+          <p class="text-gray-300 font-medium text-sm mb-1">Planning to buy this?</p>
+          <p class="text-gray-600 text-xs">Mark it so others know it's taken. The gift owner won't see this.</p>
+          {% endif %}
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          {% if purchased_by_me %}
+          <input type="hidden" name="action" value="unpurchase">
+          <button type="submit"
+            class="border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
+            Undo purchase
+          </button>
+          {% elif not item.is_purchased %}
+          <input type="hidden" name="action" value="purchase">
+          <button type="submit"
+            class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
+            Mark as purchased
+          </button>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

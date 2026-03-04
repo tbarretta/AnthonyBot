@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift Registry — Interactive Storyboard</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* NAV */
+  #nav { background: #1e293b; border-bottom: 1px solid #334155; padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  #nav h1 { font-size: 14px; font-weight: 700; color: #f8fafc; letter-spacing: .05em; text-transform: uppercase; margin-right: 8px; white-space: nowrap; }
+  .flow-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .flow-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-right: 2px; }
+  .nav-btn { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #94a3b8; cursor: pointer; white-space: nowrap; transition: all .15s; }
+  .nav-btn:hover { border-color: #6366f1; color: #a5b4fc; }
+  .nav-btn.active { background: #6366f1; border-color: #6366f1; color: #fff; }
+  .sep { color: #334155; font-size: 16px; }
+
+  /* MAIN */
+  #stage { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px; }
+  .screen { display: none; width: 100%; max-width: 900px; }
+  .screen.active { display: block; }
+
+  /* SCREEN CHROME */
+  .browser-chrome { background: #1e293b; border: 1px solid #334155; border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+  .browser-bar { background: #0f172a; padding: 10px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #1e293b; }
+  .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .browser-url { flex: 1; background: #1e293b; border-radius: 6px; padding: 4px 12px; font-size: 11px; color: #64748b; font-family: monospace; margin: 0 8px; }
+
+  /* WIREFRAME COMPONENTS */
+  .wf { padding: 24px; }
+  .page-title { font-size: 22px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+  .card { background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 13px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 12px; }
+  .form-row { margin-bottom: 14px; }
+  .form-label { font-size: 12px; color: #64748b; margin-bottom: 4px; display: block; }
+  .form-input { width: 100%; background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 8px 12px; color: #e2e8f0; font-size: 13px; }
+  .form-input:focus { outline: none; border-color: #6366f1; }
+  .form-hint { font-size: 11px; color: #475569; margin-top: 3px; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 7px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .btn-primary { background: #6366f1; color: #fff; }
+  .btn-primary:hover { background: #4f46e5; }
+  .btn-secondary { background: #1e293b; color: #94a3b8; border: 1px solid #334155; }
+  .btn-secondary:hover { border-color: #6366f1; color: #a5b4fc; }
+  .btn-danger { background: #dc2626; color: #fff; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-success { background: #16a34a; color: #fff; }
+  .btn-ghost { background: transparent; color: #64748b; border: 1px solid #334155; }
+  .btn-sm { padding: 5px 12px; font-size: 12px; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: #14532d; color: #4ade80; }
+  .badge-yellow { background: #713f12; color: #fbbf24; }
+  .badge-blue { background: #1e3a5f; color: #60a5fa; }
+  .badge-red { background: #450a0a; color: #f87171; }
+  .badge-gray { background: #1e293b; color: #64748b; }
+  .tag { display: inline-block; background: #1e3a5f; color: #93c5fd; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-right: 4px; }
+  .divider { border: none; border-top: 1px solid #1e293b; margin: 16px 0; }
+  .list-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; margin-bottom: 8px; }
+  .list-item:hover { border-color: #334155; }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: #6366f1; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .avatar-sm { width: 28px; height: 28px; font-size: 11px; }
+  .stars { color: #fbbf24; font-size: 14px; letter-spacing: 1px; }
+  .stars-gray { color: #334155; }
+  .alert { padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; }
+  .alert-info { background: #1e3a5f; border: 1px solid #1d4ed8; color: #93c5fd; }
+  .alert-success { background: #14532d; border: 1px solid #15803d; color: #4ade80; }
+  .alert-warn { background: #713f12; border: 1px solid #b45309; color: #fbbf24; }
+  .sidebar-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; }
+  .sidebar { background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; padding: 16px; }
+  .sidebar-nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 7px; font-size: 13px; color: #64748b; cursor: pointer; margin-bottom: 2px; }
+  .sidebar-nav-item.active { background: #1e293b; color: #e2e8f0; }
+  .sidebar-nav-item:hover { background: #1e293b; color: #94a3b8; }
+  .section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .section-title { font-size: 15px; font-weight: 700; color: #f8fafc; }
+  .item-img { width: 56px; height: 56px; background: #1e293b; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 22px; border: 1px solid #334155; }
+  .price { font-size: 15px; font-weight: 700; color: #4ade80; }
+  .purchased-overlay { background: rgba(22,163,74,0.15); border: 1px solid #16a34a; border-radius: 8px; padding: 6px 12px; font-size: 12px; color: #4ade80; display: inline-flex; align-items: center; gap: 6px; }
+  .step-indicator { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
+  .step { display: flex; align-items: center; }
+  .step-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .step-circle.done { background: #6366f1; color: #fff; }
+  .step-circle.active { background: #4f46e5; color: #fff; border: 2px solid #a5b4fc; }
+  .step-circle.todo { background: #1e293b; color: #475569; border: 1px solid #334155; }
+  .step-line { width: 48px; height: 2px; background: #1e293b; }
+  .step-line.done { background: #6366f1; }
+  .step-label { font-size: 10px; color: #475569; text-align: center; margin-top: 4px; }
+  .flow-arrow { display: flex; align-items: center; justify-content: center; padding: 6px; color: #475569; font-size: 18px; }
+  .note { font-size: 11px; color: #64748b; font-style: italic; margin-top: 6px; }
+  .theme-swatch { width: 40px; height: 40px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; }
+  .theme-swatch.selected { border-color: #f8fafc; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; padding: 8px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #475569; border-bottom: 1px solid #1e293b; }
+  td { padding: 10px 12px; border-bottom: 1px solid #0f172a; color: #94a3b8; }
+  tr:hover td { background: #0f172a; }
+  .stat-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; padding: 16px; }
+  .stat-num { font-size: 28px; font-weight: 800; color: #f8fafc; }
+  .stat-label { font-size: 12px; color: #64748b; margin-top: 2px; }
+  .email-preview { background: #f8fafc; color: #0f172a; border-radius: 10px; padding: 24px; font-size: 13px; line-height: 1.6; }
+  .email-preview h2 { color: #1e293b; margin-bottom: 8px; }
+  .email-preview p { color: #475569; margin-bottom: 12px; }
+  .email-btn { display: inline-block; background: #6366f1; color: #fff; padding: 10px 20px; border-radius: 7px; text-decoration: none; font-weight: 600; margin-right: 8px; font-size: 13px; }
+  .email-btn.decline { background: #dc2626; }
+
+  @media (max-width: 640px) {
+    .grid-2, .grid-3, .sidebar-layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div id="nav">
+  <h1>🎁 Gift Registry Storyboard</h1>
+  <div class="flow-group">
+    <span class="flow-label">Onboarding</span>
+    <button class="nav-btn active" onclick="show('s-login')">Login</button>
+    <button class="nav-btn" onclick="show('s-register')">Register</button>
+    <button class="nav-btn" onclick="show('s-verify')">Verify Email</button>
+    <button class="nav-btn" onclick="show('s-reset')">Forgot Password</button>
+  </div>
+  <span class="sep">|</span>
+  <div class="flow-group">
+    <span class="flow-label">Member</span>
+    <button class="nav-btn" onclick="show('s-dashboard')">Dashboard</button>
+    <button class="nav-btn" onclick="show('s-my-wishlist')">My Wishlist</button>
+    <button class="nav-btn" onclick="show('s-add-item')">Add Item</button>
+    <button class="nav-btn" onclick="show('s-family')">Family List</button>
+    <button class="nav-btn" onclick="show('s-member-summary')">Member Summary</button>
+    <button class="nav-btn" onclick="show('s-member-detail')">Item Detail</button>
+    <button class="nav-btn" onclick="show('s-prefs')">Preferences</button>
+  </div>
+  <span class="sep">|</span>
+  <div class="flow-group">
+    <span class="flow-label">Admin</span>
+    <button class="nav-btn" onclick="show('s-family-admin')">Family Admin</button>
+    <button class="nav-btn" onclick="show('s-master-admin')">Master Admin</button>
+  </div>
+  <span class="sep">|</span>
+  <div class="flow-group">
+    <span class="flow-label">Emails</span>
+    <button class="nav-btn" onclick="show('s-email-invite')">Invite Email</button>
+    <button class="nav-btn" onclick="show('s-email-access')">Access Request Email</button>
+  </div>
+</div>
+
+<!-- STAGE -->
+<div id="stage">
+
+<!-- ============================================================ -->
+<!-- LOGIN -->
+<!-- ============================================================ -->
+<div class="screen active" id="s-login">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">giftregistry.app/login</div>
+    </div>
+    <div class="wf" style="max-width:420px;margin:0 auto;padding:40px 24px;">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="font-size:40px;margin-bottom:8px;">🎁</div>
+        <div class="page-title" style="text-align:center;">Gift Registry</div>
+        <div class="page-sub" style="text-align:center;">Sign in to your account</div>
+      </div>
+      <div class="card">
+        <div class="form-row">
+          <label class="form-label">Email address</label>
+          <input class="form-input" type="email" placeholder="you@example.com" readonly>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Password</label>
+          <input class="form-input" type="password" placeholder="••••••••" readonly>
+        </div>
+        <div style="text-align:right;margin-bottom:16px;">
+          <a href="#" style="font-size:12px;color:#6366f1;" onclick="show('s-reset');return false;">Forgot password?</a>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="show('s-dashboard')">Sign In →</button>
+      </div>
+      <div class="note" style="text-align:center;margin-top:12px;">Don't have an account? You'll receive an invite from your Family Admin.</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;border-color:#334155;">
+    <div class="card-title">📍 Flow Notes</div>
+    <ul style="font-size:12px;color:#64748b;line-height:1.8;padding-left:16px;">
+      <li>Entry point for all users (members, family admins, master admin)</li>
+      <li>No public self-registration — users must be invited first</li>
+      <li>Family theme applied after login based on user's family</li>
+      <li>Redirect to dashboard after successful auth</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- REGISTER -->
+<!-- ============================================================ -->
+<div class="screen" id="s-register">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">giftregistry.app/register?token=abc123&family=Smith</div>
+    </div>
+    <div class="wf" style="max-width:480px;margin:0 auto;padding:40px 24px;">
+      <div class="alert alert-info">🎉 You've been invited to join the <strong>Smith Family</strong> registry by Jane Smith.</div>
+      <div class="step-indicator" style="justify-content:center;">
+        <div class="step">
+          <div>
+            <div class="step-circle active">1</div>
+            <div class="step-label">Register</div>
+          </div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div>
+            <div class="step-circle todo">2</div>
+            <div class="step-label">Verify</div>
+          </div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step">
+          <div>
+            <div class="step-circle todo">3</div>
+            <div class="step-label">Done</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Create Your Account</div>
+        <div class="form-row">
+          <label class="form-label">Display Name <span style="color:#ef4444">*</span></label>
+          <input class="form-input" placeholder="How family members will see you" readonly>
+          <div class="form-hint">Visible to all family members in your registry</div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Email Address <span style="color:#ef4444">*</span></label>
+          <input class="form-input" placeholder="your@email.com" readonly>
+          <div class="form-hint">Must be unique — a verification link will be sent here</div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Password <span style="color:#ef4444">*</span></label>
+          <input class="form-input" type="password" placeholder="Min 8 chars, letters + numbers" readonly>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Confirm Password <span style="color:#ef4444">*</span></label>
+          <input class="form-input" type="password" placeholder="••••••••" readonly>
+          <div class="form-hint">Password rules: 8+ characters, must include letters and numbers</div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:8px;" onclick="show('s-verify')">Create Account →</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;border-color:#334155;">
+    <div class="card-title">📍 Flow Notes</div>
+    <ul style="font-size:12px;color:#64748b;line-height:1.8;padding-left:16px;">
+      <li>Token in URL ties invite to a specific family — invalid/expired tokens show an error</li>
+      <li>Email uniqueness checked on submit (real-time validation optional)</li>
+      <li>Password: 8+ chars, must include both letters and numbers</li>
+      <li>After submit → account created but inactive until email verified</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- VERIFY EMAIL -->
+<!-- ============================================================ -->
+<div class="screen" id="s-verify">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">giftregistry.app/verify-email</div>
+    </div>
+    <div class="wf" style="max-width:480px;margin:0 auto;padding:60px 24px;text-align:center;">
+      <div style="font-size:56px;margin-bottom:16px;">📧</div>
+      <div class="page-title" style="text-align:center;">Check your email</div>
+      <div class="page-sub" style="text-align:center;margin-bottom:24px;">We sent a verification link to<br><strong style="color:#e2e8f0;">you@example.com</strong></div>
+      <div class="card">
+        <p style="font-size:13px;color:#64748b;line-height:1.6;">Click the link in the email to verify your address and activate your account. The link expires in <strong style="color:#e2e8f0;">24 hours</strong>.</p>
+        <hr class="divider">
+        <p style="font-size:12px;color:#475569;margin-bottom:12px;">Didn't get it? Check spam, or:</p>
+        <button class="btn btn-secondary" style="width:100%;justify-content:center;">Resend verification email</button>
+      </div>
+      <div class="note" style="margin-top:12px;">After verification, you'll be redirected to the login page.</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;border-color:#334155;">
+    <div class="card-title">📍 Flow Notes</div>
+    <ul style="font-size:12px;color:#64748b;line-height:1.8;padding-left:16px;">
+      <li>Account exists but is inactive until email verified</li>
+      <li>Attempting to login before verification → friendly error with resend link</li>
+      <li>Admin also notified (req. #12) when a family member completes registration</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FORGOT PASSWORD -->
+<!-- ============================================================ -->
+<div class="screen" id="s-reset">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">giftregistry.app/forgot-password</div>
+    </div>
+    <div class="wf" style="max-width:420px;margin:0 auto;padding:60px 24px;">
+      <div style="text-align:center;margin-bottom:28px;">
+        <div style="font-size:40px;margin-bottom:8px;">🔑</div>
+        <div class="page-title" style="text-align:center;">Reset your password</div>
+        <div class="page-sub" style="text-align:center;">Enter your email and we'll send a reset link</div>
+      </div>
+      <div class="card">
+        <div class="form-row">
+          <label class="form-label">Email address</label>
+          <input class="form-input" placeholder="you@example.com" readonly>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;">Send Reset Link →</button>
+        <hr class="divider">
+        <a href="#" style="font-size:12px;color:#6366f1;display:block;text-align:center;" onclick="show('s-login');return false;">← Back to login</a>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;border-color:#334155;">
+    <div class="card-title">📍 Flow Notes</div>
+    <ul style="font-size:12px;color:#64748b;line-height:1.8;padding-left:16px;">
+      <li>Always shows success message — never confirm whether email exists (security)</li>
+      <li>Reset link expires in 1 hour</li>
+      <li>Master Admin can also manually reset passwords from admin panel</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MEMBER DASHBOARD -->
+<!-- ============================================================ -->
+<div class="screen" id="s-dashboard">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">giftregistry.app/dashboard</div>
+    </div>
+    <div class="wf">
+      <div class="sidebar-layout">
+        <div class="sidebar">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #1e293b;">
+            <div class="avatar">S</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:#f8fafc;">Sarah Johnson</div>
+              <div style="font-size:11px;color:#64748b;">Smith Family</div>
+            </div>
+          </div>
+          <div class="sidebar-nav-item active">🏠 Dashboard</div>
+          <div class="sidebar-nav-item" onclick="show('s-my-wishlist')">🎁 My Wishlist</div>
+          <div class="sidebar-nav-item" onclick="show('s-family')">👨‍👩‍👧‍👦 Family Members</div>
+          <div class="sidebar-nav-item" onclick="show('s-prefs')">⚙️ Preferences</div>
+          <hr class="divider">
+          <div class="sidebar-nav-item" onclick="show('s-login')">🚪 Sign Out</div>
+        </div>
+        <div>
+          <div class="section-head">
+            <div class="page-title">Welcome back, Sarah!</div>
+          </div>
+          <div class="grid-3" style="margin-bottom:20px;">
+            <div class="stat-card">
+              <div class="stat-num">7</div>
+              <div class="stat-label">Items on your list</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num">4</div>
+              <div class="stat-label">Family members</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num">2</div>
+              <div class="stat-label">Pending requests</div>
+            </div>
+          </div>
+
+          <!-- My wishlist summary -->
+          <div class="card">
+            <div class="section-head">
+              <div class="card-title">My Wishlist (Preview)</div>
+              <button class="btn btn-secondary btn-sm" onclick="show('s-my-wishlist')">View all →</button>
+            </div>
+            <div class="list-item">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="item-img">🎧</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#e2e8f0;">Sony WH-1000XM5 Headphones</div>
+                  <div class="stars">★★★★★</div>
+                </div>
+              </div>
+              <div class="price">$349</div>
+            </div>
+            <div class="list-item">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="item-img">📚</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#e2e8f0;">The Pragmatic Programmer</div>
+                  <div class="stars">★★★★<span class="stars-gray">★</span></div>
+                </div>
+              </div>
+              <div class="price">$49</div>
+            </div>
+            <div class="note" style="text-align:center;padding:8px;">+ 5 more items</div>
+          </div>
+
+          <!-- Family members quick list -->
+          <div class="card">
+            <div class="section-head">
+              <div class="card-title">Family Members</div>
+              <button class="btn btn-secondary btn-sm" onclick="show('s-family')">See all →</button>
+            </div>
+            <div class="list-item">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="avatar avatar-sm">J</div>
+                <div style="font-size:13px;color:#e2e8f0;">Jane Smith</div>
+              </div>
+              <span class="badge badge-green">Access granted</span>
+            </div>
+            <div class="list-item">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="avatar avatar-sm" style="background:#ec4899;">M</div>
+                <div style="font-size:13px;color:#e2e8f0;">Mike Smith</div>
+              </div>
+              <span class="badge badge-yellow">Request pending</span>
+            </div>
+            <div class="list-item">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="avatar avatar-sm" style="background:#f59e0b;">T</div>
+                <div style="font-size:13px;color:#e2e8f0;">Tom Smith</div>
+              </div>
+              <button class="btn btn-ghost btn-sm" onclick="show('s-family')">Request access</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;border-color:#334155;">
+    <div class="card-title">📍 Flow Notes</div>
+    <ul style="font-size:12px;color:#64748b;line-height:1.8;padding-left:16px;">
+      <li>Dashboard is the home screen after login for all non-admin users</li>
+      <li>Family theme (colors/style) would be applied based on user's family settings</li>
+      <li>Wishlist preview shows their own items — no purchased status hidden here (they own it)</li>
+      <li>Family member access states: none → pending → granted → denied</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MY WISHLIST -->
+<!-- ============================================================ -->
+<div class="screen" id="s-my-wishlist">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">giftregistry.app/wishlist/me</div>
+    </div>
+    <div class="wf">
+      <div class="sidebar-layout">
+        <div class="sidebar">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #1e293b;">
+            <div class="avatar">S</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:#f8fafc;">Sarah Johnson</div>
+              <div style="font-size:11px;color:#64748b;">Smith Family</div>
+            </div>
+          </div>
+          <div class="sidebar-nav-item" onclick="show('s-dashboard')">🏠 Dashboard</div>
+          <div class="sidebar-nav-item active">🎁 My Wishlist</div>
+          <div class="sidebar-nav-item" onclick="show('s-family')">👨‍👩‍👧‍👦 Family Members</div>
+          <div class="sidebar-nav-item" onclick="show('s-prefs')">⚙️ Preferences</div>
+        </div>
+        <div>
+          <div class="section-head">
+            <div class="page-title">My Wishlist</div>
+            <button class="btn btn-primary btn-sm" onclick="show('s-add-item')">+ Add Item</button>
+          </div>
+          <div class="alert alert-info">💡 Family members cannot see which items have been purchased — only you can see the full list.</div>
+
+          <!-- Item: purchased by someone -->
+          <div class="list-item">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;">
+              <div class="item-img">🎧</div>
+              <div style="flex:1;">
+                <div style="font-size:14px;font-weight:600;color:#e2e8f0;">Sony WH-1000XM5 Headphones</div>
+                <div style="font-size:12px;color:#64748b;margin:2px 0;">Noise cancelling, up to 30hr battery</div>
+                <div class="stars">★★★★★</div>
+                <div class="purchased-overlay" style="margin-top:6px;">✓ Purchased by a family member</div>
+              </div>
+              <div style="text-align:right;"><div class="price">$349</div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-left:12px;">
+              <button class="btn btn-secondary btn-sm">Edit</button>
+              <button class="btn btn-ghost btn-sm">Delete</button>
+            </div>
+          </div>
+
+          <!-- Item: active, not purchased -->
+          <div class="list-item">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;">
+              <div class="item-img">📚</div>
+              <div style="flex:1;">
+                <div style="font-size:14px;font-weight:600;color:#e2e8f0;">The Pragmatic Programmer</div>
+                <div style="font-size:12px;color:#64748b;margin:2px 0;">20th Anniversary Edition</div>
+                <div class="stars">★★★★<span class="stars-gray">★</span></div>
+              </div>
+              <div style="text-align:right;"><div class="price">$49</div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-left:12px;">
+              <button class="btn btn-secondary btn-sm">Edit</button>
+              <button class="btn btn-ghost btn-sm" style="font-size:11px;">No longer want</button>
+              <button class="btn btn-ghost btn-sm">Delete</button>
+            </div>
+          </div>
+
+          <!-- Item: soft-removed by owner -->
+          <div class="list-item" style="opacity:0.55;">
+            <div style="display:flex;align-items:center;gap:12px;flex:1;">
+              <div class="item-img" style="filter:grayscale(1);">🎮</div>
+              <div style="flex:1;">
+                <div style="font-size:14px;font-weight:600;color:#94a3b8;text-decoration:line-through;">Nintendo Switch OLED</div>
+                <div style="font-size:12px;color:#475569;margin:2px 0;">White model</div>
+                <div style="font-size:11px;color:#f59e0b;margin-top:4px;">⚠️ You marked this as "No longer wanted / Already have"</div>
+              </div>
+              <div style="text-align:right;"><div class="price" style="color:#475569;">$349</div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;margin-left:12px;">
+              <button class="btn btn-ghost btn-sm">Undo</button>
+              <button class="btn btn-ghost btn-sm">Delete</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;border-color:#334155;">
+    <div class="card-title">📍 Flow Notes</div>
+    <ul style="font-size:12px;color:#64748b;line-height:1.8;padding-left:16px;">
+      <li><strong>Owner sees purchased status</strong> — other family members do not see who bought it, only that it was purchased</li>
+      <li>"No longer wanted / Already have" = soft-remove: item stays visible to family members but is muted/struck-through</li>
+      <li>Soft-remove is reversible (Undo). Hard delete is permanent.</li>
+      <li>The "Purchased" flag is set by other family members viewing this wishlist</li>
+      <li>Star rating = how much they want it (1–5)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ADD ITEM -->
+<!-- ============================================================ -->
+<div class="screen" id="s-add-item">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">giftregistry.app/wishlist/item/add</div>
+    </div>
+    <div class="wf" style="max-width:600px;margin:0 auto;">
+      <div class="section-head">
+        <div class="page-title">Add Wishlist Item</div>
+        <button class="btn btn-ghost btn-sm" onclick="show('s-my-wishlist')">← Cancel</button>
+      </div>
+      <div class="card">
+        <div class="form-row">
+          <label class="form-label">Item Name <span style="color:#ef4444">*</span></label>
+          <input class="form-input" placeholder="e.g. Sony WH-1000XM5 Headphones" readonly>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Description <span style="color:#ef4444">*</span></label>
+          <textarea class="form-input" rows="3" placeholder="Tell family members what you love about this..." style="resize:vertical;" readonly></textarea>
+        </div>
+        <div class="grid-2">
+          <div class="form-row">
+            <label class="form-label">Price <span style="color:#ef4444">*</span></label>
+            <input class="form-input" placeholder="$0.00" readonly>
+          </div>
+          <div class="form-row">
+            <label class="form-label">How much do you want it? <span style="color:#ef4444">*</span></label>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:6px;">
+              <span style="font-size:22px;cursor:pointer;color:#fbbf24;">★</span>
+              <span style="font-size:22px;cursor:pointer;color:#fbbf24;">★</span>
+              <span style="font-size:22px;cursor:pointer;color:#fbbf24;">★</span>
+              <span style="font-size:22px;cursor:pointer;color:#334155;">★</span>
+              <span style="font-size:22px;cursor:pointer;color:#334155;">★</span>
+              <span style="font-size:12px;color:#64748b;margin-left:4px;">3 of 5</span>
+            </div>
+            <div class="form-hint">1 = Nice to have · 5 = Really want this!</div>
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Purchase Link <span style="color:#64748b;font-weight:400;">(optional)</span></label>
+          <input class="form-input" placeholder="https://amazon.com/..." readonly>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Image <span style="color:#64748b;font-weight:400;">(optional)</span></label>
+          <div style="border:2px dashed #334155;border-radius:8px;padding:24px;text-align:center;color:#475569;font-size:13px;">
+            📷 Click to upload or drag & drop<br>
+            <span style="font-size:11px;">JPG, PNG up to 5MB</span>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="show('s-my-wishlist')">Save Item</button>
+          <button class="btn btn-secondary" onclick="show('s-my-wishlist')">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FAMILY LIST -->
+<!-- ============================================================ -->
+<div class="screen" id="s-family">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">giftregistry.app/family</div>
+    </div>
+    <div class="wf">
+      <div class="sidebar-layout">
+        <div class="sidebar">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #1e293b;">
+            <div class="avatar">S</div>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:#f8fafc;">Sarah Johnson</div>
+              <div style="font-size:11px;color:#64748b;">Smith Family</div>
+            </div>
+          </div>
+          <div class="sidebar-nav-item" onclick="show('s-dashboard')">🏠 Dashboard</div>
+          <div class="sidebar-nav-item" onclick="show('s-my-wishlist')">🎁 My Wishlist</div>
+          <div class="sidebar-nav-item active">👨‍👩‍👧‍👦 Family Members</div>
+          <div class="sidebar-nav-item" onclick="show('s-prefs')">⚙️ Preferences</div>
+        </div>
+        <div>
+          <div class="page-title" style="margin-bottom:6px;">Smith Family</div>
+          <div class="page-sub">4 members · Holiday Theme 🎄</div>
+
+          <!-- Access granted -->
+          <div class="card">
+            <div class="card-title">✅ Can View Wishlist</div>
+            <div class="list-item" style="cursor:pointer;" onclick="show('s-member-summary')">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="avatar" style="background:#16a34a;">J</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#e2e8f0;">Jane Smith</div>
+                  <div style="font-size:11px;color:#64748b;">12 items on wishlist</div>
+                </div>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="show('s-member-summary')">View Wishlist →</button>
+            </div>
+          </div>
+
+          <!-- Pending -->
+          <div class="card">
+            <div class="card-title">⏳ Request Pending</div>
+            <div class="list-item">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="avatar" style="background:#b45309;">M</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#e2e8f0;">Mike Smith</div>
+                  <div style="font-size:11px;color:#64748b;">Waiting for Mike to approve your request</div>
+                </div>
+              </div>
+              <span class="badge badge-yellow">Pending</span>
+            </div>
+          </div>
+
+          <!-- No access yet -->
+          <div class="card">
+            <div class="card-title">🔒 Access Required</div>
+            <div class="list-item">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="avatar" style="background:#7c3aed;">T</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#e2e8f0;">Tom Johnson</div>
+                  <div style="font-size:11px;color:#64748b;">Request access to view their wishlist</div>
+                </div>
+              </div>
+              <button class="btn btn-primary btn-sm">Request Access</button>
+            </div>
+            <div class="list-item">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="avatar" style="background:#0891b2;">L</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#e2e8f0;">Lisa Smith</div>
+                  <div style="font-size:11px;color:#64748b;">Request access to view their wishlist</div>
+                </div>
+              </div>
+              <button class="btn btn-primary btn-sm">Request Access</button>
+            </div>
+          </div>
+
+          <!-- Incoming requests -->
+          <div class="card" style="border-color:#6366f1;">
+            <div class="card-title" style="color:#a5b4fc;">🔔 Access Requests TO YOU (2)</div>
+            <div class="alert alert-info">Tom Johnson and Lisa Smith have requested access to your wishlist.</div>
+            <div class="list-item">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <div class="avatar" style="background:#7c3aed;">T</div>
+                <div style="font-size:13px;color:#e2e8f0;">Tom Johnson wants to view your wishlist</div>
+              </div>
+              <div class="btn-row" style="margin-top:0;">
+                <button class="btn btn-success btn-sm">Accept</button>
+                <button class="btn btn-danger btn-sm">Decline</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;border-color:#334155;">
+    <div class="card-title">📍 Flow Notes</div>
+    <ul style="font-size:12px;color:#64748b;line-height:1.8;padding-left:16px;">
+      <li>Only members of the same family are shown</li>
+      <li>"Request Access" sends a notification email to that member</li>
+      <li>Accept/Decline triggers email notification to the requester</li>
+      <li><strong style="color:#f87171;">Declined = permanent</strong> — the "Request Access" button is hidden after a decline to prevent spam</li>
+      <li>Only the Master Admin can reverse a declined request (at Family Admin's request)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MEMBER WISHLIST SUMMARY (viewing another member) -->
+<!-- ============================================================ -->
+<div class="screen" id="s-member-summary">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">giftregistry.app/wishlist/jane-smith</div>
+    </div>
+    <div class="wf">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+        <button class="btn btn-ghost btn-sm" onclick="show('s-family')">← Family</button>
+        <div class="avatar" style="background:#16a34a;">J</div>
+        <div>
+          <div class="page-title">Jane Smith's Wishlist</div>
+          <div style="font-size:12px;color:#64748b;">12 items · Smith Family</div>
+        </div>
+      </div>
+
+      <div class="alert alert-warn">🛍️ See something you want to buy? Click an item and mark it as purchased. Jane won't see this — but other family members will.</div>
+
+      <div class="grid-3" style="gap:16px;">
+
+        <div class="card" style="cursor:pointer;position:relative;" onclick="show('s-member-detail')">
+          <div style="background:#1e293b;height:120px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:12px;">👜</div>
+          <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:4px;">Coach Leather Bag</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="stars" style="font-size:12px;">★★★★★</div>
+            <div class="price" style="font-size:13px;">$495</div>
+          </div>
+          <div style="margin-top:8px;">
+            <div class="purchased-overlay">✓ Purchased</div>
+          </div>
+        </div>
+
+        <div class="card" style="cursor:pointer;" onclick="show('s-member-detail')">
+          <div style="background:#1e293b;height:120px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:12px;">🕯️</div>
+          <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:4px;">Yankee Candle Set</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="stars" style="font-size:12px;">★★★<span class="stars-gray">★★</span></div>
+            <div class="price" style="font-size:13px;">$45</div>
+          </div>
+          <div style="margin-top:8px;">
+            <button class="btn btn-success btn-sm" style="width:100%;justify-content:center;">Mark Purchased</button>
+          </div>
+        </div>
+
+        <div class="card" style="cursor:pointer;" onclick="show('s-member-detail')">
+          <div style="background:#1e293b;height:120px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:12px;">📖</div>
+          <div style="font-size:13px;font-weight:600;color:#e2e8f0;margin-bottom:4px;">Book: Atomic Habits</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="stars" style="font-size:12px;">★★★★<span class="stars-gray">★</span></div>
+            <div class="price" style="font-size:13px;">$18</div>
+          </div>
+          <div style="margin-top:8px;">
+            <button class="btn btn-success btn-sm" style="width:100%;justify-content:center;">Mark Purchased</button>
+          </div>
+        </div>
+
+        <!-- No longer wanted item — still visible, muted -->
+        <div class="card" style="opacity:0.6;cursor:pointer;">
+          <div style="background:#1e293b;height:120px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:12px;filter:grayscale(1);">🧣</div>
+          <div style="font-size:13px;font-weight:600;color:#64748b;text-decoration:line-through;margin-bottom:4px;">Cashmere Scarf</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div class="stars" style="font-size:12px;color:#334155;">★★★★★</div>
+            <div style="font-size:13px;color:#475569;">$120</div>
+          </div>
+          <div style="margin-top:8px;">
+            <span style="font-size:11px;color:#f59e0b;">⚠️ No longer needed</span>
+          </div>
+        </div>
+
+      </div>
+      <div class="note" style="text-align:center;margin-top:16px;">Showing all 12 items — purchased and no-longer-needed items remain visible.</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;border-color:#334155;">
+    <div class="card-title">📍 Flow Notes</div>
+    <ul style="font-size:12px;color:#64748b;line-height:1.8;padding-left:16px;">
+      <li>Summary/card view with thumbnail, name, stars, price</li>
+      <li>"Mark Purchased" is visible to all other family members but hidden from Jane</li>
+      <li>Already-purchased items show a green "Purchased" badge (not who bought it)</li>
+      <li>Click card → Item Detail page with full description + purchase link</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MEMBER ITEM DETAIL -->
+<!-- ============================================================ -->
+<div class="screen" id="s-member-detail">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">giftregistry.app/wishlist/jane-smith/item/3</div>
+    </div>
+    <div class="wf">
+      <button class="btn btn-ghost btn-sm" onclick="show('s-member-summary')" style="margin-bottom:16px;">← Jane's Wishlist</button>
+      <div class="grid-2" style="gap:24px;">
+        <div>
+          <div style="background:#1e293b;height:280px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:80px;border:1px solid #334155;">🕯️</div>
+        </div>
+        <div>
+          <div class="page-title">Yankee Candle Gift Set</div>
+          <div style="display:flex;align-items:center;gap:12px;margin:8px 0;">
+            <div class="stars">★★★<span class="stars-gray">★★</span></div>
+            <span style="font-size:12px;color:#64748b;">Jane wants this (3/5)</span>
+          </div>
+          <div class="price" style="font-size:24px;margin-bottom:16px;">$45.00</div>
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Description</div>
+            <p style="font-size:13px;color:#94a3b8;line-height:1.6;">The Balsam & Cedar and Vanilla Cupcake set from the holiday collection. I love these scents for winter evenings. Any size works!</p>
+          </div>
+          <div class="btn-row" style="margin-bottom:16px;">
+            <a href="#" class="btn btn-secondary" style="text-decoration:none;" target="_blank">🛒 View on Amazon</a>
+          </div>
+          <hr class="divider">
+          <div class="card" style="border-color:#16a34a;">
+            <div class="card-title" style="color:#4ade80;">🛍️ Mark as Purchased</div>
+            <p style="font-size:13px;color:#64748b;margin-bottom:12px;">Jane won't see this. Other family members will see it's been purchased so they don't buy a duplicate.</p>
+            <button class="btn btn-success" style="width:100%;justify-content:center;" onclick="show('s-member-summary')">✓ I'm buying this!</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PREFERENCES -->
+<!-- ============================================================ -->
+<div class="screen" id="s-prefs">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">giftregistry.app/preferences</div>
+    </div>
+    <div class="wf" style="max-width:600px;margin:0 auto;">
+      <div class="page-title">Account Preferences</div>
+      <div class="page-sub">Manage your notifications and account settings</div>
+
+      <div class="card">
+        <div class="card-title">Email Notifications</div>
+        <div class="list-item" style="background:transparent;border:none;padding:8px 0;">
+          <div>
+            <div style="font-size:13px;color:#e2e8f0;font-weight:500;">Access requests to my wishlist</div>
+            <div style="font-size:11px;color:#64748b;">Get notified when someone requests to view your list</div>
+          </div>
+          <div style="background:#6366f1;width:40px;height:22px;border-radius:999px;position:relative;cursor:pointer;">
+            <div style="width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;right:2px;top:2px;"></div>
+          </div>
+        </div>
+        <hr class="divider">
+        <div class="list-item" style="background:transparent;border:none;padding:8px 0;">
+          <div>
+            <div style="font-size:13px;color:#e2e8f0;font-weight:500;">New items added by family members</div>
+            <div style="font-size:11px;color:#64748b;">Get notified when a family member adds to their wishlist (opt-in per member)</div>
+          </div>
+          <div style="background:#334155;width:40px;height:22px;border-radius:999px;position:relative;cursor:pointer;">
+            <div style="width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;left:2px;top:2px;"></div>
+          </div>
+        </div>
+        <hr class="divider">
+        <div style="padding:8px 0;">
+          <div style="font-size:13px;color:#e2e8f0;font-weight:500;margin-bottom:8px;">Notify me when these family members add items:</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;cursor:pointer;">
+              <input type="checkbox" checked> Jane Smith
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;cursor:pointer;">
+              <input type="checkbox"> Mike Smith
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#94a3b8;cursor:pointer;">
+              <input type="checkbox"> Tom Johnson
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Account Details</div>
+        <div class="form-row">
+          <label class="form-label">Display Name</label>
+          <input class="form-input" value="Sarah Johnson" readonly>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" value="sarah@example.com" readonly>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Change Password</label>
+          <input class="form-input" type="password" placeholder="New password" readonly>
+        </div>
+        <button class="btn btn-primary">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- FAMILY ADMIN -->
+<!-- ============================================================ -->
+<div class="screen" id="s-family-admin">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">giftregistry.app/admin/family</div>
+    </div>
+    <div class="wf">
+      <div class="sidebar-layout">
+        <div class="sidebar">
+          <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #1e293b;">
+            <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Family Admin</div>
+            <div style="font-size:14px;font-weight:700;color:#f8fafc;">Smith Family</div>
+          </div>
+          <div class="sidebar-nav-item active">👨‍👩‍👧‍👦 Members</div>
+          <div class="sidebar-nav-item">🎨 Theme & Settings</div>
+          <div class="sidebar-nav-item">📧 Invitations</div>
+          <hr class="divider">
+          <div class="sidebar-nav-item">🏠 My Dashboard</div>
+        </div>
+        <div>
+          <div class="section-head">
+            <div class="page-title">Family Members</div>
+            <button class="btn btn-primary btn-sm">+ Invite Member</button>
+          </div>
+
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-title">Invite New Member</div>
+            <div class="grid-2">
+              <div class="form-row" style="margin:0;">
+                <label class="form-label">Email Address</label>
+                <input class="form-input" placeholder="family@example.com" readonly>
+              </div>
+              <div style="display:flex;align-items:flex-end;">
+                <button class="btn btn-primary" style="width:100%;justify-content:center;">Send Invite</button>
+              </div>
+            </div>
+            <div class="note" style="margin-top:8px;">An email with a registration link will be sent. Link expires in 7 days.</div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm">J</div> Jane Smith <span class="tag">Admin</span></div></td>
+                <td>jane@example.com</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td>Nov 2024</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm">S</div> Sarah Johnson</div></td>
+                <td>sarah@example.com</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td>Dec 2024</td>
+                <td><button class="btn btn-ghost btn-sm">Remove</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm" style="background:#b45309;">M</div> Mike Smith</div></td>
+                <td>mike@example.com</td>
+                <td><span class="badge badge-green">Active</span></td>
+                <td>Dec 2024</td>
+                <td><button class="btn btn-ghost btn-sm">Remove</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm" style="background:#0891b2;">L</div> Lisa Smith</div></td>
+                <td>lisa@example.com</td>
+                <td><span class="badge badge-yellow">Invite Sent</span></td>
+                <td>—</td>
+                <td><button class="btn btn-ghost btn-sm">Resend</button></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <hr class="divider">
+          <div class="card">
+            <div class="card-title">🎨 Family Theme</div>
+            <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+              <div style="text-align:center;">
+                <div class="theme-swatch selected" style="background:linear-gradient(135deg,#14532d,#b91c1c);"></div>
+                <div class="note" style="margin-top:4px;">🎄 Holiday</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="theme-swatch" style="background:linear-gradient(135deg,#4c1d95,#ec4899);"></div>
+                <div class="note" style="margin-top:4px;">🎂 Birthday</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="theme-swatch" style="background:linear-gradient(135deg,#78350f,#d97706);"></div>
+                <div class="note" style="margin-top:4px;">🎉 Celebration</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="theme-swatch" style="background:linear-gradient(135deg,#1e3a5f,#0891b2);"></div>
+                <div class="note" style="margin-top:4px;">🌊 Ocean</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="theme-swatch" style="background:linear-gradient(135deg,#831843,#f9a8d4);"></div>
+                <div class="note" style="margin-top:4px;">🌸 Blush</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="theme-swatch" style="background:linear-gradient(135deg,#1e293b,#475569);"></div>
+                <div class="note" style="margin-top:4px;">🌙 Midnight</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="theme-swatch" style="background:linear-gradient(135deg,#7c3aed,#4f46e5);"></div>
+                <div class="note" style="margin-top:4px;">💜 Royal</div>
+              </div>
+              <div style="text-align:center;">
+                <div class="theme-swatch" style="background:linear-gradient(135deg,#065f46,#059669);"></div>
+                <div class="note" style="margin-top:4px;">🌿 Forest</div>
+              </div>
+            </div>
+            <div class="note" style="margin-top:12px;">Themes are selected by the Family Admin and apply to all members' view of the family registry.</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MASTER ADMIN -->
+<!-- ============================================================ -->
+<div class="screen" id="s-master-admin">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">giftregistry.app/superadmin</div>
+    </div>
+    <div class="wf">
+      <div class="section-head">
+        <div>
+          <div class="page-title">Master Admin</div>
+          <div class="page-sub">Full system access · Tom (you)</div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:20px;">
+        <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Families</div></div>
+        <div class="stat-card"><div class="stat-num">14</div><div class="stat-label">Total Users</div></div>
+        <div class="stat-card"><div class="stat-num">87</div><div class="stat-label">Wishlist Items</div></div>
+      </div>
+
+      <div class="grid-2" style="gap:20px;">
+        <div>
+          <div class="card">
+            <div class="section-head">
+              <div class="card-title">Families</div>
+              <button class="btn btn-primary btn-sm">+ New Family</button>
+            </div>
+            <div class="list-item">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:#e2e8f0;">Smith Family</div>
+                <div style="font-size:11px;color:#64748b;">4 members · Holiday theme</div>
+              </div>
+              <button class="btn btn-secondary btn-sm">Manage</button>
+            </div>
+            <div class="list-item">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:#e2e8f0;">Johnson Family</div>
+                <div style="font-size:11px;color:#64748b;">6 members · Classic theme</div>
+              </div>
+              <button class="btn btn-secondary btn-sm">Manage</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">User Management</div>
+            <div class="form-row">
+              <input class="form-input" placeholder="Search by name or email..." readonly>
+            </div>
+            <table>
+              <thead>
+                <tr><th>User</th><th>Family</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Jane Smith</td>
+                  <td>Smith</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                  <td><div class="btn-row" style="margin:0;gap:4px;"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Delete</button></div></td>
+                </tr>
+                <tr>
+                  <td>Sarah Johnson</td>
+                  <td>Smith</td>
+                  <td><span class="badge badge-green">Active</span></td>
+                  <td><div class="btn-row" style="margin:0;gap:4px;"><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-danger btn-sm">Delete</button></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <div class="card" style="border-color:#dc2626;">
+            <div class="card-title" style="color:#f87171;">⚡ Admin Actions</div>
+            <div class="form-row">
+              <label class="form-label">Manual Password Reset</label>
+              <div class="grid-2" style="gap:8px;">
+                <input class="form-input" placeholder="User email" readonly>
+                <button class="btn btn-danger" style="justify-content:center;">Reset Password</button>
+              </div>
+              <div class="note">Sends a reset link to the user's email</div>
+            </div>
+            <hr class="divider">
+            <div class="form-row">
+              <label class="form-label">Change User Email</label>
+              <input class="form-input" placeholder="Current email" readonly style="margin-bottom:8px;">
+              <input class="form-input" placeholder="New email" readonly>
+              <button class="btn btn-danger" style="margin-top:8px;">Update Email</button>
+            </div>
+            <hr class="divider">
+            <div class="form-row">
+              <label class="form-label">Delete Account</label>
+              <div class="grid-2" style="gap:8px;">
+                <input class="form-input" placeholder="User email" readonly>
+                <button class="btn btn-danger" style="justify-content:center;">Delete User</button>
+              </div>
+              <div class="note" style="color:#f87171;">⚠️ Permanent. Will also delete all their wishlist items.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="section-head">
+              <div class="card-title">📋 Activity Log</div>
+              <div style="display:flex;gap:6px;">
+                <select class="form-input" style="padding:4px 8px;font-size:11px;width:auto;">
+                  <option>All Events</option>
+                  <option>Registrations</option>
+                  <option>Invitations</option>
+                  <option>Password Resets</option>
+                  <option>Access Changes</option>
+                  <option>Admin Actions</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;background:#0f172a;border-radius:6px;border-left:3px solid #4ade80;">
+                <div style="font-size:18px;">👤</div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;color:#e2e8f0;"><strong>Sarah Johnson</strong> joined <strong>Smith Family</strong></div>
+                  <div style="font-size:11px;color:#475569;">Registration · 2 hours ago</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;background:#0f172a;border-radius:6px;border-left:3px solid #60a5fa;">
+                <div style="font-size:18px;">📧</div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;color:#e2e8f0;"><strong>Jane Smith</strong> invited <strong>lisa@example.com</strong> to Smith Family</div>
+                  <div style="font-size:11px;color:#475569;">Invitation · 5 hours ago</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;background:#0f172a;border-radius:6px;border-left:3px solid #fbbf24;">
+                <div style="font-size:18px;">🔑</div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;color:#e2e8f0;">Password reset requested for <strong>mike@example.com</strong></div>
+                  <div style="font-size:11px;color:#475569;">Password Reset · Yesterday</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;background:#0f172a;border-radius:6px;border-left:3px solid #a78bfa;">
+                <div style="font-size:18px;">✅</div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;color:#e2e8f0;"><strong>Tom Johnson</strong> granted access to <strong>Jane Smith</strong>'s wishlist</div>
+                  <div style="font-size:11px;color:#475569;">Access Granted · Yesterday</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-start;padding:8px;background:#0f172a;border-radius:6px;border-left:3px solid #f87171;">
+                <div style="font-size:18px;">🚫</div>
+                <div style="flex:1;">
+                  <div style="font-size:12px;color:#e2e8f0;"><strong>Lisa Smith</strong> declined access request from <strong>Mike Smith</strong></div>
+                  <div style="font-size:11px;color:#475569;">Access Denied · 2 days ago <span style="color:#6366f1;cursor:pointer;margin-left:6px;">↩ Undo (admin only)</span></div>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-ghost btn-sm" style="width:100%;justify-content:center;margin-top:10px;">Load more →</button>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Raw Data View</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+              <button class="btn btn-secondary btn-sm">Users</button>
+              <button class="btn btn-secondary btn-sm">Families</button>
+              <button class="btn btn-secondary btn-sm">Wishlist Items</button>
+              <button class="btn btn-secondary btn-sm">Access Grants</button>
+              <button class="btn btn-secondary btn-sm">Purchases</button>
+            </div>
+            <div style="background:#0f172a;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;color:#4ade80;line-height:1.6;border:1px solid #1e293b;">
+              <div style="color:#64748b;">-- users table</div>
+              <div>id | name | email | family_id | role | verified | created_at</div>
+              <div style="color:#64748b;">---</div>
+              <div>1 | Jane Smith | jane@... | 1 | admin | true | 2024-11-01</div>
+              <div>2 | Sarah Johnson | sarah@... | 1 | member | true | 2024-12-15</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- EMAIL: INVITE -->
+<!-- ============================================================ -->
+<div class="screen" id="s-email-invite">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">Email Client · Inbox</div>
+    </div>
+    <div class="wf" style="max-width:560px;margin:0 auto;">
+      <div style="font-size:12px;color:#475569;margin-bottom:16px;">
+        <strong style="color:#94a3b8;">From:</strong> noreply@giftregistry.app<br>
+        <strong style="color:#94a3b8;">To:</strong> newmember@example.com<br>
+        <strong style="color:#94a3b8;">Subject:</strong> 🎁 You've been invited to the Smith Family Gift Registry
+      </div>
+      <div class="email-preview">
+        <div style="text-align:center;padding:20px 0;border-bottom:1px solid #e2e8f0;margin-bottom:20px;">
+          <div style="font-size:32px;margin-bottom:8px;">🎁</div>
+          <h2 style="color:#1e293b;">Gift Registry</h2>
+        </div>
+        <h2>You're invited!</h2>
+        <p><strong>Jane Smith</strong> has invited you to join the <strong>Smith Family</strong> Gift Registry.</p>
+        <p>Click the button below to create your account. This link expires in <strong>7 days</strong>.</p>
+        <div style="text-align:center;margin:24px 0;">
+          <a href="#" class="email-btn" onclick="show('s-register');return false;">Accept Invitation →</a>
+        </div>
+        <p style="font-size:11px;color:#94a3b8;">If you weren't expecting this, you can safely ignore this email. The link will expire automatically.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- EMAIL: ACCESS REQUEST -->
+<!-- ============================================================ -->
+<div class="screen" id="s-email-access">
+  <div class="browser-chrome">
+    <div class="browser-bar">
+      <div class="browser-dot" style="background:#ef4444"></div>
+      <div class="browser-dot" style="background:#f59e0b"></div>
+      <div class="browser-dot" style="background:#22c55e"></div>
+      <div class="browser-url">Email Client · Inbox</div>
+    </div>
+    <div class="wf" style="max-width:560px;margin:0 auto;">
+      <div style="font-size:12px;color:#475569;margin-bottom:16px;">
+        <strong style="color:#94a3b8;">From:</strong> noreply@giftregistry.app<br>
+        <strong style="color:#94a3b8;">To:</strong> jane@example.com<br>
+        <strong style="color:#94a3b8;">Subject:</strong> 🔔 Sarah Johnson wants to view your Gift Registry
+      </div>
+      <div class="email-preview">
+        <div style="text-align:center;padding:20px 0;border-bottom:1px solid #e2e8f0;margin-bottom:20px;">
+          <div style="font-size:32px;margin-bottom:8px;">🎁</div>
+          <h2 style="color:#1e293b;">Gift Registry</h2>
+        </div>
+        <h2>Wishlist Access Request</h2>
+        <p><strong>Sarah Johnson</strong> (a member of your Smith Family group) would like to view your wishlist.</p>
+        <p>You can accept or decline this request. If you accept, Sarah will be able to see your wishlist items and mark things as purchased.</p>
+        <div style="text-align:center;margin:24px 0;display:flex;gap:12px;justify-content:center;">
+          <a href="#" class="email-btn" onclick="show('s-family');return false;">✓ Accept Request</a>
+          <a href="#" class="email-btn decline">✗ Decline</a>
+        </div>
+        <p style="font-size:11px;color:#94a3b8;">You can also manage access requests by logging into your account at giftregistry.app</p>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px;border-color:#334155;">
+    <div class="card-title">📍 Flow Notes</div>
+    <ul style="font-size:12px;color:#64748b;line-height:1.8;padding-left:16px;">
+      <li>Accept/Decline links are tokenized one-click actions (no login required)</li>
+      <li>After accepting → Sarah gets a notification email</li>
+      <li>Accepting in the app (via the Family page) works the same way</li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- /stage -->
+
+<script>
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  // match nav button
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes(id)) {
+      b.classList.add('active');
+    }
+  });
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>

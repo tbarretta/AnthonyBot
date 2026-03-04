@@ -1,0 +1,13 @@
+Hi {{ subscriber.name }},
+
+{{ item.owner.name }} just added a new item to their Gift Registry wishlist:
+
+  {{ item.name }} — ${{ item.price }}
+  {% if item.purchase_link %}Buy it here: {{ item.purchase_link }}{% endif %}
+
+View their full wishlist:
+{{ wishlist_url }}
+
+To manage your notification preferences, log in and visit your Preferences page.
+
+— The Gift Registry Team

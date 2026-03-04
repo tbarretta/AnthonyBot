@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Preferences — Gift Registry{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-white">Preferences</h1>
+  <p class="text-gray-500 text-sm mt-1">Manage your notification and subscription settings.</p>
+</div>
+
+<form method="post" class="max-w-2xl space-y-6">
+  {% csrf_token %}
+
+  <!-- Notifications -->
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+    <h2 class="font-semibold text-white mb-4">Notifications</h2>
+    <label class="flex items-start gap-3 cursor-pointer">
+      <input type="checkbox" name="notify_on_access_request"
+        {% if prefs.notify_on_access_request %}checked{% endif %}
+        class="mt-0.5 accent-[var(--color-primary)] w-4 h-4 flex-shrink-0">
+      <div>
+        <p class="text-sm text-gray-200 font-medium">Access requests</p>
+        <p class="text-xs text-gray-500">Email me when someone asks to view my wishlist.</p>
+      </div>
+    </label>
+  </div>
+
+  <!-- Item subscriptions -->
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+    <h2 class="font-semibold text-white mb-1">New Item Alerts</h2>
+    <p class="text-gray-500 text-sm mb-4">Get notified when these family members add something to their wishlist.</p>
+
+    {% if family_members %}
+    <div class="space-y-3">
+      {% for member in family_members %}
+      <label class="flex items-center gap-3 cursor-pointer">
+        <input type="checkbox" name="subscribe_to" value="{{ member.pk }}"
+          {% if member.pk in subscriptions %}checked{% endif %}
+          class="accent-[var(--color-primary)] w-4 h-4">
+        <span class="text-sm text-gray-200">{{ member.name }}</span>
+        <span class="text-xs text-gray-600">{{ member.email }}</span>
+      </label>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-gray-600 text-sm">No family members to subscribe to yet.</p>
+    {% endif %}
+  </div>
+
+  <div class="flex gap-3">
+    <button type="submit"
+      class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-medium px-5 py-2 rounded-lg transition-colors">
+      Save Preferences
+    </button>
+    <a href="{% url 'dashboard' %}"
+      class="border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white font-medium px-5 py-2 rounded-lg transition-colors">
+      Cancel
+    </a>
+  </div>
+</form>
+{% endblock %}

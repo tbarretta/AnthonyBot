@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Response Recorded — Gift Registry{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-sm text-center">
+    {% if action == "approved" %}
+    <div class="text-5xl mb-4">✅</div>
+    <h1 class="text-2xl font-bold text-white mb-2">Access approved</h1>
+    <p class="text-gray-400 text-sm mb-6">
+      <strong class="text-white">{{ requester.name }}</strong> now has access to your wishlist.
+      They've been notified.
+    </p>
+    {% else %}
+    <div class="text-5xl mb-4">🚫</div>
+    <h1 class="text-2xl font-bold text-white mb-2">Access declined</h1>
+    <p class="text-gray-400 text-sm mb-6">
+      You've declined <strong class="text-white">{{ requester.name }}</strong>'s request.
+      They've been notified.
+    </p>
+    {% endif %}
+
+    <a href="{% url 'login' %}"
+      class="inline-block bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-medium px-6 py-2 rounded-lg transition-colors">
+      Go to Gift Registry
+    </a>
+  </div>
+</div>
+{% endblock %}

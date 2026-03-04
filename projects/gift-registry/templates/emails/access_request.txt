@@ -1,0 +1,14 @@
+Hi {{ req.to_user.name }},
+
+{{ req.from_user.name }} (a member of {{ req.family.name }}) would like to view your Gift Registry wishlist.
+
+Accept this request:
+{{ approve_url }}
+
+Decline this request:
+{{ deny_url }}
+
+Note: If you decline, {{ req.from_user.name }} will not be able to re-request access.
+You can also respond by logging into your account at {{ site_url }}.
+
+— The Gift Registry Team

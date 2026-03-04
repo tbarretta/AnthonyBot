@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}My Wishlist — Gift Registry{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between flex-wrap gap-3">
+  <div>
+    <h1 class="text-2xl font-bold text-white">My Wishlist</h1>
+    <p class="text-gray-500 text-sm mt-1">{{ item_count }} of {{ item_limit }} items used</p>
+  </div>
+  {% if can_add %}
+  <a href="{% url 'add_item' %}"
+    class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+    + Add Item
+  </a>
+  {% else %}
+  <span class="text-sm text-red-400 border border-red-900 px-3 py-2 rounded-lg">Limit reached ({{ item_limit }} items)</span>
+  {% endif %}
+</div>
+
+<!-- Progress bar -->
+<div class="w-full bg-gray-800 rounded-full h-1.5 mb-6">
+  <div class="bg-[var(--color-primary)] h-1.5 rounded-full" style="width: {% widthratio item_count item_limit 100 %}%"></div>
+</div>
+
+{% if items %}
+<div class="space-y-3">
+  {% for item in items %}
+  <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden
+    {% if item.is_soft_removed %}opacity-60{% endif %}">
+    <div class="flex items-start gap-4 p-5">
+
+      <!-- Image -->
+      {% if item.image %}
+      <img src="{{ item.image.url }}" alt="{{ item.name }}"
+        class="w-20 h-20 rounded-lg object-cover flex-shrink-0">
+      {% else %}
+      <div class="w-20 h-20 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0 text-3xl">🎁</div>
+      {% endif %}
+
+      <!-- Info -->
+      <div class="flex-1 min-w-0">
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-white font-semibold">{{ item.name }}</h3>
+              {% if item.is_purchased %}
+              <span class="text-xs bg-green-900/40 text-green-400 border border-green-800/40 px-2 py-0.5 rounded">Purchased</span>
+              {% endif %}
+              {% if item.is_soft_removed %}
+              <span class="text-xs bg-gray-800 text-gray-500 border border-gray-700 px-2 py-0.5 rounded">
+                {{ item.get_soft_remove_reason_display }}
+              </span>
+              {% endif %}
+            </div>
+            <p class="text-gray-400 text-sm mt-0.5 line-clamp-2">{{ item.description }}</p>
+          </div>
+          <div class="flex-shrink-0 text-right">
+            <p class="text-white font-semibold">${{ item.price }}</p>
+            <p class="text-yellow-400 text-xs">{% for i in "12345" %}{% if forloop.counter <= item.desire_rating %}★{% else %}☆{% endif %}{% endfor %}</p>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-3 flex flex-wrap items-center gap-2">
+          {% if item.purchase_link %}
+          <a href="{{ item.purchase_link }}" target="_blank" rel="noopener"
+            class="text-xs text-[var(--color-primary)] hover:underline">🔗 View link</a>
+          {% endif %}
+
+          <!-- Visible to families -->
+          {% if memberships %}
+          <span class="text-xs text-gray-600">
+            Visible to:
+            {% for m in memberships %}
+              {% if m.family in item.visible_to_families.all %}
+              <span class="text-gray-500">{{ m.family.name }}</span>{% if not forloop.last %}, {% endif %}
+              {% endif %}
+            {% endfor %}
+          </span>
+          {% endif %}
+
+          <div class="ml-auto flex gap-2">
+            <a href="{% url 'edit_item' item_id=item.pk %}"
+              class="text-xs border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white px-3 py-1 rounded-lg transition-colors">
+              Edit
+            </a>
+            {% if item.is_soft_removed %}
+            <form method="post" action="{% url 'undo_soft_remove' item_id=item.pk %}">
+              {% csrf_token %}
+              <button type="submit" class="text-xs border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white px-3 py-1 rounded-lg transition-colors">
+                Restore
+              </button>
+            </form>
+            {% else %}
+            <a href="{% url 'soft_remove_item' item_id=item.pk %}"
+              class="text-xs border border-gray-700 hover:border-gray-500 text-gray-500 hover:text-gray-300 px-3 py-1 rounded-lg transition-colors">
+              Remove
+            </a>
+            {% endif %}
+            <form method="post" action="{% url 'delete_item' item_id=item.pk %}"
+              onsubmit="return confirm('Permanently delete \'{{ item.name }}\'?')">
+              {% csrf_token %}
+              <button type="submit" class="text-xs border border-red-900 hover:border-red-700 text-red-600 hover:text-red-400 px-3 py-1 rounded-lg transition-colors">
+                Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<div class="text-center py-16">
+  <div class="text-5xl mb-4">🎁</div>
+  <h2 class="text-xl font-semibold text-white mb-2">Your wishlist is empty</h2>
+  <p class="text-gray-500 text-sm mb-6">Add items so your family knows what you'd love.</p>
+  <a href="{% url 'add_item' %}"
+    class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-medium px-6 py-2.5 rounded-lg transition-colors">
+    Add your first item
+  </a>
+</div>
+{% endif %}
+{% endblock %}

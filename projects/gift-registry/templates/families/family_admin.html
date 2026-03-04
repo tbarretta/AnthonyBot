@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Manage {{ family.name }} — Gift Registry{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center gap-3">
+  <a href="{% url 'family_detail' family_id=family.pk %}" class="text-gray-600 hover:text-gray-400 text-sm">← {{ family.name }}</a>
+  <span class="text-gray-700">/</span>
+  <h1 class="text-xl font-bold text-white">Family Admin</h1>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+  <!-- Left column -->
+  <div class="lg:col-span-2 space-y-6">
+
+    <!-- Members -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-800">
+        <h2 class="font-semibold text-white">Members</h2>
+      </div>
+      {% for m in memberships %}
+      <div class="flex items-center justify-between px-6 py-4 {% if not forloop.last %}border-b border-gray-800{% endif %}">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold text-gray-300">
+            {{ m.user.name|first|upper }}
+          </div>
+          <div>
+            <p class="text-white text-sm font-medium">{{ m.user.name }}</p>
+            <p class="text-gray-600 text-xs">{{ m.user.email }} · {{ m.role|capfirst }}</p>
+          </div>
+        </div>
+        {% if m.user != request.user %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="remove_member">
+          <input type="hidden" name="member_id" value="{{ m.user.pk }}">
+          <button type="submit"
+            onclick="return confirm('Remove {{ m.user.name }} from {{ family.name }}?')"
+            class="text-xs text-red-500 hover:text-red-400 border border-red-900 hover:border-red-700 px-3 py-1 rounded-lg transition-colors">
+            Remove
+          </button>
+        </form>
+        {% else %}
+        <span class="text-xs text-gray-700">You</span>
+        {% endif %}
+      </div>
+      {% empty %}
+      <div class="px-6 py-8 text-center text-gray-600 text-sm">No members yet.</div>
+      {% endfor %}
+    </div>
+
+    <!-- Pending invitations -->
+    {% if pending_invitations %}
+    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-800">
+        <h2 class="font-semibold text-white">Pending Invitations</h2>
+      </div>
+      {% for inv in pending_invitations %}
+      <div class="flex items-center justify-between px-6 py-3 {% if not forloop.last %}border-b border-gray-800{% endif %}">
+        <div>
+          <p class="text-gray-300 text-sm">{{ inv.email }}</p>
+          <p class="text-gray-600 text-xs">Invited by {{ inv.invited_by.name }} · expires {{ inv.expires_at|date:"M j" }}</p>
+        </div>
+        <span class="text-xs text-yellow-600 bg-yellow-900/20 border border-yellow-800/30 px-2 py-1 rounded">Pending</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Right column -->
+  <div class="space-y-6">
+
+    <!-- Invite -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h2 class="font-semibold text-white mb-4">Invite Someone</h2>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="action" value="invite">
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-400 mb-1">Email address</label>
+          <input type="email" name="email" placeholder="family@example.com"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] text-sm">
+        </div>
+        <button type="submit"
+          class="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-sm font-medium py-2 rounded-lg transition-colors">
+          Send Invitation
+        </button>
+      </form>
+    </div>
+
+    <!-- Theme -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h2 class="font-semibold text-white mb-1">Family Theme</h2>
+      <p class="text-gray-500 text-xs mb-4">Changes the color scheme for all members.</p>
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="set_theme">
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          {% for value, label in theme_choices %}
+          <label class="flex items-center gap-2 cursor-pointer text-sm px-3 py-2 rounded-lg border transition-colors
+            {% if family.theme == value %}border-[var(--color-primary)] bg-gray-800{% else %}border-gray-700 hover:border-gray-600{% endif %}">
+            <input type="radio" name="theme" value="{{ value }}"
+              {% if family.theme == value %}checked{% endif %}
+              class="accent-[var(--color-primary)]">
+            <span class="text-gray-300">{{ label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+        <button type="submit"
+          class="w-full border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white text-sm font-medium py-2 rounded-lg transition-colors">
+          Save Theme
+        </button>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

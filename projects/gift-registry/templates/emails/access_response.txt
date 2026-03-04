@@ -1,0 +1,12 @@
+Hi {{ req.from_user.name }},
+
+{% if action == "approved" %}
+Great news! {{ req.to_user.name }} has approved your request to view their Gift Registry wishlist.
+
+View their wishlist here:
+{{ wishlist_url }}
+{% else %}
+{{ req.to_user.name }} has declined your request to view their Gift Registry wishlist.
+{% endif %}
+
+— The Gift Registry Team
