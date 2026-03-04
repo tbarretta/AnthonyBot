@@ -7,19 +7,166 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/htmx.org@2.0.3"></script>
   <style>
-    /* Theme CSS variables — overridden per theme */
-    :root { --color-primary: #6366f1; --color-primary-dark: #4f46e5; }
-    [data-theme="holiday"]     { --color-primary: #16a34a; --color-primary-dark: #15803d; }
-    [data-theme="birthday"]    { --color-primary: #a855f7; --color-primary-dark: #9333ea; }
-    [data-theme="celebration"] { --color-primary: #d97706; --color-primary-dark: #b45309; }
-    [data-theme="ocean"]       { --color-primary: #0891b2; --color-primary-dark: #0e7490; }
-    [data-theme="blush"]       { --color-primary: #ec4899; --color-primary-dark: #db2777; }
-    [data-theme="midnight"]    { --color-primary: #475569; --color-primary-dark: #334155; }
-    [data-theme="royal"]       { --color-primary: #7c3aed; --color-primary-dark: #6d28d9; }
-    [data-theme="forest"]      { --color-primary: #059669; --color-primary-dark: #047857; }
+    /* ── Base variables (fallback) ───────────────────────── */
+    :root {
+      --color-primary:      #6366f1;
+      --color-primary-dark: #4f46e5;
+      --color-bg:           #030712;
+      --color-nav-bg:       #0f172a;
+      --color-nav-border:   #1e293b;
+      --color-surface:      #0f172a;
+      --color-surface-alt:  #1e293b;
+      --color-border:       #1e293b;
+      --color-border-alt:   #334155;
+      --color-text:         #e2e8f0;
+      --color-text-muted:   #94a3b8;
+    }
+
+    /* ── Holiday 🎄 — deep pine forest ───────────────────── */
+    [data-theme="holiday"] {
+      --color-primary:      #22c55e;
+      --color-primary-dark: #16a34a;
+      --color-bg:           #030d06;
+      --color-nav-bg:       #061409;
+      --color-nav-border:   #0d2e12;
+      --color-surface:      #071a0b;
+      --color-surface-alt:  #0e2e14;
+      --color-border:       #0d2e12;
+      --color-border-alt:   #164d22;
+      --color-text:         #dcfce7;
+      --color-text-muted:   #86efac;
+    }
+
+    /* ── Birthday 🎂 — deep violet celebration ───────────── */
+    [data-theme="birthday"] {
+      --color-primary:      #c084fc;
+      --color-primary-dark: #a855f7;
+      --color-bg:           #0a0314;
+      --color-nav-bg:       #12051f;
+      --color-nav-border:   #2a0a4a;
+      --color-surface:      #150628;
+      --color-surface-alt:  #22083f;
+      --color-border:       #2a0a4a;
+      --color-border-alt:   #3d1260;
+      --color-text:         #f5e8ff;
+      --color-text-muted:   #d8b4fe;
+    }
+
+    /* ── Celebration 🎉 — warm amber glow ───────────────── */
+    [data-theme="celebration"] {
+      --color-primary:      #fbbf24;
+      --color-primary-dark: #d97706;
+      --color-bg:           #0d0800;
+      --color-nav-bg:       #1a1000;
+      --color-nav-border:   #3d2600;
+      --color-surface:      #1f1300;
+      --color-surface-alt:  #2e1c00;
+      --color-border:       #3d2600;
+      --color-border-alt:   #5c3a00;
+      --color-text:         #fff7e6;
+      --color-text-muted:   #fcd34d;
+    }
+
+    /* ── Ocean 🌊 — deep sea teal ────────────────────────── */
+    [data-theme="ocean"] {
+      --color-primary:      #22d3ee;
+      --color-primary-dark: #0891b2;
+      --color-bg:           #00080f;
+      --color-nav-bg:       #00111e;
+      --color-nav-border:   #002d45;
+      --color-surface:      #001628;
+      --color-surface-alt:  #002540;
+      --color-border:       #002d45;
+      --color-border-alt:   #004266;
+      --color-text:         #e0f7ff;
+      --color-text-muted:   #67e8f9;
+    }
+
+    /* ── Blush 🌸 — deep rose velvet ─────────────────────── */
+    [data-theme="blush"] {
+      --color-primary:      #f472b6;
+      --color-primary-dark: #ec4899;
+      --color-bg:           #0f0009;
+      --color-nav-bg:       #1e0013;
+      --color-nav-border:   #4a002e;
+      --color-surface:      #260018;
+      --color-surface-alt:  #3a0026;
+      --color-border:       #4a002e;
+      --color-border-alt:   #6b0042;
+      --color-text:         #ffe8f5;
+      --color-text-muted:   #f9a8d4;
+    }
+
+    /* ── Midnight 🌙 — cold deep navy ────────────────────── */
+    [data-theme="midnight"] {
+      --color-primary:      #818cf8;
+      --color-primary-dark: #6366f1;
+      --color-bg:           #00010a;
+      --color-nav-bg:       #010314;
+      --color-nav-border:   #060d35;
+      --color-surface:      #02061a;
+      --color-surface-alt:  #060d35;
+      --color-border:       #0c1550;
+      --color-border-alt:   #141f6b;
+      --color-text:         #e8eeff;
+      --color-text-muted:   #a5b4fc;
+    }
+
+    /* ── Royal 💜 — deep indigo palace ──────────────────── */
+    [data-theme="royal"] {
+      --color-primary:      #a78bfa;
+      --color-primary-dark: #7c3aed;
+      --color-bg:           #080412;
+      --color-nav-bg:       #10071e;
+      --color-nav-border:   #280f52;
+      --color-surface:      #140a28;
+      --color-surface-alt:  #220f40;
+      --color-border:       #280f52;
+      --color-border-alt:   #3d1870;
+      --color-text:         #ede8ff;
+      --color-text-muted:   #c4b5fd;
+    }
+
+    /* ── Forest 🌿 — dark emerald depths ─────────────────── */
+    [data-theme="forest"] {
+      --color-primary:      #34d399;
+      --color-primary-dark: #059669;
+      --color-bg:           #010d07;
+      --color-nav-bg:       #031510;
+      --color-nav-border:   #073325;
+      --color-surface:      #051a10;
+      --color-surface-alt:  #092e1c;
+      --color-border:       #073325;
+      --color-text:         #ecfdf5;
+      --color-border-alt:   #0f4d30;
+      --color-text-muted:   #6ee7b7;
+    }
+
+    /* ── Apply variables to structural elements ──────────── */
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+    }
+    nav {
+      background-color: var(--color-nav-bg) !important;
+      border-color: var(--color-nav-border) !important;
+    }
+
+    /* Override Tailwind gray classes with theme variables */
+    [data-theme] .bg-gray-950  { background-color: var(--color-bg); }
+    [data-theme] .bg-gray-900  { background-color: var(--color-surface); }
+    [data-theme] .bg-gray-800  { background-color: var(--color-surface-alt); }
+    [data-theme] .border-gray-800 { border-color: var(--color-border); }
+    [data-theme] .border-gray-700 { border-color: var(--color-border-alt); }
+    [data-theme] .text-gray-200 { color: var(--color-text); }
+    [data-theme] .text-gray-300 { color: var(--color-text); }
+    [data-theme] .text-gray-400 { color: var(--color-text-muted); }
+    [data-theme] .text-gray-500 { color: var(--color-text-muted); }
+    [data-theme] .placeholder-gray-500::placeholder { color: var(--color-text-muted); opacity: 0.5; }
+    [data-theme] .divide-gray-800 > * + * { border-color: var(--color-border); }
   </style>
 </head>
-<body class="bg-gray-950 text-gray-200 min-h-screen">
+<body class="min-h-screen">
 
 {% if messages %}
 <div class="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
