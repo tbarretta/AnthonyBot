@@ -131,7 +131,32 @@
   </div>
 
   <!-- Right: Families -->
-  <div>
+  <div class="space-y-6">
+
+    <!-- Create Family -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h2 class="font-semibold text-white mb-1">Create Family</h2>
+      <p class="text-gray-500 text-xs mb-4">Creates a new family and invites the Family Admin. If the email already has an account, they're added immediately.</p>
+      <form method="post" action="{% url 'create_family' %}" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="block text-sm font-medium text-gray-400 mb-1">Family Name</label>
+          <input type="text" name="family_name" placeholder="e.g. The Smiths"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] text-sm">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-400 mb-1">Family Admin Email</label>
+          <input type="email" name="admin_email" placeholder="admin@example.com"
+            class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] text-sm">
+          <p class="text-xs text-gray-600 mt-1">This person will receive an invitation as Family Admin.</p>
+        </div>
+        <button type="submit"
+          class="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-sm font-medium py-2 rounded-lg transition-colors">
+          Create Family & Send Invite
+        </button>
+      </form>
+    </div>
+
     <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-800">
         <h2 class="font-semibold text-white">Families</h2>
@@ -156,6 +181,8 @@
       {% endfor %}
     </div>
   </div>
+
+  </div> <!-- end right column space-y-6 -->
 
 </div>
 {% endblock %}

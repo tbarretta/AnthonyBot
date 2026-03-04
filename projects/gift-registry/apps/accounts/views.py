@@ -48,8 +48,8 @@ def register_view(request, token):
     form = RegistrationForm(request.POST or None, initial={"email": invitation.email})
     if request.method == "POST" and form.is_valid():
         user = form.save()
-        # Create family membership
-        FamilyMembership.objects.create(user=user, family=invitation.family, role="member")
+        # Create family membership — role comes from the invitation
+        FamilyMembership.objects.create(user=user, family=invitation.family, role=invitation.role)
         invitation.status = "accepted"
         invitation.save(update_fields=["status"])
         # Create notification prefs

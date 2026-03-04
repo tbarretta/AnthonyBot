@@ -85,6 +85,7 @@ class FamilyInvitation(models.Model):
         related_name="sent_invitations",
     )
     email = models.EmailField()
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="member")
     token = models.UUIDField(default=uuid.uuid4, unique=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="pending")
     created_at = models.DateTimeField(auto_now_add=True)

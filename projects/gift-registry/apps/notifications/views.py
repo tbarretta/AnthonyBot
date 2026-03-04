@@ -91,6 +91,65 @@ def admin_reset_password(request):
 
 @login_required
 @master_admin_required
+def create_family(request):
+    """Master Admin creates a new family and invites the first Family Admin."""
+    if request.method == "POST":
+        from apps.families.models import Family, FamilyInvitation
+        from apps.notifications.tasks import send_invitation_email
+
+        family_name = request.POST.get("family_name", "").strip()
+        admin_email = request.POST.get("admin_email", "").strip().lower()
+
+        if not family_name or not admin_email:
+            messages.error(request, "Family name and admin email are both required.")
+            return redirect("master_admin")
+
+        if Family.objects.filter(name__iexact=family_name).exists():
+            messages.error(request, f'A family named "{family_name}" already exists.')
+            return redirect("master_admin")
+
+        # Create the family (Master Admin as creator)
+        family = Family.objects.create(name=family_name, created_by=request.user)
+
+        # If the invited person already has an account, make them admin immediately
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        existing_user = User.objects.filter(email=admin_email).first()
+        if existing_user:
+            from apps.families.models import FamilyMembership
+            FamilyMembership.objects.get_or_create(
+                user=existing_user, family=family,
+                defaults={"role": "admin"}
+            )
+            ActivityLog.log(
+                event_type="family_created",
+                actor=request.user,
+                family=family,
+                description=f'Master Admin created family "{family_name}" and added existing user {admin_email} as Family Admin',
+            )
+            messages.success(request, f'Family "{family_name}" created. {existing_user.name} has been added as Family Admin.')
+        else:
+            # Send an invitation with admin role
+            inv = FamilyInvitation.objects.create(
+                family=family,
+                invited_by=request.user,
+                email=admin_email,
+                role="admin",
+            )
+            send_invitation_email.delay(str(inv.id))
+            ActivityLog.log(
+                event_type="family_created",
+                actor=request.user,
+                family=family,
+                description=f'Master Admin created family "{family_name}" and invited {admin_email} as Family Admin',
+            )
+            messages.success(request, f'Family "{family_name}" created. An invitation has been sent to {admin_email}.')
+
+    return redirect("master_admin")
+
+
+@login_required
+@master_admin_required
 def admin_reset_access(request, access_id):
     """Reset a denied access request so the member can re-request."""
     from apps.access.models import WishlistAccessRequest
