@@ -67,6 +67,47 @@ def master_admin(request):
 
 @login_required
 @master_admin_required
+def delete_family(request, family_id):
+    """Master Admin deletes a family. Users are never auto-deleted."""
+    from apps.families.models import Family, FamilyMembership
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+
+    family = get_object_or_404(Family, pk=family_id)
+
+    # Find members who will lose their only family
+    members = User.objects.filter(family_memberships__family=family)
+    orphaned = [
+        u for u in members
+        if u.family_memberships.exclude(family=family).count() == 0
+    ]
+
+    if request.method == "POST":
+        confirmed = request.POST.get("confirmed")
+        if not confirmed:
+            messages.error(request, "Please confirm the deletion.")
+            return redirect("master_admin")
+
+        family_name = family.name
+        family.delete()  # Cascades: memberships, invitations, access requests, item visibility
+
+        ActivityLog.log(
+            event_type="family_deleted",
+            actor=request.user,
+            description=f'Master Admin deleted family "{family_name}"',
+        )
+        messages.success(request, f'Family "{family_name}" has been deleted.')
+        return redirect("master_admin")
+
+    # GET — show confirmation page
+    return render(request, "admin/delete_family_confirm.html", {
+        "family": family,
+        "orphaned_users": orphaned,
+    })
+
+
+@login_required
+@master_admin_required
 def admin_reset_password(request):
     """Manually trigger a password reset for any user."""
     if request.method == "POST":

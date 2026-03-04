@@ -16,6 +16,7 @@ EVENT_TYPES = [
     ("admin_pw_reset",    "Admin Password Reset"),
     ("access_reset",      "Access Request Reset by Admin"),
     ("family_created",    "Family Created by Admin"),
+    ("family_deleted",    "Family Deleted by Admin"),
 ]
 
 
