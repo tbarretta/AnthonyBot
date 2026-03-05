@@ -2,7 +2,8 @@
 __pycache__/
 *.py[cod]
 *.sqlite3
-media/
+media/*
+!media/.gitkeep
 staticfiles/
 .DS_Store
 *.egg-info/
