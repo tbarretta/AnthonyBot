@@ -112,6 +112,38 @@
       --color-text-muted:   #6ee7b7;
     }
 
+    /* ── Light theme overrides ───────────────────────────── */
+    [data-theme="snow"] .text-white,
+    [data-theme="blush"] .text-white,
+    [data-theme="sunshine"] .text-white {
+      color: var(--color-text);
+    }
+    /* Avatar circles — use primary color bg with white text */
+    [data-theme="snow"] .bg-gray-700,
+    [data-theme="blush"] .bg-gray-700,
+    [data-theme="sunshine"] .bg-gray-700 {
+      background-color: var(--color-primary) !important;
+    }
+    [data-theme="snow"] .bg-gray-700 span,
+    [data-theme="snow"] .bg-gray-700 p,
+    [data-theme="blush"] .bg-gray-700 span,
+    [data-theme="blush"] .bg-gray-700 p,
+    [data-theme="sunshine"] .bg-gray-700 span,
+    [data-theme="sunshine"] .bg-gray-700 p {
+      color: #ffffff !important;
+    }
+    /* text-gray-600 and text-gray-700 also need to darken on light themes */
+    [data-theme="snow"] .text-gray-600,
+    [data-theme="blush"] .text-gray-600,
+    [data-theme="sunshine"] .text-gray-600 {
+      color: var(--color-text-muted);
+    }
+    [data-theme="snow"] .text-gray-700,
+    [data-theme="blush"] .text-gray-700,
+    [data-theme="sunshine"] .text-gray-700 {
+      color: var(--color-text-muted);
+    }
+
     /* ── Apply variables to structural elements ──────────── */
     body {
       background-color: var(--color-bg);
