@@ -5,14 +5,12 @@ import uuid
 from datetime import timedelta
 
 THEME_CHOICES = [
-    ("holiday",     "🎄 Holiday"),
-    ("birthday",    "🎂 Birthday"),
-    ("celebration", "🎉 Celebration"),
-    ("ocean",       "🌊 Ocean"),
-    ("blush",       "🌸 Blush"),
-    ("midnight",    "🌙 Midnight"),
-    ("royal",       "💜 Royal"),
-    ("forest",      "🌿 Forest"),
+    ("midnight",  "🌙 Midnight"),
+    ("forest",    "🌿 Forest"),
+    ("royal",     "💜 Royal"),
+    ("snow",      "❄️ Snow"),
+    ("blush",     "🌸 Blush"),
+    ("sunshine",  "☀️ Sunshine"),
 ]
 
 ROLE_CHOICES = [
@@ -24,7 +22,7 @@ ROLE_CHOICES = [
 class Family(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=150)
-    theme = models.CharField(max_length=30, choices=THEME_CHOICES, default="celebration")
+    theme = models.CharField(max_length=30, choices=THEME_CHOICES, default="midnight")
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

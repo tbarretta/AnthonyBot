@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="{{ active_theme }}">
+<html lang="en" data-theme="{{ active_theme|default:'midnight' }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,79 +22,49 @@
       --color-text-muted:   #94a3b8;
     }
 
-    /* ── Holiday 🎄 — deep pine forest ───────────────────── */
-    [data-theme="holiday"] {
-      --color-primary:      #22c55e;
-      --color-primary-dark: #16a34a;
-      --color-bg:           #030d06;
-      --color-nav-bg:       #061409;
-      --color-nav-border:   #0d2e12;
-      --color-surface:      #071a0b;
-      --color-surface-alt:  #0e2e14;
-      --color-border:       #0d2e12;
-      --color-border-alt:   #164d22;
-      --color-text:         #dcfce7;
-      --color-text-muted:   #86efac;
+    /* ── Snow ❄️ — crisp light / ice blue ───────────────── */
+    [data-theme="snow"] {
+      --color-primary:      #3b82f6;
+      --color-primary-dark: #2563eb;
+      --color-bg:           #f0f4f8;
+      --color-nav-bg:       #dde6f0;
+      --color-nav-border:   #b8cfe4;
+      --color-surface:      #ffffff;
+      --color-surface-alt:  #e8f0f8;
+      --color-border:       #c8d8e8;
+      --color-border-alt:   #a0bcd4;
+      --color-text:         #0f1f30;
+      --color-text-muted:   #3a5a78;
     }
 
-    /* ── Birthday 🎂 — deep violet celebration ───────────── */
-    [data-theme="birthday"] {
-      --color-primary:      #c084fc;
-      --color-primary-dark: #a855f7;
-      --color-bg:           #0a0314;
-      --color-nav-bg:       #12051f;
-      --color-nav-border:   #2a0a4a;
-      --color-surface:      #150628;
-      --color-surface-alt:  #22083f;
-      --color-border:       #2a0a4a;
-      --color-border-alt:   #3d1260;
-      --color-text:         #f5e8ff;
-      --color-text-muted:   #d8b4fe;
-    }
-
-    /* ── Celebration 🎉 — warm amber glow ───────────────── */
-    [data-theme="celebration"] {
-      --color-primary:      #fbbf24;
-      --color-primary-dark: #d97706;
-      --color-bg:           #0d0800;
-      --color-nav-bg:       #1a1000;
-      --color-nav-border:   #3d2600;
-      --color-surface:      #1f1300;
-      --color-surface-alt:  #2e1c00;
-      --color-border:       #3d2600;
-      --color-border-alt:   #5c3a00;
-      --color-text:         #fff7e6;
-      --color-text-muted:   #fcd34d;
-    }
-
-    /* ── Ocean 🌊 — deep sea teal ────────────────────────── */
-    [data-theme="ocean"] {
-      --color-primary:      #22d3ee;
-      --color-primary-dark: #0891b2;
-      --color-bg:           #00080f;
-      --color-nav-bg:       #00111e;
-      --color-nav-border:   #002d45;
-      --color-surface:      #001628;
-      --color-surface-alt:  #002540;
-      --color-border:       #002d45;
-      --color-border-alt:   #004266;
-      --color-text:         #e0f7ff;
-      --color-text-muted:   #67e8f9;
-    }
-
-    /* ── Blush 🌸 — deep rose velvet ─────────────────────── */
+    /* ── Blush 🌸 — soft warm rose ───────────────────────── */
     [data-theme="blush"] {
-      --color-primary:      #f472b6;
-      --color-primary-dark: #ec4899;
-      --color-bg:           #0f0009;
-      --color-nav-bg:       #1e0013;
-      --color-nav-border:   #4a002e;
-      --color-surface:      #260018;
-      --color-surface-alt:  #3a0026;
-      --color-border:       #4a002e;
-      --color-border-alt:   #6b0042;
-      --color-text:         #ffe8f5;
-      --color-text-muted:   #f9a8d4;
+      --color-primary:      #e11d74;
+      --color-primary-dark: #be185d;
+      --color-bg:           #fdf2f6;
+      --color-nav-bg:       #fce4ee;
+      --color-nav-border:   #f9c0d8;
+      --color-surface:      #ffffff;
+      --color-surface-alt:  #fdeef4;
+      --color-border:       #f9c0d8;
+      --color-border-alt:   #f49cbe;
+      --color-text:         #2d0a1a;
+      --color-text-muted:   #8c2152;
+    }
+
+    /* ── Sunshine ☀️ — warm cream & amber ────────────────── */
+    [data-theme="sunshine"] {
+      --color-primary:      #d97706;
+      --color-primary-dark: #b45309;
+      --color-bg:           #fffbeb;
+      --color-nav-bg:       #fef3c7;
+      --color-nav-border:   #fde68a;
+      --color-surface:      #ffffff;
+      --color-surface-alt:  #fefce8;
+      --color-border:       #fde68a;
+      --color-border-alt:   #fcd34d;
+      --color-text:         #1c0f00;
+      --color-text-muted:   #78350f;
     }
 
     /* ── Midnight 🌙 — cold deep navy ────────────────────── */
