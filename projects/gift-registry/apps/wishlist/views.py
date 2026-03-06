@@ -14,7 +14,7 @@ from apps.notifications.tasks import send_new_item_notification
 @login_required
 def my_wishlist(request):
     items = WishlistItem.objects.filter(owner=request.user).prefetch_related(
-        "visible_to_families", "purchase_record"
+        "visible_to_families"
     )
     memberships = FamilyMembership.objects.filter(user=request.user).select_related("family")
     item_count = items.count()
