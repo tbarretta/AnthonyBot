@@ -132,6 +132,15 @@
     [data-theme="sunshine"] .bg-gray-700 p {
       color: #ffffff !important;
     }
+    /* ── "Request Pending" badge — light theme contrast fix ─ */
+    [data-theme="snow"] .pending-badge,
+    [data-theme="blush"] .pending-badge,
+    [data-theme="sunshine"] .pending-badge {
+      color: #92400e !important;           /* amber-800 — dark, readable */
+      background-color: #fde68a !important; /* amber-200 — warm yellow bg */
+      border-color: #d97706 !important;    /* amber-600 — clear border */
+    }
+
     /* text-gray-600 and text-gray-700 also need to darken on light themes */
     [data-theme="snow"] .text-gray-600,
     [data-theme="blush"] .text-gray-600,
