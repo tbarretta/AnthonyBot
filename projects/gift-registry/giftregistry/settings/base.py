@@ -143,3 +143,7 @@ else:
 
 # Invitation token expiry (days)
 INVITATION_EXPIRY_DAYS = 7
+
+# Ensure uploaded files are readable by Nginx
+FILE_UPLOAD_PERMISSIONS = 0o644
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o755
