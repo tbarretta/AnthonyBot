@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.conf import settings
 from django.http import Http404
 
-from .models import WishlistItem, ItemFamilyVisibility, PurchasedItem
+from .models import WishlistItem, ItemFamilyVisibility, PurchasedItem, ItemComment
 from .forms import WishlistItemForm, SoftRemoveForm
 from apps.families.models import Family, FamilyMembership
 from apps.access.models import WishlistAccessRequest
@@ -180,6 +180,8 @@ def view_item_detail(request, user_id, family_id, item_id):
     if not access:
         raise Http404
 
+    is_owner = (request.user == owner)
+
     if request.method == "POST":
         action = request.POST.get("action")
         if action == "purchase":
@@ -191,13 +193,28 @@ def view_item_detail(request, user_id, family_id, item_id):
             if record:
                 record.delete()
                 messages.success(request, "Purchase mark removed.")
+        elif action == "comment" and not is_owner:
+            content = request.POST.get("content", "").strip()
+            if content:
+                ItemComment.objects.create(
+                    item=item,
+                    family=family,
+                    author=request.user,
+                    content=content,
+                )
         return redirect("view_item_detail", user_id=user_id, family_id=family_id, item_id=item_id)
 
     purchased_by_me = PurchasedItem.objects.filter(item=item, purchased_by=request.user).exists()
+    comments = (
+        ItemComment.objects.filter(item=item, family=family).select_related("author")
+        if not is_owner else []
+    )
 
     return render(request, "wishlist/item_detail.html", {
         "owner": owner,
         "family": family,
         "item": item,
         "purchased_by_me": purchased_by_me,
+        "is_owner": is_owner,
+        "comments": comments,
     })

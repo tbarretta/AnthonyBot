@@ -81,6 +81,57 @@
         </form>
       </div>
     </div>
+
+      {% if not is_owner %}
+      <hr class="border-gray-800 mt-6 mb-6">
+
+      <!-- Comments — hidden from the wishlist owner -->
+      <div>
+        <h2 class="text-sm font-semibold text-gray-300 mb-4">💬 Family Comments</h2>
+        <p class="text-xs text-gray-600 mb-4">Only family members can see these — not {{ owner.name }}.</p>
+
+        {% if comments %}
+        <div class="space-y-3 mb-5">
+          {% for comment in comments %}
+          <div class="flex items-start gap-3">
+            <div class="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-300 flex-shrink-0 mt-0.5">
+              {{ comment.author.name|first|upper }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-baseline gap-2 flex-wrap">
+                <span class="text-sm font-medium text-white">{{ comment.author.name }}</span>
+                <span class="text-xs text-gray-600">{{ comment.created_at|date:"M j, g:i A" }}</span>
+              </div>
+              <p class="text-sm text-gray-300 mt-0.5">{{ comment.content }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-sm text-gray-600 mb-5">No comments yet. Be the first!</p>
+        {% endif %}
+
+        <!-- Post a comment -->
+        <form method="post" class="flex items-start gap-3">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="comment">
+          <div class="w-7 h-7 rounded-full bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-300 flex-shrink-0 mt-1.5">
+            {{ request.user.name|first|upper }}
+          </div>
+          <div class="flex-1 flex flex-col sm:flex-row gap-2">
+            <textarea name="content" rows="2" maxlength="500"
+              placeholder="Add a comment…"
+              class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] resize-none"></textarea>
+            <button type="submit"
+              class="self-end sm:self-start bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors whitespace-nowrap">
+              Post
+            </button>
+          </div>
+        </form>
+      </div>
+      {% endif %}
+
+    </div>
   </div>
 </div>
 {% endblock %}
