@@ -27,66 +27,8 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-  <!-- Left: Activity Log -->
+  <!-- Left: Users + Activity Log -->
   <div class="lg:col-span-2 space-y-4">
-
-    <!-- Activity log -->
-    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between gap-4 flex-wrap">
-        <h2 class="font-semibold text-white">Activity Log</h2>
-        <form method="get" class="flex items-center gap-2">
-          <select name="event_type"
-            class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-gray-300 text-sm focus:outline-none focus:border-[var(--color-primary)]"
-            onchange="this.form.submit()">
-            <option value="">All events</option>
-            {% for et in event_types %}
-            <option value="{{ et.0 }}" {% if event_filter == et.0 %}selected{% endif %}>{{ et.1 }}</option>
-            {% endfor %}
-          </select>
-          {% if event_filter %}
-          <a href="{% url 'master_admin' %}" class="text-xs text-gray-600 hover:text-gray-400">Clear</a>
-          {% endif %}
-        </form>
-      </div>
-
-      {% if log_page.object_list %}
-      <div class="divide-y divide-gray-800">
-        {% for entry in log_page.object_list %}
-        <div class="px-6 py-3 text-sm">
-          <div class="flex items-start justify-between gap-2">
-            <div>
-              <span class="text-gray-300">{{ entry.description }}</span>
-              {% if entry.family %}
-              <span class="text-gray-600 text-xs ml-1">({{ entry.family.name }})</span>
-              {% endif %}
-            </div>
-            <span class="text-gray-600 text-xs flex-shrink-0 ml-4">{{ entry.timestamp|date:"M j, g:i a" }}</span>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-
-      <!-- Pagination -->
-      {% if log_page.has_other_pages %}
-      <div class="px-6 py-4 border-t border-gray-800 flex items-center justify-between text-sm">
-        <span class="text-gray-600">Page {{ log_page.number }} of {{ log_page.paginator.num_pages }}</span>
-        <div class="flex gap-2">
-          {% if log_page.has_previous %}
-          <a href="?page={{ log_page.previous_page_number }}{% if event_filter %}&event_type={{ event_filter }}{% endif %}"
-            class="border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white px-3 py-1 rounded-lg transition-colors">← Prev</a>
-          {% endif %}
-          {% if log_page.has_next %}
-          <a href="?page={{ log_page.next_page_number }}{% if event_filter %}&event_type={{ event_filter }}{% endif %}"
-            class="border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white px-3 py-1 rounded-lg transition-colors">Next →</a>
-          {% endif %}
-        </div>
-      </div>
-      {% endif %}
-
-      {% else %}
-      <div class="px-6 py-8 text-center text-gray-600 text-sm">No activity yet.</div>
-      {% endif %}
-    </div>
 
     <!-- Users -->
     <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
@@ -126,6 +68,64 @@
         <div class="px-6 py-8 text-center text-gray-600 text-sm">No users found.</div>
         {% endfor %}
       </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between gap-4 flex-wrap">
+        <h2 class="font-semibold text-white">Activity Log</h2>
+        <form method="get" class="flex items-center gap-2">
+          <select name="event_type"
+            class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-gray-300 text-sm focus:outline-none focus:border-[var(--color-primary)]"
+            onchange="this.form.submit()">
+            <option value="">All events</option>
+            {% for et in event_types %}
+            <option value="{{ et.0 }}" {% if event_filter == et.0 %}selected{% endif %}>{{ et.1 }}</option>
+            {% endfor %}
+          </select>
+          {% if event_filter %}
+          <a href="{% url 'master_admin' %}" class="text-xs text-gray-600 hover:text-gray-400">Clear</a>
+          {% endif %}
+        </form>
+      </div>
+
+      {% if log_page.object_list %}
+      <div class="divide-y divide-gray-800 max-h-[24rem] overflow-y-auto">
+        {% for entry in log_page.object_list %}
+        <div class="px-6 py-3 text-sm">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-gray-300">{{ entry.description }}</span>
+              {% if entry.family %}
+              <span class="text-gray-600 text-xs ml-1">({{ entry.family.name }})</span>
+              {% endif %}
+            </div>
+            <span class="text-gray-600 text-xs flex-shrink-0 ml-4">{{ entry.timestamp|date:"M j, g:i a" }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if log_page.has_other_pages %}
+      <div class="px-6 py-4 border-t border-gray-800 flex items-center justify-between text-sm">
+        <span class="text-gray-600">Page {{ log_page.number }} of {{ log_page.paginator.num_pages }}</span>
+        <div class="flex gap-2">
+          {% if log_page.has_previous %}
+          <a href="?page={{ log_page.previous_page_number }}{% if event_filter %}&event_type={{ event_filter }}{% endif %}"
+            class="border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white px-3 py-1 rounded-lg transition-colors">← Prev</a>
+          {% endif %}
+          {% if log_page.has_next %}
+          <a href="?page={{ log_page.next_page_number }}{% if event_filter %}&event_type={{ event_filter }}{% endif %}"
+            class="border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white px-3 py-1 rounded-lg transition-colors">Next →</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      {% else %}
+      <div class="px-6 py-8 text-center text-gray-600 text-sm">No activity yet.</div>
+      {% endif %}
     </div>
 
   </div>
