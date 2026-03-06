@@ -194,8 +194,8 @@
 {% endif %}
 
 {% if user.is_authenticated %}
-<nav class="bg-gray-900 border-b border-gray-800 px-6 py-3 flex items-center justify-between">
-  <div class="flex items-center gap-6">
+<nav class="bg-gray-900 border-b border-gray-800 px-4 py-3 flex flex-wrap items-center justify-between gap-y-2 overflow-x-auto">
+  <div class="flex items-center flex-wrap gap-x-5 gap-y-1">
     <a href="{% url 'dashboard' %}" class="text-white font-bold text-lg">🎁 Gift Registry</a>
     <a href="{% url 'my_wishlist' %}" class="text-gray-400 hover:text-white text-sm">My Wishlist</a>
     {% for membership in user.family_memberships.all %}
@@ -204,7 +204,7 @@
     </a>
     {% endfor %}
   </div>
-  <div class="flex items-center gap-4">
+  <div class="flex items-center flex-wrap gap-x-4 gap-y-1">
     {% if user.is_master_admin %}
     <a href="{% url 'master_admin' %}" class="text-yellow-400 hover:text-yellow-300 text-sm font-medium">⚡ Admin</a>
     {% endif %}
