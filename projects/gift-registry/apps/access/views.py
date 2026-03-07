@@ -100,15 +100,25 @@ def respond_via_email(request, token, action):
 
 @login_required
 def respond_in_app(request, access_id, action):
-    """Accept/deny from within the app."""
-    access_req = get_object_or_404(
-        WishlistAccessRequest, pk=access_id, to_user=request.user, status="pending"
+    """Accept/deny from within the app.
+    Guardians may respond on behalf of their managed members.
+    """
+    access_req = get_object_or_404(WishlistAccessRequest, pk=access_id, status="pending")
+
+    # Authorize: must be the recipient, or the recipient's guardian
+    is_guardian_response = (
+        access_req.to_user.is_managed
+        and access_req.to_user.guardian_id == request.user.pk
     )
+    if access_req.to_user != request.user and not is_guardian_response:
+        raise Http404
+
+    wishlist_owner = access_req.to_user.name if is_guardian_response else "your"
 
     if action == "approve":
         access_req.approve()
         send_access_response_notification.delay(str(access_req.id), "approved")
-        messages.success(request, f"You've granted {access_req.from_user.name} access to your wishlist.")
+        messages.success(request, f"You've granted {access_req.from_user.name} access to {wishlist_owner} wishlist.")
     elif action == "deny":
         access_req.deny()
         send_access_response_notification.delay(str(access_req.id), "denied")
