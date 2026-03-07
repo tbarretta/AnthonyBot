@@ -44,10 +44,19 @@ def logout_view(request):
 
 def register_view(request, token):
     """Registration via invitation token."""
-    invitation = get_object_or_404(FamilyInvitation, token=token, status="pending")
-    if not invitation.is_valid():
-        messages.error(request, "This invitation link has expired or already been used.")
+    invitation = get_object_or_404(FamilyInvitation, token=token)
+
+    # Already used — send to login
+    if invitation.status == "accepted":
+        messages.info(request, "This invitation has already been used. Sign in to your account.")
         return redirect("login")
+
+    # Pending but expired — offer a resend
+    if not invitation.is_valid():
+        return render(request, "accounts/invitation_expired.html", {
+            "invitation": invitation,
+            "token": token,
+        })
 
     # If email already has an account, just add them to the family
     existing_user = User.objects.filter(email=invitation.email).first()
@@ -79,6 +88,29 @@ def register_view(request, token):
     return render(request, "accounts/register.html", {
         "form": form,
         "invitation": invitation,
+    })
+
+
+def resend_expired_invite(request, token):
+    """Let the invitee request a fresh link for their own expired invitation."""
+    invitation = get_object_or_404(FamilyInvitation, token=token, status="pending")
+
+    # Must actually be expired — valid invitations don't need this
+    if invitation.is_valid():
+        return redirect("register", token=token)
+
+    if request.method == "POST":
+        from apps.notifications.tasks import send_invitation_email
+        invitation.resend()
+        send_invitation_email.delay(str(invitation.id))
+        return render(request, "accounts/invitation_resent.html", {
+            "invitation": invitation,
+        })
+
+    # GET — shouldn't normally be reached directly, redirect to expired page
+    return render(request, "accounts/invitation_expired.html", {
+        "invitation": invitation,
+        "token": token,
     })
 
 

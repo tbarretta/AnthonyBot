@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Invitation Expired — Gift Registry{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-sm text-center">
+    <div class="text-5xl mb-4">⏳</div>
+    <h1 class="text-2xl font-bold text-white mb-2">Invitation Expired</h1>
+    <p class="text-gray-400 text-sm mb-2">
+      Your invitation to join <strong class="text-white">{{ invitation.family.name }}</strong> has expired.
+    </p>
+    <p class="text-gray-500 text-sm mb-8">
+      Click below and we'll send a fresh link to
+      <strong class="text-gray-300">{{ invitation.email }}</strong>.
+    </p>
+
+    <form method="post" action="{% url 'resend_expired_invite' token=token %}">
+      {% csrf_token %}
+      <button type="submit"
+        class="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-medium py-2 rounded-lg transition-colors">
+        Send Me a New Link
+      </button>
+    </form>
+
+    <p class="text-gray-600 text-xs mt-6">
+      Already have an account?
+      <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

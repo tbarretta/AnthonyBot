@@ -5,6 +5,7 @@ urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("logout/", views.logout_view, name="logout"),
     path("register/<uuid:token>/", views.register_view, name="register"),
+    path("register/<uuid:token>/resend/", views.resend_expired_invite, name="resend_expired_invite"),
     path("verify/sent/", views.verify_email_sent, name="verify_email_sent"),
     path("verify/<uuid:token>/", views.verify_email, name="verify_email"),
     path("verify/resend/", views.resend_verification, name="resend_verification"),
