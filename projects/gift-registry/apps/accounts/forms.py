@@ -13,6 +13,9 @@ class LoginForm(forms.Form):
         super().__init__(*args, **kwargs)
         self._user = None
 
+    def clean_email(self):
+        return self.cleaned_data.get("email", "").lower().strip()
+
     def clean(self):
         email = self.cleaned_data.get("email")
         password = self.cleaned_data.get("password")
@@ -85,6 +88,9 @@ class RegistrationForm(forms.ModelForm):
 
 class PasswordResetRequestForm(forms.Form):
     email = forms.EmailField(widget=forms.EmailInput(attrs={"placeholder": "you@example.com"}))
+
+    def clean_email(self):
+        return self.cleaned_data.get("email", "").lower().strip()
 
 
 class SetNewPasswordForm(forms.Form):
