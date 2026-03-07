@@ -142,19 +142,22 @@ def view_member_wishlist(request, user_id, family_id):
     if not FamilyMembership.objects.filter(user=owner, family=family).exists():
         raise Http404
 
-    # Check access is granted
-    access = WishlistAccessRequest.objects.filter(
-        from_user=request.user, to_user=owner, family=family, status="approved"
-    ).first()
-    if not access:
-        pending = WishlistAccessRequest.objects.filter(
-            from_user=request.user, to_user=owner, family=family, status="pending"
-        ).exists()
-        return render(request, "wishlist/access_required.html", {
-            "owner": owner,
-            "family": family,
-            "pending": pending,
-        })
+    # Guardians always have access to their managed members' wishlists
+    is_guardian = owner.is_managed and owner.guardian_id == request.user.pk
+
+    if not is_guardian:
+        access = WishlistAccessRequest.objects.filter(
+            from_user=request.user, to_user=owner, family=family, status="approved"
+        ).first()
+        if not access:
+            pending = WishlistAccessRequest.objects.filter(
+                from_user=request.user, to_user=owner, family=family, status="pending"
+            ).exists()
+            return render(request, "wishlist/access_required.html", {
+                "owner": owner,
+                "family": family,
+                "pending": pending,
+            })
 
     # Fetch items visible to this family — exclude purchase_record for owner
     items = WishlistItem.objects.filter(

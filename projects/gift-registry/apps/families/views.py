@@ -49,10 +49,12 @@ def family_detail(request, family_id):
     members_with_state = []
     for m in memberships:
         req = sent_map.get(m.user_id)
+        is_my_managed = m.user.is_managed and m.user.guardian_id == request.user.pk
         members_with_state.append({
             "membership": m,
             "access_request": req,
             "access_status": req.status if req else None,
+            "is_my_managed": is_my_managed,
         })
 
     # Batch-fetch wishlist item counts for approved members

@@ -63,7 +63,12 @@
     </div>
 
     <div>
-      {% if status == "approved" %}
+      {% if entry.is_my_managed %}
+        <a href="{% url 'view_member_wishlist' family_id=family.pk user_id=m.user.pk %}"
+          class="text-sm bg-amber-900/40 hover:bg-amber-800/60 text-amber-300 hover:text-amber-100 border border-amber-800/50 px-4 py-1.5 rounded-lg transition-colors">
+          View Wishlist
+        </a>
+      {% elif status == "approved" %}
         <a href="{% url 'view_member_wishlist' family_id=family.pk user_id=m.user.pk %}"
           class="text-sm bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white px-4 py-1.5 rounded-lg transition-colors">
           View Wishlist
