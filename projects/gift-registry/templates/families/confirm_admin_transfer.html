@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Transfer Admin — {{ family.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+  <div class="mb-6">
+    <a href="{% url 'family_admin' family_id=family.pk %}" class="text-gray-600 hover:text-gray-400 text-sm">← Family Admin</a>
+    <h1 class="text-2xl font-bold text-white mt-2">Transfer Admin Rights</h1>
+  </div>
+
+  <div class="bg-yellow-900/20 border border-yellow-700/50 rounded-xl p-5 mb-5">
+    <h2 class="text-yellow-400 font-semibold text-sm mb-2">⚠️ Please Read Before Continuing</h2>
+    <p class="text-yellow-200/80 text-sm">
+      You are about to transfer your Family Admin rights for <strong class="text-yellow-100">{{ family.name }}</strong>
+      to <strong class="text-yellow-100">{{ to_user.name }}</strong>.
+    </p>
+    <ul class="mt-3 space-y-1 text-sm text-yellow-300/70 list-disc list-inside">
+      <li>{{ to_user.name }} will receive an email and must accept the transfer</li>
+      <li>Once accepted, <strong class="text-yellow-200">you will become a regular member</strong></li>
+      <li>You will no longer be able to invite, remove, or manage the family</li>
+      <li>This cannot be undone without the new Admin's cooperation</li>
+    </ul>
+  </div>
+
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold text-gray-300">
+        {{ to_user.name|first|upper }}
+      </div>
+      <div>
+        <p class="text-white font-medium">{{ to_user.name }}</p>
+        <p class="text-gray-500 text-sm">{{ to_user.email }}</p>
+      </div>
+    </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="flex gap-3">
+        <button type="submit"
+          class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-medium px-5 py-2 rounded-lg transition-colors">
+          Send Transfer Request
+        </button>
+        <a href="{% url 'family_admin' family_id=family.pk %}"
+          class="border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white font-medium px-5 py-2 rounded-lg transition-colors">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

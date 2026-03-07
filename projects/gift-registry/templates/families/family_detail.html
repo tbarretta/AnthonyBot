@@ -59,6 +59,12 @@
         {% if entry.item_count is not None %}
         <p class="text-gray-500 text-xs mt-0.5">Item Count: {{ entry.item_count }}</p>
         {% endif %}
+        {% if viewer_is_admin and not m.user.is_managed %}
+        <a href="{% url 'initiate_admin_transfer' family_id=family.pk user_id=m.user.pk %}"
+          class="inline-block text-xs text-gray-600 hover:text-yellow-400 mt-1 transition-colors">
+          Make Admin
+        </a>
+        {% endif %}
       </div>
     </div>
 

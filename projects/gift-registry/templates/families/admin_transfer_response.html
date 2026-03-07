@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Transfer {% if action == "accepted" %}Accepted{% else %}Declined{% endif %} — Gift Registry{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto text-center">
+  {% if action == "accepted" %}
+  <div class="text-5xl mb-4">🎉</div>
+  <h1 class="text-2xl font-bold text-white mb-2">You're now the Family Admin</h1>
+  <p class="text-gray-400 text-sm mb-6">
+    You are now the Admin for <strong class="text-white">{{ family.name }}</strong>.
+    {{ from_user.name }} has been moved to a regular member.
+  </p>
+  {% if user.is_authenticated %}
+  <a href="{% url 'family_admin' family_id=family.pk %}"
+    class="inline-block bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-medium px-5 py-2 rounded-lg transition-colors">
+    Go to Family Admin
+  </a>
+  {% else %}
+  <a href="{% url 'login' %}"
+    class="inline-block bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-medium px-5 py-2 rounded-lg transition-colors">
+    Sign In
+  </a>
+  {% endif %}
+  {% else %}
+  <div class="text-5xl mb-4">👋</div>
+  <h1 class="text-2xl font-bold text-white mb-2">Transfer Declined</h1>
+  <p class="text-gray-400 text-sm mb-6">
+    You've declined the Admin transfer for <strong class="text-white">{{ family.name }}</strong>.
+    {{ from_user.name }} remains the Family Admin.
+  </p>
+  {% if user.is_authenticated %}
+  <a href="{% url 'dashboard' %}"
+    class="inline-block border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white font-medium px-5 py-2 rounded-lg transition-colors">
+    Back to Dashboard
+  </a>
+  {% else %}
+  <a href="{% url 'login' %}"
+    class="inline-block border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white font-medium px-5 py-2 rounded-lg transition-colors">
+    Sign In
+  </a>
+  {% endif %}
+  {% endif %}
+</div>
+{% endblock %}

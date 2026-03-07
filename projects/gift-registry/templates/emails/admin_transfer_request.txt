@@ -1,0 +1,17 @@
+Hi {{ transfer.to_user.name }},
+
+{{ transfer.from_user.name }} would like to make you the Family Admin for "{{ transfer.family.name }}" on the Gift Registry.
+
+As Family Admin, you will be able to:
+  - Invite new members
+  - Remove members
+  - Change the family theme
+
+{{ transfer.from_user.name }} will become a regular member once you accept.
+
+To accept or decline this request, visit:
+{{ respond_url }}
+
+If you were not expecting this, you can safely ignore or decline it.
+
+— Gift Registry

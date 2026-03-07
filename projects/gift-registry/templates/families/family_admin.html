@@ -15,8 +15,13 @@
 
     <!-- Members -->
     <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-800">
+      <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between">
         <h2 class="font-semibold text-white">Members</h2>
+        {% if pending_transfer %}
+        <span class="text-xs text-yellow-500 bg-yellow-900/30 border border-yellow-800/40 px-2 py-1 rounded-lg">
+          ⏳ Transfer pending — {{ pending_transfer.to_user.name }}
+        </span>
+        {% endif %}
       </div>
       {% for m in memberships %}
       <div class="flex items-center justify-between px-6 py-4 {% if not forloop.last %}border-b border-gray-800{% endif %}">
@@ -30,16 +35,24 @@
           </div>
         </div>
         {% if m.user != request.user %}
-        <form method="post">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="remove_member">
-          <input type="hidden" name="member_id" value="{{ m.user.pk }}">
-          <button type="submit"
-            onclick="return confirm('Remove {{ m.user.name }} from {{ family.name }}?')"
-            class="text-xs text-red-500 hover:text-red-400 border border-red-900 hover:border-red-700 px-3 py-1 rounded-lg transition-colors">
-            Remove
-          </button>
-        </form>
+        <div class="flex items-center gap-2">
+          {% if not m.user.is_managed %}
+          <a href="{% url 'initiate_admin_transfer' family_id=family.pk user_id=m.user.pk %}"
+            class="text-xs text-gray-600 hover:text-yellow-400 border border-gray-800 hover:border-yellow-800/50 px-3 py-1 rounded-lg transition-colors">
+            Make Admin
+          </a>
+          {% endif %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="remove_member">
+            <input type="hidden" name="member_id" value="{{ m.user.pk }}">
+            <button type="submit"
+              onclick="return confirm('Remove {{ m.user.name }} from {{ family.name }}?')"
+              class="text-xs text-red-500 hover:text-red-400 border border-red-900 hover:border-red-700 px-3 py-1 rounded-lg transition-colors">
+              Remove
+            </button>
+          </form>
+        </div>
         {% else %}
         <span class="text-xs text-gray-700">You</span>
         {% endif %}

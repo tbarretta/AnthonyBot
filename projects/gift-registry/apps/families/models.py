@@ -4,6 +4,13 @@ from django.utils import timezone
 import uuid
 from datetime import timedelta
 
+TRANSFER_STATUS_CHOICES = [
+    ("pending",   "Pending"),
+    ("accepted",  "Accepted"),
+    ("declined",  "Declined"),
+    ("cancelled", "Cancelled"),
+]
+
 THEME_CHOICES = [
     ("midnight",  "🌙 Midnight"),
     ("forest",    "🌿 Forest"),
@@ -102,3 +109,47 @@ class FamilyInvitation(models.Model):
 
     def is_valid(self):
         return self.status == "pending" and timezone.now() < self.expires_at
+
+
+class AdminTransferRequest(models.Model):
+    """A request to transfer Family Admin rights to another member."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    family = models.ForeignKey(
+        Family, on_delete=models.CASCADE, related_name="admin_transfers"
+    )
+    from_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="initiated_admin_transfers",
+    )
+    to_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="received_admin_transfers",
+    )
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    status = models.CharField(
+        max_length=10, choices=TRANSFER_STATUS_CHOICES, default="pending"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.from_user.name} → {self.to_user.name} ({self.family.name}) [{self.status}]"
+
+    def accept(self):
+        """Swap roles: to_user becomes admin, from_user becomes member."""
+        FamilyMembership.objects.filter(user=self.to_user,   family=self.family).update(role="admin")
+        FamilyMembership.objects.filter(user=self.from_user, family=self.family).update(role="member")
+        self.status = "accepted"
+        self.save(update_fields=["status"])
+
+    def decline(self):
+        self.status = "declined"
+        self.save(update_fields=["status"])
+
+    def cancel(self):
+        self.status = "cancelled"
+        self.save(update_fields=["status"])

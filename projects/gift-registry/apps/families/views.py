@@ -2,12 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import Http404
-
 from django.db.models import Count
 
-from .models import Family, FamilyMembership, FamilyInvitation
+from .models import Family, FamilyMembership, FamilyInvitation, AdminTransferRequest
 from apps.access.models import WishlistAccessRequest
-from apps.notifications.tasks import send_invitation_email
+from apps.notifications.tasks import send_invitation_email, send_admin_transfer_email
 from apps.wishlist.models import WishlistItem
 
 
@@ -82,10 +81,15 @@ def family_detail(request, family_id):
         else:
             entry["item_count"] = None
 
+    viewer_membership = FamilyMembership.objects.filter(
+        user=request.user, family=family
+    ).first()
+
     return render(request, "families/family_detail.html", {
         "family": family,
         "members_with_state": members_with_state,
         "received_requests": received,
+        "viewer_is_admin": viewer_membership.is_admin if viewer_membership else False,
     })
 
 
@@ -136,9 +140,79 @@ def family_admin(request, family_id):
 
         return redirect("family_admin", family_id=family_id)
 
+    pending_transfer = AdminTransferRequest.objects.filter(
+        family=family, from_user=request.user, status="pending"
+    ).first()
+
     return render(request, "families/family_admin.html", {
         "family": family,
         "memberships": memberships,
         "pending_invitations": pending_invitations,
         "theme_choices": THEME_CHOICES,
+        "pending_transfer": pending_transfer,
+    })
+
+
+@login_required
+def initiate_admin_transfer(request, family_id, user_id):
+    """Show transfer warning (GET) and create the transfer request (POST)."""
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+
+    family = get_object_or_404(Family, pk=family_id)
+    _require_family_admin(request.user, family)
+    to_user = get_object_or_404(User, pk=user_id)
+
+    # Target must be a non-admin member of the same family
+    if not FamilyMembership.objects.filter(user=to_user, family=family).exists():
+        raise Http404
+    if to_user == request.user:
+        raise Http404
+
+    if request.method == "POST":
+        # Cancel any existing pending transfer for this family
+        AdminTransferRequest.objects.filter(family=family, status="pending").update(status="cancelled")
+
+        transfer = AdminTransferRequest.objects.create(
+            family=family,
+            from_user=request.user,
+            to_user=to_user,
+        )
+        send_admin_transfer_email.delay(str(transfer.id))
+        messages.success(
+            request,
+            f"Transfer request sent to {to_user.name}. They must accept via email before the change takes effect."
+        )
+        return redirect("family_admin", family_id=family_id)
+
+    return render(request, "families/confirm_admin_transfer.html", {
+        "family": family,
+        "to_user": to_user,
+    })
+
+
+def respond_admin_transfer(request, token):
+    """Email link handler — show accept/decline page (GET), execute on POST."""
+    transfer = get_object_or_404(AdminTransferRequest, token=token, status="pending")
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "accept":
+            transfer.accept()
+            return render(request, "families/admin_transfer_response.html", {
+                "action": "accepted",
+                "family": transfer.family,
+                "from_user": transfer.from_user,
+            })
+        elif action == "decline":
+            transfer.decline()
+            return render(request, "families/admin_transfer_response.html", {
+                "action": "declined",
+                "family": transfer.family,
+                "from_user": transfer.from_user,
+            })
+        raise Http404
+
+    return render(request, "families/respond_admin_transfer.html", {
+        "transfer": transfer,
     })

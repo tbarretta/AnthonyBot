@@ -124,6 +124,26 @@ def send_access_response_notification(access_request_id, action):
 
 
 @shared_task
+def send_admin_transfer_email(transfer_id):
+    from apps.families.models import AdminTransferRequest
+    transfer = AdminTransferRequest.objects.select_related(
+        "from_user", "to_user", "family"
+    ).get(pk=transfer_id)
+
+    respond_url = f"{settings.SITE_URL}/families/transfer/{transfer.token}/"
+    body = render_to_string("emails/admin_transfer_request.txt", {
+        "transfer": transfer,
+        "respond_url": respond_url,
+    })
+    send_mail(
+        subject=f"🎁 {transfer.from_user.name} is transferring Family Admin to you — {transfer.family.name}",
+        message=body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[transfer.to_user.email],
+    )
+
+
+@shared_task
 def send_new_item_notification(item_id):
     from apps.wishlist.models import WishlistItem
     from apps.accounts.models import NewItemNotificationSubscription
