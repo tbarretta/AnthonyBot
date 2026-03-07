@@ -7,7 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from .models import User, EmailVerificationToken, UserNotificationPreference, NewItemNotificationSubscription
-from .forms import LoginForm, RegistrationForm, PasswordResetRequestForm, SetNewPasswordForm, ManagedMemberForm
+from .forms import LoginForm, RegistrationForm, PasswordResetRequestForm, SetNewPasswordForm, ManagedMemberForm, ChangePasswordForm
 from apps.families.models import FamilyInvitation
 from apps.notifications.tasks import send_verification_email, send_password_reset_email
 
@@ -226,34 +226,48 @@ def exit_managed_context(request):
 
 @login_required
 def preferences(request):
+    from django.contrib.auth import update_session_auth_hash
+
     prefs, _ = UserNotificationPreference.objects.get_or_create(user=request.user)
-    # Get family members for subscription management
-    from apps.families.models import FamilyMembership
     family_members = User.objects.filter(
         family_memberships__family__in=request.user.family_memberships.values("family")
-    ).exclude(pk=request.user.pk).distinct()
+    ).exclude(pk=request.user.pk).exclude(is_managed=True).distinct()
 
     subscriptions = NewItemNotificationSubscription.objects.filter(
         subscriber=request.user
     ).values_list("target_user_id", flat=True)
 
+    password_form = ChangePasswordForm(user=request.user)
+
     if request.method == "POST":
-        prefs.notify_on_access_request = "notify_on_access_request" in request.POST
-        prefs.save()
-        # Update item notification subscriptions
-        subscribed_ids = request.POST.getlist("subscribe_to")
-        NewItemNotificationSubscription.objects.filter(subscriber=request.user).delete()
-        for uid in subscribed_ids:
-            target = User.objects.filter(pk=uid).first()
-            if target:
-                NewItemNotificationSubscription.objects.get_or_create(
-                    subscriber=request.user, target_user=target
-                )
-        messages.success(request, "Preferences saved.")
-        return redirect("preferences")
+        action = request.POST.get("action")
+
+        if action == "change_password":
+            password_form = ChangePasswordForm(request.POST, user=request.user)
+            if password_form.is_valid():
+                request.user.set_password(password_form.cleaned_data["new_password"])
+                request.user.save(update_fields=["password"])
+                update_session_auth_hash(request, request.user)
+                messages.success(request, "Password updated successfully.")
+                return redirect("preferences")
+
+        else:
+            prefs.notify_on_access_request = "notify_on_access_request" in request.POST
+            prefs.save()
+            subscribed_ids = request.POST.getlist("subscribe_to")
+            NewItemNotificationSubscription.objects.filter(subscriber=request.user).delete()
+            for uid in subscribed_ids:
+                target = User.objects.filter(pk=uid).first()
+                if target:
+                    NewItemNotificationSubscription.objects.get_or_create(
+                        subscriber=request.user, target_user=target
+                    )
+            messages.success(request, "Preferences saved.")
+            return redirect("preferences")
 
     return render(request, "accounts/preferences.html", {
         "prefs": prefs,
         "family_members": family_members,
         "subscriptions": list(subscriptions),
+        "password_form": password_form,
     })

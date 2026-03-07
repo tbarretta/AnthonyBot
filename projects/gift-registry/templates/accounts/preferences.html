@@ -57,4 +57,48 @@
     </a>
   </div>
 </form>
+
+<!-- Change Password — separate form -->
+<form method="post" class="max-w-2xl mt-6">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="change_password">
+
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
+    <h2 class="font-semibold text-white">Change Password</h2>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-300 mb-1">Current Password</label>
+      <input type="password" name="current_password" placeholder="Current password"
+        class="w-full bg-gray-800 border {% if password_form.current_password.errors %}border-red-600{% else %}border-gray-700{% endif %} focus:border-[var(--color-primary)] text-white rounded-lg px-3 py-2 text-sm outline-none transition-colors placeholder-gray-500">
+      {% if password_form.current_password.errors %}
+      <p class="text-red-400 text-xs mt-1">{{ password_form.current_password.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-300 mb-1">New Password</label>
+      <input type="password" name="new_password" placeholder="New password"
+        class="w-full bg-gray-800 border {% if password_form.new_password.errors %}border-red-600{% else %}border-gray-700{% endif %} focus:border-[var(--color-primary)] text-white rounded-lg px-3 py-2 text-sm outline-none transition-colors placeholder-gray-500">
+      {% if password_form.new_password.errors %}
+      <p class="text-red-400 text-xs mt-1">{{ password_form.new_password.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-300 mb-1">Confirm New Password</label>
+      <input type="password" name="new_password_confirm" placeholder="Confirm new password"
+        class="w-full bg-gray-800 border {% if password_form.new_password_confirm.errors %}border-red-600{% else %}border-gray-700{% endif %} focus:border-[var(--color-primary)] text-white rounded-lg px-3 py-2 text-sm outline-none transition-colors placeholder-gray-500">
+      {% if password_form.new_password_confirm.errors %}
+      <p class="text-red-400 text-xs mt-1">{{ password_form.new_password_confirm.errors|join:", " }}</p>
+      {% endif %}
+    </div>
+
+    <div class="pt-1">
+      <button type="submit"
+        class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-medium px-5 py-2 rounded-lg transition-colors">
+        Update Password
+      </button>
+    </div>
+  </div>
+</form>
 {% endblock %}

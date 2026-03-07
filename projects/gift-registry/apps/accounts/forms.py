@@ -110,6 +110,45 @@ class NotificationPreferenceForm(forms.Form):
     notify_on_access_request = forms.BooleanField(required=False, label="Access requests to my wishlist")
 
 
+class ChangePasswordForm(forms.Form):
+    current_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={"placeholder": "Current password"}),
+        label="Current Password",
+    )
+    new_password = forms.CharField(
+        widget=forms.PasswordInput(attrs={"placeholder": "New password"}),
+        label="New Password",
+    )
+    new_password_confirm = forms.CharField(
+        widget=forms.PasswordInput(attrs={"placeholder": "Confirm new password"}),
+        label="Confirm New Password",
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user")
+        super().__init__(*args, **kwargs)
+
+    def clean_current_password(self):
+        pw = self.cleaned_data.get("current_password")
+        if pw and not self.user.check_password(pw):
+            raise forms.ValidationError("Current password is incorrect.")
+        return pw
+
+    def clean_new_password(self):
+        pw = self.cleaned_data.get("new_password")
+        if pw:
+            validate_password(pw)
+        return pw
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get("new_password")
+        p2 = cleaned.get("new_password_confirm")
+        if p1 and p2 and p1 != p2:
+            self.add_error("new_password_confirm", "Passwords do not match.")
+        return cleaned
+
+
 class ManagedMemberForm(forms.Form):
     name = forms.CharField(
         max_length=150,
