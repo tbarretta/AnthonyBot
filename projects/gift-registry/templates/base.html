@@ -193,6 +193,18 @@
 </div>
 {% endif %}
 
+{% if user.is_authenticated and active_managed_member %}
+<div class="bg-amber-950 border-b border-amber-800 px-4 py-2 flex items-center justify-between text-sm">
+  <span class="text-amber-300">
+    🧒 Managing <strong class="text-amber-100">{{ active_managed_member.name }}</strong>'s wishlist
+    <span class="text-amber-600 ml-1">({{ active_managed_member.guardian_relationship|capfirst }})</span>
+  </span>
+  <a href="{% url 'exit_managed_context' %}" class="text-amber-500 hover:text-amber-200 transition-colors font-medium">
+    Exit ✕
+  </a>
+</div>
+{% endif %}
+
 {% if user.is_authenticated %}
 <nav class="bg-gray-900 border-b border-gray-800 px-4 py-3 flex flex-wrap items-center justify-between gap-y-2 overflow-x-auto">
   <div class="flex items-center flex-wrap gap-x-5 gap-y-1">

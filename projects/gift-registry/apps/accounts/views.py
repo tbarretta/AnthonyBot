@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from apps.families.models import FamilyMembership
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -6,9 +7,23 @@ from django.conf import settings
 from django.utils import timezone
 
 from .models import User, EmailVerificationToken, UserNotificationPreference, NewItemNotificationSubscription
-from .forms import LoginForm, RegistrationForm, PasswordResetRequestForm, SetNewPasswordForm
-from apps.families.models import FamilyInvitation, FamilyMembership
+from .forms import LoginForm, RegistrationForm, PasswordResetRequestForm, SetNewPasswordForm, ManagedMemberForm
+from apps.families.models import FamilyInvitation
 from apps.notifications.tasks import send_verification_email, send_password_reset_email
+
+
+def get_active_member(request):
+    """
+    Returns the managed member currently being managed, or request.user.
+    Validates the guardian relationship and clears stale session data.
+    """
+    mid = request.session.get("active_managed_member_id")
+    if mid:
+        try:
+            return User.objects.get(pk=mid, guardian=request.user, is_managed=True)
+        except User.DoesNotExist:
+            request.session.pop("active_managed_member_id", None)
+    return request.user
 
 
 def login_view(request):
@@ -138,13 +153,75 @@ def dashboard(request):
     my_items = WishlistItem.objects.filter(owner=request.user, is_soft_removed=False).order_by("-desire_rating")[:3]
     pending_requests = WishlistAccessRequest.objects.filter(to_user=request.user, status="pending")
 
+    # Managed members and their pending access requests
+    managed_members = request.user.managed_members.filter(is_managed=True).order_by("name")
+    managed_pending_requests = WishlistAccessRequest.objects.filter(
+        to_user__in=managed_members,
+        status="pending",
+    ).select_related("from_user", "to_user", "family")
+
     return render(request, "accounts/dashboard.html", {
         "memberships": memberships,
         "my_items": my_items,
         "pending_requests": pending_requests,
         "item_count": WishlistItem.objects.filter(owner=request.user).count(),
         "item_limit": settings.WISHLIST_ITEM_LIMIT,
+        "managed_members": managed_members,
+        "managed_pending_requests": managed_pending_requests,
     })
+
+
+@login_required
+def create_managed_member(request):
+    """Create a managed member (child, elder, etc.) on the guardian's behalf."""
+    form = ManagedMemberForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        import uuid as _uuid
+        placeholder_email = f"managed-{_uuid.uuid4().hex}@noreply.internal"
+        managed = User(
+            email=placeholder_email,
+            name=form.cleaned_data["name"],
+            is_managed=True,
+            guardian=request.user,
+            guardian_relationship=form.cleaned_data["relationship"],
+            is_email_verified=True,
+            is_active=True,
+        )
+        managed.set_unusable_password()
+        managed.save()
+
+        # Auto-join all families the guardian belongs to
+        guardian_memberships = FamilyMembership.objects.filter(user=request.user)
+        for gm in guardian_memberships:
+            FamilyMembership.objects.get_or_create(
+                user=managed,
+                family=gm.family,
+                defaults={"role": "member"},
+            )
+
+        # Create notification prefs
+        UserNotificationPreference.objects.get_or_create(user=managed)
+
+        messages.success(request, f"{managed.name} has been added as a managed member.")
+        return redirect("dashboard")
+
+    return render(request, "accounts/managed_member_form.html", {"form": form})
+
+
+@login_required
+def switch_managed_context(request, member_id):
+    """Switch session to manage a specific managed member's wishlist."""
+    managed = get_object_or_404(User, pk=member_id, guardian=request.user, is_managed=True)
+    request.session["active_managed_member_id"] = str(managed.id)
+    messages.info(request, f"Now managing {managed.name}'s wishlist.")
+    return redirect(request.GET.get("next", "my_wishlist"))
+
+
+@login_required
+def exit_managed_context(request):
+    """Return to managing your own account."""
+    request.session.pop("active_managed_member_id", None)
+    return redirect(request.GET.get("next", "dashboard"))
 
 
 @login_required

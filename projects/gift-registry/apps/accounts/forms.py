@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from .models import User
+from .models import User, GUARDIAN_RELATIONSHIP_CHOICES
 
 
 class LoginForm(forms.Form):
@@ -108,3 +108,16 @@ class SetNewPasswordForm(forms.Form):
 
 class NotificationPreferenceForm(forms.Form):
     notify_on_access_request = forms.BooleanField(required=False, label="Access requests to my wishlist")
+
+
+class ManagedMemberForm(forms.Form):
+    name = forms.CharField(
+        max_length=150,
+        widget=forms.TextInput(attrs={"placeholder": "e.g. Emma or Grandma Rose"}),
+        label="Name",
+        help_text="Visible to all family members.",
+    )
+    relationship = forms.ChoiceField(
+        choices=GUARDIAN_RELATIONSHIP_CHOICES,
+        label="Relationship",
+    )

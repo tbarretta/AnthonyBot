@@ -4,6 +4,13 @@ from django.utils import timezone
 import uuid
 
 
+GUARDIAN_RELATIONSHIP_CHOICES = [
+    ("child", "Child"),
+    ("elder", "Elder"),
+    ("other", "Other"),
+]
+
+
 class UserManager(BaseUserManager):
     def create_user(self, email, name, password=None, **extra_fields):
         if not email:
@@ -30,6 +37,22 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_master_admin = models.BooleanField(default=False)
     is_email_verified = models.BooleanField(default=False)
+
+    # Managed member fields
+    is_managed = models.BooleanField(default=False)
+    guardian = models.ForeignKey(
+        "self",
+        null=True, blank=True,
+        related_name="managed_members",
+        on_delete=models.CASCADE,
+    )
+    guardian_relationship = models.CharField(
+        max_length=10,
+        choices=GUARDIAN_RELATIONSHIP_CHOICES,
+        blank=True,
+        default="",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

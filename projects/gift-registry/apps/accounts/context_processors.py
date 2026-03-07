@@ -1,3 +1,24 @@
+def active_managed_member(request):
+    """
+    Injects `active_managed_member` (User or None) into every template context.
+    Set when a guardian is managing a member's wishlist via session.
+    """
+    if not request.user.is_authenticated:
+        return {"active_managed_member": None}
+
+    mid = request.session.get("active_managed_member_id")
+    if not mid:
+        return {"active_managed_member": None}
+
+    from apps.accounts.models import User
+    try:
+        member = User.objects.get(pk=mid, guardian=request.user, is_managed=True)
+        return {"active_managed_member": member}
+    except User.DoesNotExist:
+        request.session.pop("active_managed_member_id", None)
+        return {"active_managed_member": None}
+
+
 def active_theme(request):
     """
     Injects `active_theme` into every template context.

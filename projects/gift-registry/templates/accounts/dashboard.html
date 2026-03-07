@@ -7,7 +7,7 @@
   <p class="text-gray-500 text-sm mt-1">Here's what's going on in your registry.</p>
 </div>
 
-{% if pending_requests %}
+{% if pending_requests or managed_pending_requests %}
 <div class="mb-6 bg-yellow-900/20 border border-yellow-700/40 rounded-xl p-4">
   <h2 class="text-yellow-400 font-semibold text-sm mb-3">⏳ Pending Access Requests</h2>
   <div class="space-y-2">
@@ -15,6 +15,25 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-900 rounded-lg px-4 py-3 gap-3">
       <span class="text-sm text-gray-300">
         <strong class="text-white">{{ req.from_user.name }}</strong> wants to view your wishlist
+        <span class="text-gray-600 text-xs ml-1">({{ req.family.name }})</span>
+      </span>
+      <div class="flex gap-2 flex-shrink-0">
+        <form method="post" action="{% url 'respond_in_app' access_id=req.pk action='approve' %}">
+          {% csrf_token %}
+          <button type="submit" class="text-xs bg-green-800 hover:bg-green-700 text-green-200 px-3 py-1 rounded-lg transition-colors">Approve</button>
+        </form>
+        <form method="post" action="{% url 'respond_in_app' access_id=req.pk action='deny' %}">
+          {% csrf_token %}
+          <button type="submit" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-400 px-3 py-1 rounded-lg transition-colors">Decline</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+    {% for req in managed_pending_requests %}
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-gray-900 rounded-lg px-4 py-3 gap-3">
+      <span class="text-sm text-gray-300">
+        <strong class="text-white">{{ req.from_user.name }}</strong> wants to view
+        <strong class="text-amber-300">{{ req.to_user.name }}</strong>'s wishlist
         <span class="text-gray-600 text-xs ml-1">({{ req.family.name }})</span>
       </span>
       <div class="flex gap-2 flex-shrink-0">
@@ -101,6 +120,38 @@
   </div>
 </div>
 
+{% if managed_members %}
+<!-- Managed Members -->
+<div class="mb-8 bg-gray-900 border border-gray-800 rounded-xl p-6">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-semibold text-white">You Manage</h2>
+    <a href="{% url 'create_managed_member' %}"
+      class="text-xs border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white px-3 py-1 rounded-lg transition-colors">
+      + Add Member
+    </a>
+  </div>
+  <div class="space-y-3">
+    {% for member in managed_members %}
+    <div class="flex items-center justify-between bg-gray-800 border border-gray-700 rounded-lg px-4 py-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full bg-amber-900/50 border border-amber-800/60 flex items-center justify-center text-sm font-bold text-amber-300">
+          {{ member.name|first|upper }}
+        </div>
+        <div>
+          <p class="text-white text-sm font-medium">{{ member.name }}</p>
+          <p class="text-gray-500 text-xs">{{ member.guardian_relationship|capfirst }}</p>
+        </div>
+      </div>
+      <a href="{% url 'switch_managed_context' member_id=member.pk %}"
+        class="text-xs bg-amber-900/40 hover:bg-amber-800/60 text-amber-300 hover:text-amber-100 border border-amber-800/50 px-3 py-1.5 rounded-lg transition-colors">
+        Manage Wishlist
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
 <!-- Quick actions -->
 <div class="flex gap-3 flex-wrap">
   <a href="{% url 'add_item' %}"
@@ -111,5 +162,11 @@
     class="border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
     Preferences
   </a>
+  {% if not managed_members %}
+  <a href="{% url 'create_managed_member' %}"
+    class="border border-gray-700 hover:border-gray-500 text-gray-300 hover:text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+    + Add Managed Member
+  </a>
+  {% endif %}
 </div>
 {% endblock %}

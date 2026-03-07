@@ -72,22 +72,33 @@ def send_password_reset_email(user_id):
 def send_access_request_notification(access_request_id):
     from apps.access.models import WishlistAccessRequest
     req = WishlistAccessRequest.objects.select_related(
-        "from_user", "to_user", "family"
+        "from_user", "to_user", "to_user__guardian", "family"
     ).get(pk=access_request_id)
 
     approve_url = f"{settings.SITE_URL}/access/email/{req.token}/approve/"
     deny_url = f"{settings.SITE_URL}/access/email/{req.token}/deny/"
 
+    # If the recipient is a managed member, notify their guardian instead
+    recipient = req.to_user.guardian if req.to_user.is_managed and req.to_user.guardian else req.to_user
+
     body = render_to_string("emails/access_request.txt", {
         "req": req,
         "approve_url": approve_url,
         "deny_url": deny_url,
+        "recipient": recipient,
     })
+
+    subject = (
+        f"🔔 {req.from_user.name} wants to view {req.to_user.name}'s Gift Registry"
+        if req.to_user.is_managed
+        else f"🔔 {req.from_user.name} wants to view your Gift Registry"
+    )
+
     send_mail(
-        subject=f"🔔 {req.from_user.name} wants to view your Gift Registry",
+        subject=subject,
         message=body,
         from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[req.to_user.email],
+        recipient_list=[recipient.email],
     )
 
 

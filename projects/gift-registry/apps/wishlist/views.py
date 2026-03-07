@@ -10,14 +10,16 @@ from .forms import WishlistItemForm, SoftRemoveForm
 from apps.families.models import Family, FamilyMembership
 from apps.access.models import WishlistAccessRequest
 from apps.notifications.tasks import send_new_item_notification
+from apps.accounts.views import get_active_member
 
 
 @login_required
 def my_wishlist(request):
-    items = WishlistItem.objects.filter(owner=request.user).prefetch_related(
+    active_member = get_active_member(request)
+    items = WishlistItem.objects.filter(owner=active_member).prefetch_related(
         "visible_to_families"
     ).annotate(comment_count=Count("comments"))
-    memberships = FamilyMembership.objects.filter(user=request.user).select_related("family")
+    memberships = FamilyMembership.objects.filter(user=active_member).select_related("family")
     item_count = items.count()
 
     return render(request, "wishlist/my_wishlist.html", {
@@ -26,21 +28,23 @@ def my_wishlist(request):
         "item_limit": settings.WISHLIST_ITEM_LIMIT,
         "can_add": item_count < settings.WISHLIST_ITEM_LIMIT,
         "memberships": memberships,
+        "wishlist_owner": active_member,
     })
 
 
 @login_required
 def add_item(request):
-    if not request.user.can_add_items:
+    active_member = get_active_member(request)
+    if not active_member.can_add_items:
         messages.error(request, f"You've reached the {settings.WISHLIST_ITEM_LIMIT}-item limit.")
         return redirect("my_wishlist")
 
-    memberships = FamilyMembership.objects.filter(user=request.user).select_related("family")
+    memberships = FamilyMembership.objects.filter(user=active_member).select_related("family")
     form = WishlistItemForm(request.POST or None, request.FILES or None)
 
     if request.method == "POST" and form.is_valid():
         item = form.save(commit=False)
-        item.owner = request.user
+        item.owner = active_member
         item.save()
         # Set family visibility
         selected_family_ids = request.POST.getlist("visible_to_families")
@@ -65,8 +69,9 @@ def add_item(request):
 
 @login_required
 def edit_item(request, item_id):
-    item = get_object_or_404(WishlistItem, pk=item_id, owner=request.user)
-    memberships = FamilyMembership.objects.filter(user=request.user).select_related("family")
+    active_member = get_active_member(request)
+    item = get_object_or_404(WishlistItem, pk=item_id, owner=active_member)
+    memberships = FamilyMembership.objects.filter(user=active_member).select_related("family")
     current_visibility = item.visible_to_families.values_list("id", flat=True)
 
     form = WishlistItemForm(request.POST or None, request.FILES or None, instance=item)
@@ -94,7 +99,7 @@ def edit_item(request, item_id):
 
 @login_required
 def delete_item(request, item_id):
-    item = get_object_or_404(WishlistItem, pk=item_id, owner=request.user)
+    item = get_object_or_404(WishlistItem, pk=item_id, owner=get_active_member(request))
     if request.method == "POST":
         name = item.name
         item.delete()
@@ -104,7 +109,7 @@ def delete_item(request, item_id):
 
 @login_required
 def soft_remove_item(request, item_id):
-    item = get_object_or_404(WishlistItem, pk=item_id, owner=request.user)
+    item = get_object_or_404(WishlistItem, pk=item_id, owner=get_active_member(request))
     form = SoftRemoveForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         item.soft_remove(form.cleaned_data["reason"])
@@ -115,7 +120,7 @@ def soft_remove_item(request, item_id):
 
 @login_required
 def undo_soft_remove(request, item_id):
-    item = get_object_or_404(WishlistItem, pk=item_id, owner=request.user)
+    item = get_object_or_404(WishlistItem, pk=item_id, owner=get_active_member(request))
     if request.method == "POST":
         item.undo_soft_remove()
         messages.success(request, f'"{item.name}" is back on your wishlist.')
