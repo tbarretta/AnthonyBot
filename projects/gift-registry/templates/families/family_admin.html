@@ -36,7 +36,7 @@
         </div>
         {% if m.user != request.user %}
         <div class="flex items-center gap-2">
-          {% if not m.user.is_managed %}
+          {% if not m.user.is_managed and not m.is_admin %}
           <a href="{% url 'initiate_admin_transfer' family_id=family.pk user_id=m.user.pk %}"
             class="text-xs text-gray-600 hover:text-yellow-400 border border-gray-800 hover:border-yellow-800/50 px-3 py-1 rounded-lg transition-colors">
             Make Admin
