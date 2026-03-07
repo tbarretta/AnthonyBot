@@ -3,9 +3,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import Http404
 
+from django.db.models import Count
+
 from .models import Family, FamilyMembership, FamilyInvitation
 from apps.access.models import WishlistAccessRequest
 from apps.notifications.tasks import send_invitation_email
+from apps.wishlist.models import WishlistItem
 
 
 def _get_family_membership(user, family):
@@ -51,6 +54,31 @@ def family_detail(request, family_id):
             "access_request": req,
             "access_status": req.status if req else None,
         })
+
+    # Batch-fetch wishlist item counts for approved members
+    approved_user_ids = [
+        entry["membership"].user_id
+        for entry in members_with_state
+        if entry["access_status"] == "approved"
+    ]
+    if approved_user_ids:
+        item_counts = dict(
+            WishlistItem.objects.filter(
+                owner_id__in=approved_user_ids,
+                is_soft_removed=False,
+            )
+            .values("owner_id")
+            .annotate(count=Count("id"))
+            .values_list("owner_id", "count")
+        )
+    else:
+        item_counts = {}
+
+    for entry in members_with_state:
+        if entry["access_status"] == "approved":
+            entry["item_count"] = item_counts.get(entry["membership"].user_id, 0)
+        else:
+            entry["item_count"] = None
 
     return render(request, "families/family_detail.html", {
         "family": family,

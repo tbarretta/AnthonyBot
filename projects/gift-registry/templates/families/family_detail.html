@@ -56,6 +56,9 @@
           {{ m.role|capfirst }}
           {% if m.is_admin %} · Family Admin{% endif %}
         </p>
+        {% if entry.item_count is not None %}
+        <p class="text-gray-500 text-xs mt-0.5">Item Count: {{ entry.item_count }}</p>
+        {% endif %}
       </div>
     </div>
 
