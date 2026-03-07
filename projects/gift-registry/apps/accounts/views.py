@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import Http404
 from apps.families.models import FamilyMembership
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
@@ -175,7 +176,10 @@ def dashboard(request):
 def delete_account(request):
     """Confirm and delete the user's account.
     If the user is a guardian, managed members are deleted via CASCADE.
+    Master Admins cannot delete their own account.
     """
+    if request.user.is_master_admin:
+        raise Http404
     managed_members = request.user.managed_members.filter(is_managed=True).order_by("name")
     form = DeleteAccountForm(request.POST or None, user=request.user)
 
