@@ -46,6 +46,9 @@
           <div class="flex-shrink-0 text-right">
             <p class="text-white font-semibold">${{ item.price }}</p>
             <p class="text-yellow-400 text-xs">{% for i in "12345" %}{% if forloop.counter <= item.desire_rating %}★{% else %}☆{% endif %}{% endfor %}</p>
+            {% if item.comment_count %}
+            <p class="text-gray-600 text-xs mt-0.5">💬 {{ item.comment_count }}</p>
+            {% endif %}
           </div>
         </div>
       </div>

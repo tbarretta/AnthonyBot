@@ -75,6 +75,9 @@
             {% endfor %}
           </span>
           {% endif %}
+          {% if item.comment_count %}
+          <span class="text-xs text-gray-600">· 💬 {{ item.comment_count }} comment{{ item.comment_count|pluralize }}</span>
+          {% endif %}
 
           <div class="ml-auto flex gap-2">
             <a href="{% url 'edit_item' item_id=item.pk %}"

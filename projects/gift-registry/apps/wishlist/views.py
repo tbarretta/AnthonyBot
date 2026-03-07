@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
 from django.http import Http404
+from django.db.models import Count, Q
 
 from .models import WishlistItem, ItemFamilyVisibility, PurchasedItem, ItemComment
 from .forms import WishlistItemForm, SoftRemoveForm
@@ -15,7 +16,7 @@ from apps.notifications.tasks import send_new_item_notification
 def my_wishlist(request):
     items = WishlistItem.objects.filter(owner=request.user).prefetch_related(
         "visible_to_families"
-    )
+    ).annotate(comment_count=Count("comments"))
     memberships = FamilyMembership.objects.filter(user=request.user).select_related("family")
     item_count = items.count()
 
@@ -154,7 +155,9 @@ def view_member_wishlist(request, user_id, family_id):
     items = WishlistItem.objects.filter(
         owner=owner,
         visible_to_families=family,
-    ).prefetch_related("purchase_record")
+    ).prefetch_related("purchase_record").annotate(
+        comment_count=Count("comments", filter=Q(comments__family=family))
+    )
 
     return render(request, "wishlist/member_wishlist.html", {
         "owner": owner,
