@@ -84,13 +84,15 @@
     {% if memberships %}
     <div class="space-y-3">
       {% for m in memberships %}
-      <a href="{% url 'family_detail' family_id=m.family.pk %}"
-        class="block bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-gray-600 rounded-lg px-4 py-3 transition-colors">
-        <p class="text-white text-sm font-medium">{{ m.family.name }}</p>
-        <p class="text-gray-500 text-xs mt-0.5">
-          {% if m.is_admin %}<a href="{% url 'family_admin' family_id=m.family.pk %}" class="text-[var(--color-primary)] hover:underline">Manage</a>{% else %}{{ m.role|capfirst }}{% endif %}
-        </p>
-      </a>
+      <div class="flex items-center justify-between bg-gray-800 border border-gray-700 hover:border-gray-600 rounded-lg px-4 py-3 transition-colors">
+        <a href="{% url 'family_detail' family_id=m.family.pk %}" class="flex-1 min-w-0">
+          <p class="text-white text-sm font-medium">{{ m.family.name }}</p>
+          {% if not m.is_admin %}<p class="text-gray-500 text-xs mt-0.5">{{ m.role|capfirst }}</p>{% endif %}
+        </a>
+        {% if m.is_admin %}
+        <a href="{% url 'family_admin' family_id=m.family.pk %}" class="text-xs text-[var(--color-primary)] hover:underline ml-3 flex-shrink-0">Manage</a>
+        {% endif %}
+      </div>
       {% endfor %}
     </div>
     {% else %}
