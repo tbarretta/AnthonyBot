@@ -138,6 +138,14 @@ def family_admin(request, family_id):
                 membership.delete()
                 messages.success(request, f"{membership.user.name} removed from {family.name}.")
 
+        elif action == "resend_invite":
+            inv_id = request.POST.get("invitation_id")
+            inv = FamilyInvitation.objects.filter(pk=inv_id, family=family, status="pending").first()
+            if inv:
+                inv.resend()
+                send_invitation_email.delay(str(inv.id))
+                messages.success(request, f"Invitation resent to {inv.email}.")
+
         return redirect("family_admin", family_id=family_id)
 
     pending_transfer = AdminTransferRequest.objects.filter(

@@ -74,7 +74,22 @@
           <p class="text-gray-300 text-sm">{{ inv.email }}</p>
           <p class="text-gray-600 text-xs">Invited by {{ inv.invited_by.name }} · expires {{ inv.expires_at|date:"M j" }}</p>
         </div>
-        <span class="text-xs text-yellow-600 bg-yellow-900/20 border border-yellow-800/30 px-2 py-1 rounded">Pending</span>
+        <div class="flex items-center gap-2">
+          {% if not inv.is_valid %}
+          <span class="text-xs text-red-500 bg-red-900/20 border border-red-800/30 px-2 py-1 rounded">Expired</span>
+          {% else %}
+          <span class="text-xs text-yellow-600 bg-yellow-900/20 border border-yellow-800/30 px-2 py-1 rounded">Pending</span>
+          {% endif %}
+          <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="resend_invite">
+            <input type="hidden" name="invitation_id" value="{{ inv.pk }}">
+            <button type="submit"
+              class="text-xs border border-gray-700 hover:border-[var(--color-primary)] text-gray-500 hover:text-[var(--color-primary)] px-3 py-1 rounded-lg transition-colors">
+              Resend
+            </button>
+          </form>
+        </div>
       </div>
       {% endfor %}
     </div>

@@ -195,6 +195,9 @@ def master_admin_family(request, family_id):
     """Master Admin manages a specific family — make admin, remove members."""
     from apps.families.models import Family, FamilyMembership, AdminTransferRequest
 
+    from apps.families.models import FamilyInvitation
+    from apps.notifications.tasks import send_invitation_email
+
     family = get_object_or_404(Family, pk=family_id)
     memberships = family.get_members().order_by("user__name")
 
@@ -215,16 +218,33 @@ def master_admin_family(request, family_id):
                     description=f"Master Admin removed {name} from {family.name}",
                 )
                 messages.success(request, f"{name} removed from {family.name}.")
+
+        elif action == "resend_invite":
+            inv_id = request.POST.get("invitation_id")
+            inv = FamilyInvitation.objects.filter(pk=inv_id, family=family, status="pending").first()
+            if inv:
+                inv.resend()
+                send_invitation_email.delay(str(inv.id))
+                ActivityLog.log(
+                    event_type="invite_resent",
+                    actor=request.user,
+                    family=family,
+                    description=f"Master Admin resent invitation to {inv.email} for {family.name}",
+                )
+                messages.success(request, f"Invitation resent to {inv.email}.")
+
         return redirect("master_admin_family", family_id=family_id)
 
     pending_transfer = AdminTransferRequest.objects.filter(
         family=family, status="pending"
     ).first()
+    pending_invitations = family.invitations.filter(status="pending").order_by("created_at")
 
     return render(request, "admin/master_admin_family.html", {
         "family": family,
         "memberships": memberships,
         "pending_transfer": pending_transfer,
+        "pending_invitations": pending_invitations,
     })
 
 

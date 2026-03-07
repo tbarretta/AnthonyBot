@@ -110,6 +110,13 @@ class FamilyInvitation(models.Model):
     def is_valid(self):
         return self.status == "pending" and timezone.now() < self.expires_at
 
+    def resend(self):
+        """Generate a fresh token and expiry, keeping status=pending."""
+        self.token = uuid.uuid4()
+        self.expires_at = timezone.now() + timedelta(days=settings.INVITATION_EXPIRY_DAYS)
+        self.status = "pending"
+        self.save(update_fields=["token", "expires_at", "status"])
+
 
 class AdminTransferRequest(models.Model):
     """A request to transfer Family Admin rights to another member."""
