@@ -88,8 +88,7 @@
         class="block bg-gray-800 hover:bg-gray-750 border border-gray-700 hover:border-gray-600 rounded-lg px-4 py-3 transition-colors">
         <p class="text-white text-sm font-medium">{{ m.family.name }}</p>
         <p class="text-gray-500 text-xs mt-0.5">
-          {{ m.role|capfirst }}
-          {% if m.is_admin %}· <a href="{% url 'family_admin' family_id=m.family.pk %}" class="text-[var(--color-primary)] hover:underline">Manage</a>{% endif %}
+          {% if m.is_admin %}<a href="{% url 'family_admin' family_id=m.family.pk %}" class="text-[var(--color-primary)] hover:underline">Manage</a>{% else %}{{ m.role|capfirst }}{% endif %}
         </p>
       </a>
       {% endfor %}
