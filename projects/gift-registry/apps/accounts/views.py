@@ -7,7 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from .models import User, EmailVerificationToken, UserNotificationPreference, NewItemNotificationSubscription
-from .forms import LoginForm, RegistrationForm, PasswordResetRequestForm, SetNewPasswordForm, ManagedMemberForm, ChangePasswordForm
+from .forms import LoginForm, RegistrationForm, PasswordResetRequestForm, SetNewPasswordForm, ManagedMemberForm, ChangePasswordForm, DeleteAccountForm
 from apps.families.models import FamilyInvitation
 from apps.notifications.tasks import send_verification_email, send_password_reset_email
 
@@ -168,6 +168,28 @@ def dashboard(request):
         "item_limit": settings.WISHLIST_ITEM_LIMIT,
         "managed_members": managed_members,
         "managed_pending_requests": managed_pending_requests,
+    })
+
+
+@login_required
+def delete_account(request):
+    """Confirm and delete the user's account.
+    If the user is a guardian, managed members are deleted via CASCADE.
+    """
+    managed_members = request.user.managed_members.filter(is_managed=True).order_by("name")
+    form = DeleteAccountForm(request.POST or None, user=request.user)
+
+    if request.method == "POST" and form.is_valid():
+        from django.contrib.auth import logout
+        user = request.user
+        logout(request)
+        user.delete()
+        messages.success(request, "Your account has been deleted.")
+        return redirect("login")
+
+    return render(request, "accounts/delete_account.html", {
+        "form": form,
+        "managed_members": managed_members,
     })
 
 

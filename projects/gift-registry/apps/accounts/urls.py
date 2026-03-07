@@ -11,6 +11,7 @@ urlpatterns = [
     path("forgot-password/", views.forgot_password, name="forgot_password"),
     path("reset-password/<str:token>/", views.reset_password, name="reset_password"),
     path("preferences/", views.preferences, name="preferences"),
+    path("delete/", views.delete_account, name="delete_account"),
     path("managed/create/", views.create_managed_member, name="create_managed_member"),
     path("managed/<uuid:member_id>/switch/", views.switch_managed_context, name="switch_managed_context"),
     path("managed/exit/", views.exit_managed_context, name="exit_managed_context"),

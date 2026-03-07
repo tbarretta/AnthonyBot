@@ -149,6 +149,23 @@ class ChangePasswordForm(forms.Form):
         return cleaned
 
 
+class DeleteAccountForm(forms.Form):
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={"placeholder": "Enter your password to confirm"}),
+        label="Password",
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user")
+        super().__init__(*args, **kwargs)
+
+    def clean_password(self):
+        pw = self.cleaned_data.get("password")
+        if pw and not self.user.check_password(pw):
+            raise forms.ValidationError("Incorrect password.")
+        return pw
+
+
 class ManagedMemberForm(forms.Form):
     name = forms.CharField(
         max_length=150,

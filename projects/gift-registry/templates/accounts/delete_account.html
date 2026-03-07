@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Delete Account — Gift Registry{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-white">Delete Account</h1>
+    <p class="text-gray-500 text-sm mt-1">This action is permanent and cannot be undone.</p>
+  </div>
+
+  {% if managed_members %}
+  <div class="mb-5 bg-red-950/60 border border-red-700/60 rounded-xl p-5">
+    <h2 class="text-red-400 font-semibold text-sm mb-2">⚠️ Managed Members Will Also Be Deleted</h2>
+    <p class="text-red-300/80 text-sm mb-3">
+      You are the guardian for the following members. Deleting your account will permanently delete their profiles and wishlists too.
+    </p>
+    <ul class="space-y-1">
+      {% for member in managed_members %}
+      <li class="flex items-center gap-2 text-sm text-red-200">
+        <span class="w-6 h-6 rounded-full bg-red-900/60 border border-red-700/50 flex items-center justify-center text-xs font-bold flex-shrink-0">
+          {{ member.name|first|upper }}
+        </span>
+        {{ member.name }}
+        <span class="text-red-600 text-xs">({{ member.guardian_relationship|capfirst }})</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+    <p class="text-gray-400 text-sm mb-5">
+      Deleting your account will permanently remove:
+    </p>
+    <ul class="text-sm text-gray-500 space-y-1 mb-6 list-disc list-inside">
+      <li>Your profile and login</li>
+      <li>Your wishlist and all items</li>
+      <li>Your family memberships</li>
+      <li>All access requests sent or received</li>
+      {% if managed_members %}
+      <li class="text-red-400">All managed member profiles and their wishlists</li>
+      {% endif %}
+    </ul>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-5">
+        <label class="block text-sm font-medium text-gray-300 mb-1">Confirm with your password</label>
+        <input
+          type="password"
+          name="password"
+          placeholder="Enter your password to confirm"
+          autofocus
+          class="w-full bg-gray-800 border {% if form.password.errors %}border-red-600{% else %}border-gray-700{% endif %} focus:border-red-500 text-white rounded-lg px-3 py-2 text-sm outline-none transition-colors placeholder-gray-500"
+        >
+        {% if form.password.errors %}
+        <p class="text-red-400 text-xs mt-1">{{ form.password.errors|join:", " }}</p>
+        {% endif %}
+      </div>
+
+      <div class="flex gap-3">
+        <button type="submit"
+          class="bg-red-800 hover:bg-red-700 text-white font-medium px-5 py-2 rounded-lg transition-colors">
+          Yes, Delete My Account
+        </button>
+        <a href="{% url 'preferences' %}"
+          class="border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white font-medium px-5 py-2 rounded-lg transition-colors">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
