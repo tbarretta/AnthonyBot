@@ -167,6 +167,10 @@
           <p class="text-white text-sm font-medium">{{ f.name }}</p>
           <div class="flex items-center gap-2">
             <span class="text-xs text-gray-600">{{ f.memberships.count }} member{{ f.memberships.count|pluralize }}</span>
+            <a href="{% url 'master_admin_family' family_id=f.pk %}"
+              class="text-xs border border-amber-900/60 hover:border-amber-700 text-amber-600 hover:text-amber-400 px-2 py-0.5 rounded-lg transition-colors">
+              ⚡ Admin
+            </a>
             <a href="{% url 'delete_family' family_id=f.pk %}"
               class="text-xs border border-red-900 hover:border-red-700 text-red-600 hover:text-red-400 px-2 py-0.5 rounded-lg transition-colors">
               Delete

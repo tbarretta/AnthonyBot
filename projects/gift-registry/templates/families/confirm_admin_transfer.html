@@ -2,9 +2,19 @@
 {% block title %}Transfer Admin — {{ family.name }}{% endblock %}
 
 {% block content %}
+{% if is_master_admin_action %}
+<div class="mb-5 bg-amber-950/60 border border-amber-700/60 rounded-xl px-5 py-3 flex items-center gap-3">
+  <span class="text-amber-400 text-lg">⚡</span>
+  <p class="text-amber-300 text-sm">
+    You are using <strong>Master Admin rights</strong> to manage
+    <strong class="text-amber-100">{{ family.name }}</strong>.
+    This action will send a transfer email on your behalf.
+  </p>
+</div>
+{% endif %}
 <div class="max-w-md mx-auto">
   <div class="mb-6">
-    <a href="{% url 'family_admin' family_id=family.pk %}" class="text-gray-600 hover:text-gray-400 text-sm">← Family Admin</a>
+    <a href="{% url cancel_url_name family_id=family.pk %}" class="text-gray-600 hover:text-gray-400 text-sm">← Back</a>
     <h1 class="text-2xl font-bold text-white mt-2">Transfer Admin Rights</h1>
   </div>
 
@@ -40,7 +50,7 @@
           class="bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white font-medium px-5 py-2 rounded-lg transition-colors">
           Send Transfer Request
         </button>
-        <a href="{% url 'family_admin' family_id=family.pk %}"
+        <a href="{% url cancel_url_name family_id=family.pk %}"
           class="border border-gray-700 hover:border-gray-500 text-gray-400 hover:text-white font-medium px-5 py-2 rounded-lg transition-colors">
           Cancel
         </a>

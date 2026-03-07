@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}⚡ Managing {{ family.name }} — Master Admin{% endblock %}
+
+{% block content %}
+
+<!-- Master Admin override banner -->
+<div class="mb-6 bg-amber-950/60 border border-amber-700/60 rounded-xl px-5 py-3 flex items-center gap-3">
+  <span class="text-amber-400 text-xl">⚡</span>
+  <div>
+    <p class="text-amber-200 text-sm font-semibold">Master Admin Override</p>
+    <p class="text-amber-400/80 text-xs">
+      You are managing <strong class="text-amber-200">{{ family.name }}</strong> using elevated Master Admin rights.
+      Changes made here bypass normal Family Admin restrictions.
+    </p>
+  </div>
+  <a href="{% url 'master_admin' %}" class="ml-auto text-amber-600 hover:text-amber-300 text-sm transition-colors flex-shrink-0">
+    ← Master Admin
+  </a>
+</div>
+
+<div class="mb-4">
+  <h1 class="text-xl font-bold text-white">{{ family.name }}</h1>
+  <p class="text-gray-500 text-sm mt-0.5">{{ memberships.count }} member{{ memberships.count|pluralize }}</p>
+</div>
+
+<!-- Members -->
+<div class="bg-gray-900 border-2 border-amber-900/50 rounded-xl overflow-hidden max-w-2xl">
+  <div class="px-6 py-4 border-b border-amber-900/40 flex items-center justify-between bg-amber-950/20">
+    <h2 class="font-semibold text-white">Members</h2>
+    {% if pending_transfer %}
+    <span class="text-xs text-yellow-500 bg-yellow-900/30 border border-yellow-800/40 px-2 py-1 rounded-lg">
+      ⏳ Transfer pending — {{ pending_transfer.to_user.name }}
+    </span>
+    {% endif %}
+  </div>
+
+  {% for m in memberships %}
+  <div class="flex items-center justify-between px-6 py-4 {% if not forloop.last %}border-b border-gray-800{% endif %}">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-bold text-gray-300">
+        {{ m.user.name|first|upper }}
+      </div>
+      <div>
+        <p class="text-white text-sm font-medium">
+          {{ m.user.name }}
+          {% if m.user.is_managed %}
+          <span class="text-xs text-amber-600 ml-1">({{ m.user.guardian_relationship|capfirst }})</span>
+          {% endif %}
+        </p>
+        <p class="text-gray-600 text-xs">
+          {% if not m.user.is_managed %}{{ m.user.email }} · {% endif %}{{ m.role|capfirst }}
+          {% if m.is_admin %} · <span class="text-yellow-600">Admin</span>{% endif %}
+        </p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      {% if not m.user.is_managed %}
+      <a href="{% url 'initiate_admin_transfer' family_id=family.pk user_id=m.user.pk %}"
+        class="text-xs text-gray-500 hover:text-yellow-400 border border-gray-800 hover:border-yellow-800/50 px-3 py-1 rounded-lg transition-colors">
+        Make Admin
+      </a>
+      {% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="remove_member">
+        <input type="hidden" name="member_id" value="{{ m.user.pk }}">
+        <button type="submit"
+          onclick="return confirm('Remove {{ m.user.name }} from {{ family.name }}?')"
+          class="text-xs text-red-500 hover:text-red-400 border border-red-900 hover:border-red-700 px-3 py-1 rounded-lg transition-colors">
+          Remove
+        </button>
+      </form>
+    </div>
+  </div>
+  {% empty %}
+  <div class="px-6 py-8 text-center text-gray-600 text-sm">No members in this family.</div>
+  {% endfor %}
+</div>
+
+{% endblock %}

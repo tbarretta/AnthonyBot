@@ -155,15 +155,21 @@ def family_admin(request, family_id):
 
 @login_required
 def initiate_admin_transfer(request, family_id, user_id):
-    """Show transfer warning (GET) and create the transfer request (POST)."""
+    """Show transfer warning (GET) and create the transfer request (POST).
+    Accessible to both the current Family Admin and the Master Admin.
+    """
     from django.contrib.auth import get_user_model
     User = get_user_model()
 
     family = get_object_or_404(Family, pk=family_id)
-    _require_family_admin(request.user, family)
+    is_master_admin_action = request.user.is_master_admin
+
+    if not is_master_admin_action:
+        _require_family_admin(request.user, family)
+
     to_user = get_object_or_404(User, pk=user_id)
 
-    # Target must be a non-admin member of the same family
+    # Target must be a member of the same family and not self
     if not FamilyMembership.objects.filter(user=to_user, family=family).exists():
         raise Http404
     if to_user == request.user:
@@ -183,11 +189,18 @@ def initiate_admin_transfer(request, family_id, user_id):
             request,
             f"Transfer request sent to {to_user.name}. They must accept via email before the change takes effect."
         )
+        if is_master_admin_action:
+            return redirect("master_admin_family", family_id=family_id)
         return redirect("family_admin", family_id=family_id)
 
+    cancel_url = (
+        "master_admin_family" if is_master_admin_action else "family_admin"
+    )
     return render(request, "families/confirm_admin_transfer.html", {
         "family": family,
         "to_user": to_user,
+        "is_master_admin_action": is_master_admin_action,
+        "cancel_url_name": cancel_url,
     })
 
 

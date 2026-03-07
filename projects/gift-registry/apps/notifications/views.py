@@ -191,6 +191,45 @@ def create_family(request):
 
 @login_required
 @master_admin_required
+def master_admin_family(request, family_id):
+    """Master Admin manages a specific family — make admin, remove members."""
+    from apps.families.models import Family, FamilyMembership, AdminTransferRequest
+
+    family = get_object_or_404(Family, pk=family_id)
+    memberships = family.get_members().order_by("user__name")
+
+    if request.method == "POST":
+        action = request.POST.get("action")
+        if action == "remove_member":
+            member_id = request.POST.get("member_id")
+            membership = FamilyMembership.objects.filter(
+                family=family, user_id=member_id
+            ).first()
+            if membership:
+                name = membership.user.name
+                membership.delete()
+                ActivityLog.log(
+                    event_type="member_removed",
+                    actor=request.user,
+                    family=family,
+                    description=f"Master Admin removed {name} from {family.name}",
+                )
+                messages.success(request, f"{name} removed from {family.name}.")
+        return redirect("master_admin_family", family_id=family_id)
+
+    pending_transfer = AdminTransferRequest.objects.filter(
+        family=family, status="pending"
+    ).first()
+
+    return render(request, "admin/master_admin_family.html", {
+        "family": family,
+        "memberships": memberships,
+        "pending_transfer": pending_transfer,
+    })
+
+
+@login_required
+@master_admin_required
 def admin_reset_access(request, access_id):
     """Reset a denied access request so the member can re-request."""
     from apps.access.models import WishlistAccessRequest

@@ -7,4 +7,5 @@ urlpatterns = [
     path("delete-family/<uuid:family_id>/", views.delete_family, name="delete_family"),
     path("reset-password/", views.admin_reset_password, name="admin_reset_password"),
     path("reset-access/<uuid:access_id>/", views.admin_reset_access, name="admin_reset_access"),
+    path("family/<uuid:family_id>/", views.master_admin_family, name="master_admin_family"),
 ]
