@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block title %}Help — Gift Registry{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+
+  <div class="mb-8">
+    <h1 class="text-2xl font-bold text-white">🎁 Gift Registry Help</h1>
+    <p class="text-gray-500 text-sm mt-1">
+      {% if user.is_authenticated %}
+        Showing help for your account level.
+        {% if user.is_master_admin %}You are signed in as <span class="text-yellow-400 font-medium">Master Admin</span>.
+        {% elif is_family_admin %}You are signed in as a <span class="text-[var(--color-primary)] font-medium">Family Admin</span>.
+        {% else %}You are signed in as a <span class="text-gray-300 font-medium">Family Member</span>.{% endif %}
+      {% else %}
+        Not signed in.
+      {% endif %}
+    </p>
+  </div>
+
+  {% if not user.is_authenticated %}
+  <!-- ── NOT LOGGED IN ───────────────────────────────── -->
+  <div class="space-y-4">
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h2 class="font-semibold text-white mb-3">What is Gift Registry?</h2>
+      <p class="text-gray-400 text-sm leading-relaxed">
+        Gift Registry is a private, invite-only app that lets family members share and manage
+        their wishlists. Family members can view each other's wishlists, coordinate on gift
+        purchases, and leave private comments — all without spoiling surprises for the wishlist owner.
+      </p>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h2 class="font-semibold text-white mb-3">How do I get access?</h2>
+      <p class="text-gray-400 text-sm leading-relaxed mb-3">
+        Gift Registry is invitation-only. A Family Admin must invite you by email.
+        Once invited, you'll receive an email with a registration link.
+      </p>
+      <ul class="text-sm text-gray-500 space-y-2 list-disc list-inside">
+        <li>Click the link in your invitation email to register</li>
+        <li>If the link has expired, click <strong class="text-gray-300">"Send Me a New Link"</strong> on the expiry page</li>
+        <li>If you already have an account, clicking an invitation link will add you to the new family automatically</li>
+      </ul>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h2 class="font-semibold text-white mb-3">Forgot your password?</h2>
+      <p class="text-gray-400 text-sm">
+        Use the <a href="{% url 'forgot_password' %}" class="text-[var(--color-primary)] hover:underline">Forgot password?</a>
+        link on the sign-in page. A reset link will be sent to your email address.
+      </p>
+    </div>
+
+  </div>
+  {% endif %}
+
+  {% if user.is_authenticated %}
+  <!-- ── ALL LOGGED-IN USERS ─────────────────────────── -->
+  <div class="space-y-4">
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h2 class="font-semibold text-white mb-3">Your Wishlist</h2>
+      <ul class="text-sm text-gray-400 space-y-2">
+        <li><span class="text-gray-200 font-medium">Add items</span> — Go to <em>My Wishlist</em> and click <strong class="text-gray-200">+ Add Item</strong>. Each item has a name, description, price, desire rating (1–5 ⭐), an optional purchase link, and an optional photo.</li>
+        <li><span class="text-gray-200 font-medium">Family visibility</span> — When adding or editing an item, choose which families can see it. By default, all your families can see it.</li>
+        <li><span class="text-gray-200 font-medium">Edit or delete</span> — Click any item on your wishlist to edit it, or use the delete option to permanently remove it.</li>
+        <li><span class="text-gray-200 font-medium">No longer wanted</span> — Use <strong class="text-gray-200">Soft Remove</strong> to mark an item as no longer needed without deleting it. Others will no longer see it; you can undo this later.</li>
+        <li><span class="text-gray-200 font-medium">Item limit</span> — You can have up to 50 items on your wishlist at a time.</li>
+      </ul>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h2 class="font-semibold text-white mb-3">Viewing Other Members' Wishlists</h2>
+      <ul class="text-sm text-gray-400 space-y-2">
+        <li><span class="text-gray-200 font-medium">Request access</span> — Go to a Family page and click <strong class="text-gray-200">Request Access</strong> next to a member's name. They'll receive an email to approve or decline.</li>
+        <li><span class="text-gray-200 font-medium">Once approved</span> — A <strong class="text-gray-200">View Wishlist</strong> button appears. You can browse their items, mark items as purchased, and leave private comments.</li>
+        <li><span class="text-gray-200 font-medium">Comments are hidden</span> — Comments you leave on someone's item are never visible to that person — only to other family members who have access.</li>
+        <li><span class="text-gray-200 font-medium">Mark as purchased</span> — Marking an item as purchased hides it from others to prevent duplicate gifts. The item owner never sees who purchased it.</li>
+        <li><span class="text-gray-200 font-medium">Declined access</span> — If someone declines your request, you won't be able to re-request unless a Master Admin resets it.</li>
+      </ul>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h2 class="font-semibold text-white mb-3">Responding to Access Requests</h2>
+      <ul class="text-sm text-gray-400 space-y-2">
+        <li>When someone requests access to your wishlist, you'll receive an email with <strong class="text-gray-200">Approve</strong> and <strong class="text-gray-200">Decline</strong> links — no login required.</li>
+        <li>You can also approve or decline from the <strong class="text-gray-200">Dashboard</strong> or the <strong class="text-gray-200">Family</strong> page under <em>Pending Access Requests</em>.</li>
+      </ul>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h2 class="font-semibold text-white mb-3">Managed Members</h2>
+      <ul class="text-sm text-gray-400 space-y-2">
+        <li><span class="text-gray-200 font-medium">What they are</span> — Managed Members are profiles for children or elderly relatives who don't manage their own account. A guardian (you) manages their wishlist on their behalf.</li>
+        <li><span class="text-gray-200 font-medium">Creating one</span> — From your Dashboard, click <strong class="text-gray-200">+ Add Managed Member</strong>. Enter their name and relationship (Child, Elder, or Other). They'll automatically join all your families.</li>
+        <li><span class="text-gray-200 font-medium">Managing their wishlist</span> — Click <strong class="text-gray-200">Manage Wishlist</strong> next to their name on your Dashboard. An amber banner will appear while you're managing their items.</li>
+        <li><span class="text-gray-200 font-medium">Access requests</span> — When someone requests access to a managed member's wishlist, you'll receive the notification and can approve or decline on their behalf.</li>
+        <li><span class="text-gray-200 font-medium">Exiting</span> — Click <strong class="text-gray-200">Exit ✕</strong> in the amber banner to return to your own account.</li>
+      </ul>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h2 class="font-semibold text-white mb-3">Notifications &amp; Preferences</h2>
+      <ul class="text-sm text-gray-400 space-y-2">
+        <li>Go to <a href="{% url 'preferences' %}" class="text-[var(--color-primary)] hover:underline">Preferences</a> (click your name in the nav) to manage notification settings.</li>
+        <li><span class="text-gray-200 font-medium">Access request emails</span> — Toggle whether you receive an email when someone requests access to your wishlist.</li>
+        <li><span class="text-gray-200 font-medium">New item alerts</span> — Subscribe to receive an email whenever a specific family member adds something new to their wishlist.</li>
+        <li><span class="text-gray-200 font-medium">Change password</span> — Available at the bottom of the Preferences page. Requires your current password.</li>
+      </ul>
+    </div>
+
+  </div>
+  {% endif %}
+
+  {% if is_family_admin %}
+  <!-- ── FAMILY ADMIN ────────────────────────────────── -->
+  <div class="mt-6 space-y-4">
+    <h2 class="text-lg font-bold text-[var(--color-primary)] px-1">Family Admin</h2>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h3 class="font-semibold text-white mb-3">Inviting Members</h3>
+      <ul class="text-sm text-gray-400 space-y-2">
+        <li>From the <strong class="text-gray-200">Family Admin</strong> page (⚙️ Manage Family), enter a member's email under <em>Invite Someone</em> and click <strong class="text-gray-200">Send Invitation</strong>.</li>
+        <li>The invited person receives an email with a registration link valid for 7 days.</li>
+        <li>If they already have an account, they're added to the family immediately when they click the link.</li>
+      </ul>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h3 class="font-semibold text-white mb-3">Re-sending Expired Invitations</h3>
+      <ul class="text-sm text-gray-400 space-y-2">
+        <li>On the Family Admin page, pending invitations are listed under <em>Pending Invitations</em>.</li>
+        <li>Invitations that have expired show a red <strong class="text-red-400">Expired</strong> badge. Click <strong class="text-gray-200">Resend</strong> to generate a new link and email it.</li>
+        <li>Members can also self-serve a new link by clicking <strong class="text-gray-200">Send Me a New Link</strong> when they visit an expired invitation URL.</li>
+      </ul>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h3 class="font-semibold text-white mb-3">Removing Members</h3>
+      <ul class="text-sm text-gray-400 space-y-2">
+        <li>On the Family Admin page under <em>Members</em>, click <strong class="text-red-400">Remove</strong> next to any member (you cannot remove yourself).</li>
+        <li>Removing a member revokes their family access. Their wishlist items and account are not deleted.</li>
+      </ul>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h3 class="font-semibold text-white mb-3">Transferring Admin Rights</h3>
+      <ul class="text-sm text-gray-400 space-y-2">
+        <li>Click <strong class="text-gray-200">Make Admin</strong> next to a member's name on either the Family page or Family Admin page.</li>
+        <li>You'll see a warning explaining that your Admin rights will be removed once the other person accepts.</li>
+        <li>The selected member receives an email to <strong class="text-gray-200">Accept</strong> or <strong class="text-gray-200">Decline</strong> the transfer. No change takes effect until they accept.</li>
+        <li>Only one pending transfer is allowed at a time per family. Starting a new transfer cancels any previous pending one.</li>
+      </ul>
+    </div>
+
+    <div class="bg-gray-900 border border-gray-800 rounded-xl p-6">
+      <h3 class="font-semibold text-white mb-3">Family Theme</h3>
+      <p class="text-sm text-gray-400">
+        On the Family Admin page, choose from 6 themes under <em>Family Theme</em>.
+        The theme applies to all members when they view this family's pages.
+      </p>
+    </div>
+
+  </div>
+  {% endif %}
+
+  {% if user.is_authenticated and user.is_master_admin %}
+  <!-- ── MASTER ADMIN ────────────────────────────────── -->
+  <div class="mt-6 space-y-4">
+    <h2 class="text-lg font-bold text-yellow-400 px-1">⚡ Master Admin</h2>
+
+    <div class="bg-gray-900 border border-yellow-900/40 rounded-xl p-6">
+      <h3 class="font-semibold text-white mb-3">Master Admin Panel</h3>
+      <p class="text-sm text-gray-400 mb-3">
+        Access the Master Admin panel via the <strong class="text-yellow-400">⚡ Admin</strong> link in the nav.
+        From here you can see system-wide stats, search users, view the activity log, manage families, and reset passwords.
+      </p>
+    </div>
+
+    <div class="bg-gray-900 border border-yellow-900/40 rounded-xl p-6">
+      <h3 class="font-semibold text-white mb-3">Creating Families</h3>
+      <ul class="text-sm text-gray-400 space-y-2">
+        <li>Use the <strong class="text-gray-200">Create Family</strong> panel on the Master Admin page.</li>
+        <li>Enter a family name and a Family Admin email. If the email already has an account, they're added as Admin immediately. Otherwise, an invitation is sent.</li>
+      </ul>
+    </div>
+
+    <div class="bg-gray-900 border border-yellow-900/40 rounded-xl p-6">
+      <h3 class="font-semibold text-white mb-3">Managing Any Family</h3>
+      <ul class="text-sm text-gray-400 space-y-2">
+        <li>Click <strong class="text-yellow-400">⚡ Admin</strong> next to any family in the Families list to open the Master Admin family management page.</li>
+        <li>An amber banner confirms you are using elevated rights. From here you can <strong class="text-gray-200">Make Admin</strong> or <strong class="text-gray-200">Remove</strong> any member, and resend pending invitations.</li>
+        <li><strong class="text-gray-200">Make Admin</strong> follows the same email acceptance flow as Family Admin transfers — the selected member must accept via email before the change takes effect.</li>
+      </ul>
+    </div>
+
+    <div class="bg-gray-900 border border-yellow-900/40 rounded-xl p-6">
+      <h3 class="font-semibold text-white mb-3">Resetting Passwords</h3>
+      <p class="text-sm text-gray-400">
+        On the Master Admin page, find the user in the <em>Users</em> list and click <strong class="text-gray-200">Reset PW</strong>.
+        A password reset email will be sent to them. This is logged in the Activity Log.
+      </p>
+    </div>
+
+    <div class="bg-gray-900 border border-yellow-900/40 rounded-xl p-6">
+      <h3 class="font-semibold text-white mb-3">Activity Log</h3>
+      <p class="text-sm text-gray-400">
+        The Activity Log on the Master Admin page records all significant actions system-wide —
+        access requests, approvals, family changes, password resets, and Master Admin overrides.
+        Use the event type filter to narrow results.
+      </p>
+    </div>
+
+    <div class="bg-gray-900 border border-yellow-900/40 rounded-xl p-6">
+      <h3 class="font-semibold text-white mb-3">Deleting Families</h3>
+      <p class="text-sm text-gray-400">
+        Click <strong class="text-red-400">Delete</strong> next to a family on the Master Admin page.
+        You'll see a confirmation page listing any members who will lose their only family.
+        Deleting a family removes all memberships, invitations, and access requests for that family.
+        Individual user accounts and wishlist items are <strong class="text-gray-200">not</strong> deleted.
+      </p>
+    </div>
+
+  </div>
+  {% endif %}
+
+  {% if not user.is_authenticated %}
+  <div class="mt-8 text-center">
+    <a href="{% url 'login' %}" class="text-[var(--color-primary)] hover:underline text-sm">← Back to Sign In</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

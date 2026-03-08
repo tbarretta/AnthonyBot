@@ -282,6 +282,17 @@ def exit_managed_context(request):
     return redirect(request.GET.get("next", "dashboard"))
 
 
+def help_view(request):
+    """Dynamic help page — content varies by auth state and role."""
+    is_family_admin = (
+        request.user.is_authenticated
+        and request.user.family_memberships.filter(role="admin").exists()
+    )
+    return render(request, "accounts/help.html", {
+        "is_family_admin": is_family_admin,
+    })
+
+
 @login_required
 def preferences(request):
     from django.contrib.auth import update_session_auth_hash
