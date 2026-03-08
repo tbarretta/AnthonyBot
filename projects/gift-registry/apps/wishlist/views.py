@@ -184,14 +184,16 @@ def view_item_detail(request, user_id, family_id, item_id):
     family = get_object_or_404(Family, pk=family_id)
     item = get_object_or_404(WishlistItem, pk=item_id, owner=owner, visible_to_families=family)
 
-    # Verify access
-    access = WishlistAccessRequest.objects.filter(
-        from_user=request.user, to_user=owner, family=family, status="approved"
-    ).first()
-    if not access:
-        raise Http404
-
     is_owner = (request.user == owner)
+
+    # Verify access — guardians bypass the access request check
+    is_guardian = owner.is_managed and owner.guardian_id == request.user.pk
+    if not is_guardian:
+        access = WishlistAccessRequest.objects.filter(
+            from_user=request.user, to_user=owner, family=family, status="approved"
+        ).first()
+        if not access:
+            raise Http404
 
     if request.method == "POST":
         action = request.POST.get("action")
