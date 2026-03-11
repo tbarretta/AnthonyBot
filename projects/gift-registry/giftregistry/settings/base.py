@@ -103,6 +103,10 @@ LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
+# Sessions
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True   # default: expire on browser close (no "Remember Me")
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # max age: 30 days (used when "Remember Me" is checked)
+
 # App settings
 SITE_URL = env("SITE_URL", default="http://localhost:8000")
 MASTER_ADMIN_EMAIL = env("MASTER_ADMIN_EMAIL", default="admin@example.com")
