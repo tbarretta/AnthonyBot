@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SplitTimer — Wireframes</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #1a1a2e; color: #eee; padding: 24px; }
+  h1 { text-align: center; color: #fff; font-size: 22px; margin-bottom: 4px; letter-spacing: 1px; }
+  .subtitle { text-align: center; color: #888; font-size: 13px; margin-bottom: 32px; }
+  .section-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #f5a623; margin: 32px 0 16px; padding-left: 4px; border-left: 3px solid #f5a623; padding-left: 10px; }
+  .screens-row { display: flex; flex-wrap: wrap; gap: 28px; margin-bottom: 8px; }
+
+  /* Phone shell */
+  .phone { display: flex; flex-direction: column; align-items: center; }
+  .phone-label { font-size: 11px; color: #aaa; margin-bottom: 8px; text-align: center; font-weight: 600; letter-spacing: 0.5px; }
+  .phone-shell {
+    width: 200px;
+    height: 400px;
+    background: #111;
+    border-radius: 28px;
+    border: 2px solid #333;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .phone-shell:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(0,0,0,0.7); }
+  .phone-shell.active { border-color: #f5a623; box-shadow: 0 0 0 2px #f5a62388, 0 14px 40px rgba(0,0,0,0.7); }
+
+  /* Status bar */
+  .status-bar { background: #000; color: #fff; font-size: 8px; padding: 4px 10px; display: flex; justify-content: space-between; flex-shrink: 0; }
+
+  /* Screen content */
+  .screen { flex: 1; overflow: hidden; display: flex; flex-direction: column; font-size: 11px; }
+
+  /* Nav bar */
+  .nav-bar { background: #1a1a1a; border-bottom: 1px solid #2a2a2a; padding: 8px 10px; display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .nav-back { color: #f5a623; font-size: 10px; }
+  .nav-title { font-size: 11px; font-weight: 700; color: #fff; }
+
+  /* Tab bar */
+  .tab-bar { background: #1a1a1a; border-top: 1px solid #2a2a2a; display: flex; justify-content: space-around; padding: 6px 0 4px; flex-shrink: 0; }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #555; font-size: 7px; font-weight: 600; letter-spacing: 0.3px; }
+  .tab.active { color: #f5a623; }
+  .tab-icon { font-size: 14px; line-height: 1; }
+
+  /* Content areas */
+  .content { flex: 1; overflow: hidden; padding: 10px 10px 8px; display: flex; flex-direction: column; gap: 8px; }
+
+  /* UI elements */
+  .big-time { font-size: 36px; font-weight: 900; color: #fff; text-align: center; font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -1px; }
+  .big-time.dim { color: #444; }
+  .label-sm { font-size: 8px; color: #888; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
+  .label-med { font-size: 9px; color: #aaa; }
+  .value-med { font-size: 14px; font-weight: 700; color: #fff; }
+
+  .btn { border-radius: 8px; padding: 8px 0; text-align: center; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; }
+  .btn-primary { background: #f5a623; color: #000; }
+  .btn-secondary { background: #2a2a2a; color: #eee; border: 1px solid #3a3a3a; }
+  .btn-danger { background: #c0392b; color: #fff; }
+  .btn-ghost { background: transparent; color: #f5a623; border: 1px solid #f5a623; }
+  .btn-green { background: #27ae60; color: #fff; }
+  .btn-pro { background: linear-gradient(135deg, #f5a623, #e67e22); color: #000; }
+
+  .row { display: flex; gap: 6px; }
+  .row > * { flex: 1; }
+
+  .card { background: #222; border-radius: 8px; padding: 8px; }
+  .card-row { display: flex; justify-content: space-between; align-items: center; }
+
+  .divider { height: 1px; background: #2a2a2a; flex-shrink: 0; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .stat-box { background: #222; border-radius: 8px; padding: 6px; text-align: center; }
+
+  .split-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #222; align-items: center; }
+  .split-num { color: #555; font-size: 9px; width: 14px; }
+  .split-time { color: #fff; font-weight: 700; font-size: 11px; }
+  .split-delta { font-size: 9px; color: #888; }
+  .split-delta.fast { color: #27ae60; }
+  .split-delta.slow { color: #e74c3c; }
+
+  .list-item { background: #222; border-radius: 8px; padding: 7px 8px; display: flex; justify-content: space-between; align-items: center; }
+  .chevron { color: #555; font-size: 10px; }
+  .badge { background: #f5a623; color: #000; border-radius: 4px; padding: 1px 5px; font-size: 8px; font-weight: 700; }
+  .badge-pro { background: linear-gradient(135deg, #f5a623, #e67e22); color: #000; border-radius: 4px; padding: 1px 5px; font-size: 7px; font-weight: 700; }
+
+  .input-field { background: #222; border: 1px solid #333; border-radius: 6px; padding: 6px 8px; color: #fff; font-size: 10px; }
+
+  .slider-track { height: 4px; background: #333; border-radius: 2px; position: relative; margin: 6px 0; }
+  .slider-fill { position: absolute; left: 0; top: 0; height: 100%; background: #f5a623; border-radius: 2px; width: 60%; }
+  .slider-thumb { position: absolute; top: -6px; left: 58%; width: 14px; height: 14px; background: #fff; border-radius: 50%; border: 2px solid #f5a623; }
+
+  .mode-btn { border: 2px solid #333; border-radius: 10px; padding: 12px 8px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .mode-btn.selected { border-color: #f5a623; background: #f5a62311; }
+  .mode-icon { font-size: 22px; }
+  .mode-title { font-size: 10px; font-weight: 700; color: #fff; }
+  .mode-desc { font-size: 8px; color: #888; }
+
+  .beep-indicator { display: flex; align-items: center; gap: 4px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #555; }
+  .dot.active { background: #f5a623; }
+
+  .countdown-ring { width: 80px; height: 80px; border-radius: 50%; border: 4px solid #333; display: flex; align-items: center; justify-content: center; margin: 0 auto; border-top-color: #f5a623; }
+
+  .waveform { display: flex; align-items: center; justify-content: center; gap: 2px; height: 24px; }
+  .wave-bar { width: 3px; border-radius: 2px; background: #f5a623; }
+
+  .chart-area { background: #1a1a1a; border-radius: 6px; padding: 6px; flex: 1; position: relative; overflow: hidden; }
+  .chart-line { position: absolute; bottom: 8px; left: 8px; right: 8px; height: 40px; }
+
+  .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #1f1f1f; }
+  .toggle { width: 24px; height: 14px; background: #27ae60; border-radius: 7px; position: relative; }
+  .toggle-knob { width: 12px; height: 12px; background: #fff; border-radius: 50%; position: absolute; right: 1px; top: 1px; }
+  .toggle.off { background: #333; }
+  .toggle.off .toggle-knob { right: auto; left: 1px; }
+
+  .pro-banner { background: linear-gradient(135deg, #f5a623 0%, #e67e22 100%); border-radius: 8px; padding: 10px; text-align: center; }
+  .pro-banner-title { font-size: 12px; font-weight: 900; color: #000; }
+  .pro-banner-sub { font-size: 9px; color: #00000088; margin-top: 2px; }
+
+  .penalty-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #222; }
+  .stepper { display: flex; align-items: center; gap: 6px; }
+  .step-btn { width: 18px; height: 18px; background: #333; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #fff; }
+  .step-val { font-size: 13px; font-weight: 700; color: #fff; min-width: 14px; text-align: center; }
+
+  .scoring-toggle { display: flex; background: #1a1a1a; border-radius: 6px; padding: 2px; margin-bottom: 4px; }
+  .scoring-opt { flex: 1; text-align: center; padding: 4px; font-size: 9px; font-weight: 700; border-radius: 5px; }
+  .scoring-opt.active { background: #f5a623; color: #000; }
+  .scoring-opt.inactive { color: #555; }
+
+  /* Modal overlay style for detail view */
+  .overlay-modal { background: #111; border-radius: 14px 14px 0 0; padding: 10px; margin-top: auto; }
+
+  /* Scrollable list simulation */
+  .scroll-list { display: flex; flex-direction: column; gap: 5px; overflow: hidden; }
+
+  .tag { font-size: 7px; background: #2a2a2a; border-radius: 3px; padding: 2px 5px; color: #aaa; }
+
+  /* Empty state */
+  .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+  .empty-icon { font-size: 28px; }
+  .empty-text { font-size: 9px; color: #555; text-align: center; }
+
+  /* Flow arrows between screens */
+  .flow-section { display: flex; align-items: flex-start; gap: 6px; flex-wrap: wrap; }
+  .flow-arrow { font-size: 18px; color: #444; align-self: center; margin-top: -24px; }
+</style>
+</head>
+<body>
+
+<h1>⏱ SplitTimer</h1>
+<p class="subtitle">UI Wireframes — All Screens</p>
+
+<!-- ============================================================ TIMER FLOW -->
+<div class="section-label">Timer Flow</div>
+<div class="screens-row">
+
+  <!-- 1. Timer Home -->
+  <div class="phone">
+    <div class="phone-label">1. Timer Home</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="content" style="justify-content:space-between;">
+          <div>
+            <div class="label-sm" style="margin-bottom:4px;">LAST RUN</div>
+            <div class="card">
+              <div class="card-row">
+                <div><div class="label-sm">TOTAL</div><div class="value-med">4.82s</div></div>
+                <div><div class="label-sm">SPLITS</div><div class="value-med">5</div></div>
+                <div><div class="label-sm">AVG</div><div class="value-med">0.96s</div></div>
+              </div>
+            </div>
+          </div>
+          <div style="text-align:center;">
+            <div class="big-time dim">0.00</div>
+            <div class="label-sm" style="margin-top:4px;">READY</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <!-- Input mode toggle -->
+            <div style="display:flex;background:#1a1a1a;border-radius:8px;padding:3px;border:1px solid #2a2a2a;">
+              <div style="flex:1;text-align:center;padding:5px 0;background:#f5a623;border-radius:6px;font-size:10px;font-weight:700;color:#000;">🎙 MIC</div>
+              <div style="flex:1;text-align:center;padding:5px 0;font-size:10px;font-weight:700;color:#555;">👆 TAP</div>
+            </div>
+            <div class="btn btn-primary" style="padding:14px 0;font-size:14px;">▶  START</div>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab active"><div class="tab-icon">⏱</div>TIMER</div>
+          <div class="tab"><div class="tab-icon">📋</div>HISTORY</div>
+          <div class="tab"><div class="tab-icon">📊</div>STATS</div>
+          <div class="tab"><div class="tab-icon">⚙️</div>SETTINGS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Timer Ready -->
+  <div class="phone">
+    <div class="phone-label">2. Timer Ready</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-back">‹</span><span class="nav-title">Ready</span></div>
+        <div class="content" style="align-items:center;justify-content:space-around;">
+          <div style="text-align:center;">
+            <div class="label-sm">INPUT MODE</div>
+            <div style="font-size:11px;color:#f5a623;font-weight:700;margin-top:2px;">🎙 MICROPHONE</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="label-sm" style="margin-bottom:8px;">PAR TIME</div>
+            <div class="input-field" style="width:80px;text-align:center;font-size:14px;">6.00s</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="label-sm" style="margin-bottom:6px;">START SIGNAL</div>
+            <div class="beep-indicator" style="justify-content:center;">
+              <div class="dot active"></div>
+              <div class="dot active"></div>
+              <div class="dot active"></div>
+              <div class="dot" style="background:#f5a623;width:8px;height:8px;"></div>
+            </div>
+            <div style="font-size:8px;color:#888;margin-top:4px;">3 beeps + start • random delay 1–3s</div>
+          </div>
+          <div class="btn btn-green" style="width:100%;padding:14px 0;font-size:13px;">🔔 BEGIN</div>
+          <div class="btn btn-secondary" style="width:100%;font-size:10px;">Cancel</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Timer Running -->
+  <div class="phone">
+    <div class="phone-label">3. Timer Running</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#0a0a0a;">
+        <div class="content" style="align-items:center;justify-content:space-between;padding:14px 10px 10px;">
+          <div style="text-align:center;width:100%;">
+            <div class="label-sm">ELAPSED</div>
+            <div class="big-time" style="font-size:46px;color:#f5a623;margin:4px 0;">2.47</div>
+            <div class="label-sm">SECONDS</div>
+          </div>
+          <div class="waveform">
+            <div class="wave-bar" style="height:4px;"></div>
+            <div class="wave-bar" style="height:12px;"></div>
+            <div class="wave-bar" style="height:20px;"></div>
+            <div class="wave-bar" style="height:8px;"></div>
+            <div class="wave-bar" style="height:16px;"></div>
+            <div class="wave-bar" style="height:6px;"></div>
+            <div class="wave-bar" style="height:18px;"></div>
+            <div class="wave-bar" style="height:10px;"></div>
+          </div>
+          <div class="stat-grid" style="width:100%;">
+            <div class="stat-box"><div class="label-sm">SHOTS</div><div class="value-med">3</div></div>
+            <div class="stat-box"><div class="label-sm">LAST SPLIT</div><div class="value-med">0.84s</div></div>
+          </div>
+          <div class="btn btn-danger" style="width:100%;padding:12px 0;font-size:13px;">■  STOP</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Run Review -->
+  <div class="phone">
+    <div class="phone-label">4. Run Review</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar">
+          <span class="nav-title" style="flex:1;">Run Review</span>
+          <span style="color:#f5a623;font-size:10px;">Edit</span>
+        </div>
+        <div class="content" style="padding:8px 10px;">
+          <div class="stat-grid">
+            <div class="stat-box"><div class="label-sm">TOTAL</div><div class="value-med" style="color:#f5a623;">3.21s</div></div>
+            <div class="stat-box"><div class="label-sm">DRAW</div><div class="value-med">0.94s</div></div>
+            <div class="stat-box"><div class="label-sm">AVG SPLIT</div><div class="value-med">0.76s</div></div>
+            <div class="stat-box"><div class="label-sm">SHOTS</div><div class="value-med">4</div></div>
+          </div>
+          <div class="divider"></div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div class="split-row"><span class="split-num">D</span><span class="split-time">0.94s</span><span class="split-delta">draw</span></div>
+            <div class="split-row"><span class="split-num">1</span><span class="split-time">0.71s</span><span class="split-delta fast">−0.05</span></div>
+            <div class="split-row"><span class="split-num">2</span><span class="split-time">0.82s</span><span class="split-delta slow">+0.06</span></div>
+            <div class="split-row"><span class="split-num">3</span><span class="split-time">0.74s</span><span class="split-delta fast">−0.02</span></div>
+          </div>
+          <div class="divider"></div>
+          <div class="row" style="gap:6px;">
+            <div class="btn btn-secondary" style="font-size:9px;">✕ Discard</div>
+            <div class="btn btn-primary" style="font-size:9px;">Save Run →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Save Run -->
+  <div class="phone">
+    <div class="phone-label">5. Save Run</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-back">‹</span><span class="nav-title">Save Run</span></div>
+        <div class="content">
+          <div style="font-size:9px;color:#aaa;">Label</div>
+          <div class="input-field">Training — Stage 3</div>
+          <div style="font-size:9px;color:#aaa;">Notes</div>
+          <div class="input-field" style="height:48px;">Strong hand draw, reload at 3</div>
+          <div class="divider"></div>
+          <div class="card">
+            <div class="card-row" style="margin-bottom:4px;">
+              <div style="font-size:10px;color:#fff;font-weight:700;">Scoring <span class="badge-pro">PRO</span></div>
+              <div class="toggle off"><div class="toggle-knob"></div></div>
+            </div>
+            <div style="font-size:8px;color:#555;">Unlock USPSA & IDPA scoring with Pro</div>
+          </div>
+          <div style="flex:1;"></div>
+          <div class="btn btn-primary" style="padding:12px 0;">💾  Save Run</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ HISTORY -->
+<div class="section-label">History Flow</div>
+<div class="screens-row">
+
+  <!-- 6. History List -->
+  <div class="phone">
+    <div class="phone-label">6. History List</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-title">History</span></div>
+        <div class="content" style="padding:8px 10px;">
+          <div class="input-field" style="color:#555;">🔍  Search runs…</div>
+          <div class="scroll-list">
+            <div class="list-item">
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#fff;">Training — Stage 3</div>
+                <div style="font-size:8px;color:#888;">Today 9:38 AM  ·  4 shots</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:13px;font-weight:700;color:#f5a623;">3.21s</div>
+                <div class="chevron">›</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#fff;">Match Day — Stage 1</div>
+                <div style="font-size:8px;color:#888;">Yesterday  ·  6 shots</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:13px;font-weight:700;color:#f5a623;">5.44s</div>
+                <div class="chevron">›</div>
+              </div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#fff;">Dry Fire</div>
+                <div style="font-size:8px;color:#888;">Mar 20  ·  5 shots</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:13px;font-weight:700;color:#f5a623;">4.10s</div>
+                <div class="chevron">›</div>
+              </div>
+            </div>
+            <div class="list-item" style="opacity:0.5;">
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#fff;">Stage 2</div>
+                <div style="font-size:8px;color:#888;">Mar 19  ·  4 shots</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:13px;font-weight:700;color:#f5a623;">3.87s</div>
+                <div class="chevron">›</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab"><div class="tab-icon">⏱</div>TIMER</div>
+          <div class="tab active"><div class="tab-icon">📋</div>HISTORY</div>
+          <div class="tab"><div class="tab-icon">📊</div>STATS</div>
+          <div class="tab"><div class="tab-icon">⚙️</div>SETTINGS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Run Detail -->
+  <div class="phone">
+    <div class="phone-label">7. Run Detail</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-back">‹</span><span class="nav-title">Training — Stage 3</span><span style="color:#f5a623;font-size:10px;margin-left:auto;">Edit</span></div>
+        <div class="content" style="padding:8px 10px;">
+          <div style="font-size:8px;color:#888;">Today 9:38 AM  ·  🎙 Microphone</div>
+          <div class="stat-grid">
+            <div class="stat-box"><div class="label-sm">TOTAL</div><div class="value-med" style="color:#f5a623;">3.21s</div></div>
+            <div class="stat-box"><div class="label-sm">DRAW</div><div class="value-med">0.94s</div></div>
+            <div class="stat-box"><div class="label-sm">AVG SPLIT</div><div class="value-med">0.76s</div></div>
+            <div class="stat-box"><div class="label-sm">SHOTS</div><div class="value-med">4</div></div>
+          </div>
+          <div class="divider"></div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div class="split-row"><span class="split-num">D</span><span class="split-time">0.94s</span><span class="split-delta">draw</span></div>
+            <div class="split-row"><span class="split-num">1</span><span class="split-time">0.71s</span><span class="split-delta fast">−0.05</span></div>
+            <div class="split-row"><span class="split-num">2</span><span class="split-time">0.82s</span><span class="split-delta slow">+0.06</span></div>
+            <div class="split-row"><span class="split-num">3</span><span class="split-time">0.74s</span><span class="split-delta fast">−0.02</span></div>
+          </div>
+          <div class="divider"></div>
+          <div style="font-size:8px;color:#888;">Strong hand draw, reload at 3</div>
+          <div class="row" style="margin-top:auto;">
+            <div class="btn btn-secondary" style="font-size:9px;">📤 Export</div>
+            <div class="btn btn-danger" style="font-size:9px;">🗑 Delete</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Edit Run -->
+  <div class="phone">
+    <div class="phone-label">8. Edit Run</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-back">‹ Cancel</span><span class="nav-title" style="flex:1;text-align:center;">Edit Run</span><span style="color:#f5a623;font-size:10px;">Save</span></div>
+        <div class="content" style="padding:8px 10px;">
+          <div style="font-size:9px;color:#aaa;margin-bottom:2px;">Label</div>
+          <div class="input-field" style="margin-bottom:8px;">Training — Stage 3</div>
+          <div style="font-size:9px;color:#aaa;margin-bottom:4px;">Shots — tap ✕ to remove, tap + to add</div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div class="split-row"><span class="split-num">D</span><span class="split-time">0.94s</span><span style="color:#e74c3c;font-size:12px;">✕</span></div>
+            <div class="split-row"><span class="split-num">1</span><span class="split-time">0.71s</span><span style="color:#e74c3c;font-size:12px;">✕</span></div>
+            <div class="split-row"><span class="split-num">2</span><span class="split-time">0.82s</span><span style="color:#e74c3c;font-size:12px;">✕</span></div>
+            <div class="split-row"><span class="split-num">3</span><span class="split-time">0.74s</span><span style="color:#e74c3c;font-size:12px;">✕</span></div>
+          </div>
+          <div style="text-align:center;padding:6px 0;color:#f5a623;font-size:10px;border: 1px dashed #333;border-radius:6px;margin-top:4px;">+ Add missed shot</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ STATS -->
+<div class="section-label">Stats</div>
+<div class="screens-row">
+
+  <!-- 9. Stats Overview -->
+  <div class="phone">
+    <div class="phone-label">9. Stats Overview</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-title">Stats</span></div>
+        <div class="content" style="padding:8px 10px;">
+          <div class="stat-grid">
+            <div class="stat-box"><div class="label-sm">BEST TOTAL</div><div class="value-med" style="color:#27ae60;">2.94s</div></div>
+            <div class="stat-box"><div class="label-sm">AVG TOTAL</div><div class="value-med">3.62s</div></div>
+            <div class="stat-box"><div class="label-sm">BEST SPLIT</div><div class="value-med" style="color:#27ae60;">0.63s</div></div>
+            <div class="stat-box"><div class="label-sm">BEST DRAW</div><div class="value-med" style="color:#27ae60;">0.78s</div></div>
+          </div>
+          <div style="font-size:9px;color:#aaa;font-weight:700;">Total Time Trend</div>
+          <div class="chart-area">
+            <svg width="100%" height="50" viewBox="0 0 160 50" preserveAspectRatio="none">
+              <polyline points="0,40 20,35 40,38 60,28 80,30 100,22 120,25 140,18 160,20" fill="none" stroke="#f5a623" stroke-width="2"/>
+              <polyline points="0,40 20,35 40,38 60,28 80,30 100,22 120,25 140,18 160,20 160,50 0,50" fill="#f5a62322"/>
+            </svg>
+          </div>
+          <div style="font-size:9px;color:#aaa;font-weight:700;">Avg Split Trend</div>
+          <div class="chart-area">
+            <svg width="100%" height="40" viewBox="0 0 160 40" preserveAspectRatio="none">
+              <polyline points="0,32 20,30 40,28 60,25 80,22 100,20 120,18 140,16 160,15" fill="none" stroke="#27ae60" stroke-width="2"/>
+              <polyline points="0,32 20,30 40,28 60,25 80,22 100,20 120,18 140,16 160,15 160,40 0,40" fill="#27ae6022"/>
+            </svg>
+          </div>
+          <div style="font-size:8px;color:#555;text-align:center;">Last 30 runs</div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab"><div class="tab-icon">⏱</div>TIMER</div>
+          <div class="tab"><div class="tab-icon">📋</div>HISTORY</div>
+          <div class="tab active"><div class="tab-icon">📊</div>STATS</div>
+          <div class="tab"><div class="tab-icon">⚙️</div>SETTINGS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ SETTINGS -->
+<div class="section-label">Settings Flow</div>
+<div class="screens-row">
+
+  <!-- 10. Settings -->
+  <div class="phone">
+    <div class="phone-label">10. Settings</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-title">Settings</span></div>
+        <div class="content" style="padding:8px 10px;">
+          <div class="pro-banner">
+            <div class="pro-banner-title">⭐ SplitTimer Pro</div>
+            <div class="pro-banner-sub">USPSA · IDPA · Match Tracking</div>
+            <div style="margin-top:6px;background:#000000;border-radius:5px;padding:4px;font-size:9px;color:#f5a623;font-weight:700;">Start 7-Day Free Trial →</div>
+          </div>
+          <div class="scroll-list">
+            <div class="settings-item"><span style="font-size:10px;color:#fff;">🎙  Audio Detection</span><span class="chevron">›</span></div>
+            <div class="settings-item"><span style="font-size:10px;color:#fff;">🔔  Start Signal</span><span class="chevron">›</span></div>
+            <div class="settings-item"><span style="font-size:10px;color:#fff;">⏱  Par Time</span><span class="chevron">›</span></div>
+            <div class="settings-item"><span style="font-size:10px;color:#fff;">⭐  Subscription</span><span class="chevron">›</span></div>
+            <div class="settings-item"><span style="font-size:10px;color:#fff;">ℹ️  About</span><span class="chevron">›</span></div>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab"><div class="tab-icon">⏱</div>TIMER</div>
+          <div class="tab"><div class="tab-icon">📋</div>HISTORY</div>
+          <div class="tab"><div class="tab-icon">📊</div>STATS</div>
+          <div class="tab active"><div class="tab-icon">⚙️</div>SETTINGS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 11. Audio Detection -->
+  <div class="phone">
+    <div class="phone-label">11. Audio Detection</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-back">‹</span><span class="nav-title">Audio Detection</span></div>
+        <div class="content" style="padding:8px 10px;">
+          <div class="card">
+            <div style="font-size:9px;color:#aaa;margin-bottom:4px;">Sensitivity</div>
+            <div class="slider-track"><div class="slider-fill"></div><div class="slider-thumb"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:8px;color:#555;"><span>Low</span><span>High</span></div>
+          </div>
+          <div class="card">
+            <div style="font-size:9px;color:#aaa;margin-bottom:4px;">Frequency Range</div>
+            <div style="font-size:8px;color:#888;margin-bottom:4px;">Min: 1000 Hz</div>
+            <div class="slider-track"><div class="slider-fill" style="width:20%;"></div><div class="slider-thumb" style="left:18%;"></div></div>
+            <div style="font-size:8px;color:#888;margin-bottom:4px;margin-top:8px;">Max: 8000 Hz</div>
+            <div class="slider-track"><div class="slider-fill" style="width:80%;"></div><div class="slider-thumb" style="left:78%;"></div></div>
+            <div style="font-size:8px;color:#555;margin-top:4px;">Targets gunshot frequency band (1kHz–8kHz)</div>
+          </div>
+          <div class="card">
+            <div style="font-size:9px;color:#aaa;margin-bottom:2px;">Min Shot Interval</div>
+            <div style="font-size:8px;color:#888;margin-bottom:4px;">80ms — prevents echo false triggers</div>
+            <div class="slider-track"><div class="slider-fill" style="width:30%;"></div><div class="slider-thumb" style="left:28%;"></div></div>
+          </div>
+          <div class="btn btn-ghost" style="font-size:10px;">🎙 Test Detection</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. Start Signal -->
+  <div class="phone">
+    <div class="phone-label">12. Start Signal</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-back">‹</span><span class="nav-title">Start Signal</span></div>
+        <div class="content" style="padding:8px 10px;">
+          <div class="card">
+            <div style="font-size:9px;color:#aaa;margin-bottom:6px;">Beep Sound</div>
+            <div class="list-item" style="margin-bottom:4px;background:#333;"><span style="font-size:10px;color:#f5a623;">✓ Standard</span></div>
+            <div class="list-item" style="margin-bottom:4px;"><span style="font-size:10px;color:#aaa;">Competition</span></div>
+            <div class="list-item"><span style="font-size:10px;color:#aaa;">Buzzer</span></div>
+          </div>
+          <div class="card">
+            <div style="font-size:9px;color:#aaa;margin-bottom:4px;">Random Delay Range</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-size:8px;color:#888;">Min</div>
+                <div style="font-size:14px;font-weight:700;color:#fff;">1.0s</div>
+              </div>
+              <div style="color:#555;">—</div>
+              <div>
+                <div style="font-size:8px;color:#888;">Max</div>
+                <div style="font-size:14px;font-weight:700;color:#fff;">3.0s</div>
+              </div>
+            </div>
+            <div class="slider-track" style="margin-top:8px;"><div class="slider-fill" style="left:20%;width:50%;position:absolute;"></div><div class="slider-thumb" style="left:18%;"></div><div class="slider-thumb" style="left:68%;"></div></div>
+          </div>
+          <div class="btn btn-ghost" style="font-size:10px;">▶ Preview Sequence</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 13. Par Time -->
+  <div class="phone">
+    <div class="phone-label">13. Par Time</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-back">‹</span><span class="nav-title">Par Time</span></div>
+        <div class="content" style="padding:8px 10px;align-items:center;">
+          <div class="settings-item" style="width:100%;">
+            <span style="font-size:10px;color:#fff;">Enable Par Time</span>
+            <div class="toggle"><div class="toggle-knob"></div></div>
+          </div>
+          <div style="text-align:center;margin:16px 0 8px;">
+            <div class="label-sm">DEFAULT PAR</div>
+            <div class="big-time" style="font-size:52px;">6.00</div>
+            <div class="label-sm">SECONDS</div>
+          </div>
+          <div class="row" style="gap:16px;">
+            <div class="btn btn-secondary" style="font-size:18px;padding:10px 0;">−</div>
+            <div class="btn btn-secondary" style="font-size:18px;padding:10px 0;">+</div>
+          </div>
+          <div style="font-size:8px;color:#555;text-align:center;margin-top:8px;">Adjustable per run on the Ready screen. This sets the default.</div>
+          <div class="settings-item" style="width:100%;margin-top:8px;">
+            <span style="font-size:10px;color:#fff;">Alert when exceeded</span>
+            <div class="toggle"><div class="toggle-knob"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 14. Subscription -->
+  <div class="phone">
+    <div class="phone-label">14. Subscription</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-back">‹</span><span class="nav-title">Pro Subscription</span></div>
+        <div class="content" style="padding:8px 10px;align-items:center;">
+          <div class="pro-banner" style="width:100%;">
+            <div style="font-size:20px;">⭐</div>
+            <div class="pro-banner-title" style="font-size:14px;">SplitTimer Pro</div>
+            <div class="pro-banner-sub">7-day free trial, then $1.99/month</div>
+          </div>
+          <div style="width:100%;display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:9px;color:#aaa;font-weight:700;margin-bottom:2px;">PRO INCLUDES</div>
+            <div style="font-size:9px;color:#eee;">✓  USPSA scoring (Hit Factor / Comstock)</div>
+            <div style="font-size:9px;color:#eee;">✓  IDPA scoring (Time-Plus)</div>
+            <div style="font-size:9px;color:#eee;">✓  Match & Stage organization</div>
+            <div style="font-size:9px;color:#eee;">✓  Division / classifier tracking</div>
+            <div style="font-size:9px;color:#eee;">✓  All future Pro features</div>
+          </div>
+          <div class="btn btn-pro" style="width:100%;padding:12px 0;">Start Free Trial</div>
+          <div class="btn btn-secondary" style="width:100%;font-size:9px;">Restore Purchase</div>
+          <div style="font-size:8px;color:#555;text-align:center;">Cancel anytime via App Store / Google Play. No charge during trial.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ PRO SCREENS -->
+<div class="section-label">Pro Screens (gated)</div>
+<div class="screens-row">
+
+  <!-- 15. Scoring Entry -->
+  <div class="phone">
+    <div class="phone-label">15. Scoring Entry ⭐</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-back">‹</span><span class="nav-title">Scoring <span class="badge-pro">PRO</span></span></div>
+        <div class="content" style="padding:8px 10px;">
+          <div class="scoring-toggle">
+            <div class="scoring-opt active">USPSA</div>
+            <div class="scoring-opt inactive">IDPA</div>
+          </div>
+          <div class="card">
+            <div style="font-size:9px;color:#aaa;margin-bottom:4px;">Stage Points</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="stepper"><div class="step-btn">−</div><div class="step-val">50</div><div class="step-btn">+</div></div>
+              <div style="font-size:8px;color:#555;">/ 60 max pts</div>
+            </div>
+          </div>
+          <div style="font-size:9px;color:#aaa;font-weight:700;">Penalties</div>
+          <div class="penalty-row"><span style="font-size:9px;color:#fff;">Miss (Mike) × −10pts</span><div class="stepper"><div class="step-btn">−</div><div class="step-val">0</div><div class="step-btn">+</div></div></div>
+          <div class="penalty-row"><span style="font-size:9px;color:#fff;">No-Shoot × −10pts</span><div class="stepper"><div class="step-btn">−</div><div class="step-val">0</div><div class="step-btn">+</div></div></div>
+          <div class="penalty-row"><span style="font-size:9px;color:#fff;">Procedural × −10pts</span><div class="stepper"><div class="step-btn">−</div><div class="step-val">0</div><div class="step-btn">+</div></div></div>
+          <div class="card" style="background:#1a2a1a;">
+            <div class="card-row">
+              <div><div class="label-sm">HIT FACTOR</div><div class="value-med" style="color:#27ae60;">15.58</div></div>
+              <div><div class="label-sm">TIME</div><div class="value-med">3.21s</div></div>
+            </div>
+          </div>
+          <div class="btn btn-primary" style="font-size:10px;">Save with Scoring</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 16. Match List -->
+  <div class="phone">
+    <div class="phone-label">16. Match List ⭐</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-title">Matches <span class="badge-pro">PRO</span></span><span style="color:#f5a623;font-size:16px;margin-left:auto;">+</span></div>
+        <div class="content" style="padding:8px 10px;">
+          <div class="scroll-list">
+            <div class="list-item">
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#fff;">Club Match — March</div>
+                <div style="font-size:8px;color:#888;">Mar 15  ·  4 stages  ·  Production</div>
+              </div>
+              <div class="chevron">›</div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#fff;">Practice Match</div>
+                <div style="font-size:8px;color:#888;">Mar 8  ·  3 stages</div>
+              </div>
+              <div class="chevron">›</div>
+            </div>
+            <div class="list-item" style="opacity:0.5;">
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#fff;">February Match</div>
+                <div style="font-size:8px;color:#888;">Feb 20  ·  5 stages</div>
+              </div>
+              <div class="chevron">›</div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab"><div class="tab-icon">⏱</div>TIMER</div>
+          <div class="tab active"><div class="tab-icon">📋</div>HISTORY</div>
+          <div class="tab"><div class="tab-icon">📊</div>STATS</div>
+          <div class="tab"><div class="tab-icon">⚙️</div>SETTINGS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 17. Match Detail -->
+  <div class="phone">
+    <div class="phone-label">17. Match Detail ⭐</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-back">‹</span><span class="nav-title">Club Match — March</span></div>
+        <div class="content" style="padding:8px 10px;">
+          <div style="font-size:8px;color:#888;">Mar 15, 2026  ·  Production Division</div>
+          <div class="stat-grid">
+            <div class="stat-box"><div class="label-sm">STAGES</div><div class="value-med">4</div></div>
+            <div class="stat-box"><div class="label-sm">TOTAL HF</div><div class="value-med" style="color:#f5a623;">14.22</div></div>
+          </div>
+          <div style="font-size:9px;color:#aaa;font-weight:700;">Stages</div>
+          <div class="scroll-list">
+            <div class="list-item"><div><div style="font-size:10px;font-weight:700;color:#fff;">Stage 1 — Standards</div><div style="font-size:8px;color:#888;">HF: 15.58  ·  3.21s</div></div><div class="chevron">›</div></div>
+            <div class="list-item"><div><div style="font-size:10px;font-weight:700;color:#fff;">Stage 2 — El Pres</div><div style="font-size:8px;color:#888;">HF: 14.20  ·  4.22s</div></div><div class="chevron">›</div></div>
+            <div class="list-item"><div><div style="font-size:10px;font-weight:700;color:#fff;">Stage 3 — Long Course</div><div style="font-size:8px;color:#888;">HF: 13.80  ·  8.70s</div></div><div class="chevron">›</div></div>
+            <div class="list-item" style="opacity:0.5;"><div><div style="font-size:10px;font-weight:700;color:#fff;">Stage 4 — Speed</div><div style="font-size:8px;color:#888;">HF: 13.30  ·  2.10s</div></div><div class="chevron">›</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 18. Stage Detail -->
+  <div class="phone">
+    <div class="phone-label">18. Stage Detail ⭐</div>
+    <div class="phone-shell">
+      <div class="status-bar"><span>9:41</span><span>⚡ 100%</span></div>
+      <div class="screen" style="background:#111;">
+        <div class="nav-bar"><span class="nav-back">‹</span><span class="nav-title">Stage 1 — Standards</span></div>
+        <div class="content" style="padding:8px 10px;">
+          <div class="stat-grid">
+            <div class="stat-box"><div class="label-sm">HIT FACTOR</div><div class="value-med" style="color:#f5a623;">15.58</div></div>
+            <div class="stat-box"><div class="label-sm">TIME</div><div class="value-med">3.21s</div></div>
+            <div class="stat-box"><div class="label-sm">POINTS</div><div class="value-med">50/60</div></div>
+            <div class="stat-box"><div class="label-sm">PENALTIES</div><div class="value-med" style="color:#e74c3c;">−10</div></div>
+          </div>
+          <div style="font-size:9px;color:#aaa;font-weight:700;">Runs</div>
+          <div class="scroll-list">
+            <div class="list-item" style="background:#1a2a1a;">
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#27ae60;">Best Run — 3.21s</div>
+                <div style="font-size:8px;color:#888;">HF: 15.58  ·  4 shots</div>
+              </div>
+              <div class="chevron">›</div>
+            </div>
+            <div class="list-item">
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#fff;">Run 2 — 3.55s</div>
+                <div style="font-size:8px;color:#888;">HF: 14.08  ·  4 shots</div>
+              </div>
+              <div class="chevron">›</div>
+            </div>
+          </div>
+          <div class="btn btn-primary" style="font-size:10px;">+ Add Run to Stage</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================================ FLOW DIAGRAM -->
+<div class="section-label">Navigation Flow</div>
+<div style="background:#161622;border-radius:12px;padding:20px;font-family:monospace;font-size:11px;color:#aaa;line-height:2;max-width:700px;">
+<pre style="color:#aaa;white-space:pre-wrap;">
+<span style="color:#f5a623;font-weight:bold;">BOTTOM TABS</span>
+  ├── ⏱ Timer ──→ TimerReady ──→ TimerRunning
+  │                                                       │
+  │                                                  RunReview ──→ SaveRun ──→ [History]
+  │                                                       └──→ [Pro] ScoringEntry
+  │
+  ├── 📋 History ──→ RunDetail ──→ EditRun
+  │        └── [Pro] MatchList ──→ MatchDetail ──→ StageDetail
+  │
+  ├── 📊 Stats
+  │
+  └── ⚙️ Settings ──→ AudioDetection
+                 ├──→ StartSignal
+                 ├──→ ParTime
+                 ├──→ Subscription
+                 └──→ About
+
+<span style="color:#f5a623;">⭐ PRO</span> screens show upgrade prompt if not subscribed.
+</pre>
+</div>
+
+<div style="height:40px;"></div>
+</body>
+</html>
