@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "SplitTimer",
+    "slug": "splittimer",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#111111"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.splittimer.app",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "SplitTimer uses the microphone to detect gunshots and record split times."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#111111"
+      },
+      "package": "com.splittimer.app",
+      "permissions": ["RECORD_AUDIO", "WAKE_LOCK"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-av",
+        {
+          "microphonePermission": "SplitTimer uses the microphone to detect gunshots and record split times."
+        }
+      ]
+    ]
+  }
+}

@@ -1,14 +1,14 @@
 /**
- * StartSignal.tsx
- * Start signal configuration. Beep count, random delay range, tone selection.
+ * Appearance.tsx
+ * Theme selection screen. Allows user to pick Dark, Light, or System theme.
  */
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function StartSignalScreen() {
+export default function AppearanceScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>StartSignal</Text>
+      <Text style={styles.text}>Appearance</Text>
     </View>
   );
 }

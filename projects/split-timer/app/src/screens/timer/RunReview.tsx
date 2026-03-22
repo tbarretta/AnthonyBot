@@ -1,6 +1,19 @@
 /**
  * RunReview.tsx
- * Post-run review screen. Lists all splits, draw time, total time, average split. Edit mode to delete false positives or add missed shots.
+ * Post-run review screen. Shows split breakdown and scoring options.
  */
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 
-// TODO: Implement
+export default function RunReviewScreen() {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>RunReview</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#111', alignItems: 'center', justifyContent: 'center' },
+  text: { color: '#fff', fontSize: 16 },
+});

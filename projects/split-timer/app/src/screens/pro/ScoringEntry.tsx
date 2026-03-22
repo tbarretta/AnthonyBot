@@ -1,6 +1,19 @@
 /**
  * ScoringEntry.tsx
- * [PRO] Post-run scoring entry. Toggle between USPSA (points, penalties) and IDPA (time-plus, penalties). Computes and saves ScoringResult.
+ * Pro: Enter scoring data (hits, penalties) after a run.
  */
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 
-// TODO: Implement
+export default function ScoringEntryScreen() {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>ScoringEntry</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#111', alignItems: 'center', justifyContent: 'center' },
+  text: { color: '#fff', fontSize: 16 },
+});

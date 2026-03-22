@@ -2,5 +2,18 @@
  * SettingsHome.tsx
  * Settings root screen. Navigation list to sub-settings screens.
  */
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 
-// TODO: Implement
+export default function SettingsHomeScreen() {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.text}>SettingsHome</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#111', alignItems: 'center', justifyContent: 'center' },
+  text: { color: '#fff', fontSize: 16 },
+});
