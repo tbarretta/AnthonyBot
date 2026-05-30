@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}{{ scenario.name }} — RetireSim{% endblock %}
+{% block content %}
+
+<div class="flex items-start justify-between mb-6">
+  <div>
+    <div class="flex items-center gap-2 text-sm text-gray-400 mb-1">
+      <a href="{% url 'simulations:list' %}" class="hover:text-indigo-600">Scenarios</a>
+      <span>/</span>
+      <span class="text-gray-700">{{ scenario.name }}</span>
+    </div>
+    <h1 class="text-2xl font-bold text-gray-900">{{ scenario.name }}</h1>
+    {% if scenario.description %}<p class="text-sm text-gray-500 mt-1">{{ scenario.description }}</p>{% endif %}
+  </div>
+  <div class="flex gap-2">
+    <a href="{% url 'simulations:edit' scenario.pk %}" class="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg text-sm hover:bg-gray-50">Edit</a>
+    <a href="{% url 'simulations:run' scenario.pk %}"
+       hx-post="{% url 'simulations:run' scenario.pk %}"
+       hx-target="#result-area"
+       hx-swap="innerHTML"
+       class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
+      {% if latest_result %}Re-run{% else %}Run Simulation{% endif %}
+    </a>
+  </div>
+</div>
+
+<!-- Scenario assumptions summary -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+  <div class="bg-white rounded-xl shadow p-4">
+    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">SS Claim Age</p>
+    <p class="text-xl font-bold text-gray-800">{{ scenario.ss_claim_age_self }}</p>
+    {% if profile.has_spouse %}<p class="text-xs text-gray-400">Spouse: {{ scenario.ss_claim_age_spouse }}</p>{% endif %}
+  </div>
+  <div class="bg-white rounded-xl shadow p-4">
+    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Stock / Bond Return</p>
+    <p class="text-xl font-bold text-gray-800">{{ scenario.expected_annual_return_stocks }}% / {{ scenario.expected_annual_return_bonds }}%</p>
+  </div>
+  <div class="bg-white rounded-xl shadow p-4">
+    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Annual Spending</p>
+    <p class="text-xl font-bold text-gray-800">${{ scenario.annual_retirement_spending|floatformat:0|intcomma }}</p>
+    <p class="text-xs text-gray-400">{{ scenario.get_spending_strategy_display }}</p>
+  </div>
+  <div class="bg-white rounded-xl shadow p-4">
+    <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Inflation</p>
+    <p class="text-xl font-bold text-gray-800">{{ scenario.inflation_rate }}%</p>
+    {% if scenario.black_swan_enabled %}<p class="text-xs text-amber-600">🌪️ Black Swan on</p>{% endif %}
+  </div>
+</div>
+
+<!-- Result area (HTMX target) -->
+<div id="result-area">
+  {% if latest_result %}
+    {% include "simulations/partials/result_summary.html" with result=latest_result scenario=scenario %}
+  {% else %}
+  <div class="bg-white rounded-xl shadow p-16 text-center text-gray-400">
+    <p class="text-lg mb-2">No results yet.</p>
+    <p class="text-sm">Click <strong>Run Simulation</strong> to generate a projection.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

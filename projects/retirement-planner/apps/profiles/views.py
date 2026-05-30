@@ -10,11 +10,15 @@ from .models import UserProfile, SpouseProfile
 
 @login_required
 def dashboard(request):
-    profile = get_object_or_404(UserProfile, user=request.user)
-    accounts = InvestmentAccount.objects.filter(user_profile=profile)
-    scenarios = Scenario.objects.filter(user_profile=profile).order_by("-updated_at")
+    # Redirect to setup wizard if profile hasn't been created yet
+    try:
+        profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        return redirect("profiles:setup")
 
+    accounts = InvestmentAccount.objects.filter(user_profile=profile)
     income_sources = IncomeSource.objects.filter(user_profile=profile)
+    scenarios = Scenario.objects.filter(user_profile=profile).order_by("-updated_at")
 
     total_balance = sum(a.current_balance for a in accounts)
     annual_contributions = sum(a.annual_contribution for a in accounts)

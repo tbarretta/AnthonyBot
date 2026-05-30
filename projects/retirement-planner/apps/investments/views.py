@@ -15,8 +15,14 @@ from .models import InvestmentAccount, IncomeSource
 def account_list(request):
     profile = get_object_or_404(UserProfile, user=request.user)
     accounts = InvestmentAccount.objects.filter(user_profile=profile)
+    income_sources = IncomeSource.objects.filter(user_profile=profile)
+    total_balance = sum(a.current_balance for a in accounts)
+    total_contributions = sum(a.annual_contribution for a in accounts)
     return render(request, "investments/account_list.html", {
         "accounts": accounts,
+        "income_sources": income_sources,
+        "total_balance": total_balance,
+        "total_contributions": total_contributions,
         "profile": profile,
     })
 

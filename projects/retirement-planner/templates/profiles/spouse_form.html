@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}Spouse Profile — RetireSim{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+
+  <!-- Step indicator -->
+  <div class="flex items-center gap-3 mb-8">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-sm font-bold">✓</div>
+      <span class="text-sm font-semibold text-green-700">Your Profile</span>
+    </div>
+    <div class="flex-1 h-0.5 bg-indigo-300"></div>
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">2</div>
+      <span class="text-sm font-semibold text-indigo-700">Spouse (optional)</span>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-8">
+    <h1 class="text-2xl font-bold text-gray-900 mb-1">Spouse or partner?</h1>
+    <p class="text-gray-500 text-sm mb-6">Adding a spouse lets the simulation model dual incomes, separate retirement ages, and combined Social Security. You can skip this and add it later.</p>
+
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+
+      {% if form.errors %}
+      <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">
+        Please correct the errors below.
+      </div>
+      {% endif %}
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+          {% render_field form.first_name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+          {% render_field form.birth_date class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" type="date" %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Annual Income ($)</label>
+          {% render_field form.annual_income class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Expected Annual Raise (%)</label>
+          {% render_field form.income_growth_rate class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Target Retirement Age</label>
+          {% render_field form.target_retirement_age class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Income Ends at Age</label>
+          {% render_field form.income_end_age class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Life Expectancy Age</label>
+          {% render_field form.life_expectancy_age class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="flex-1 bg-indigo-600 text-white font-semibold py-2.5 rounded-lg hover:bg-indigo-700 transition">
+          Save & Finish Setup →
+        </button>
+        <button type="submit" name="skip" value="1" class="flex-1 border border-gray-300 text-gray-600 font-semibold py-2.5 rounded-lg hover:bg-gray-50 transition">
+          Skip for Now
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

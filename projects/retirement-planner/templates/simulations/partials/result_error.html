@@ -1,0 +1,5 @@
+{% load humanize %}
+<div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center text-red-700">
+  <p class="font-semibold mb-1">Simulation failed</p>
+  <p class="text-sm">{{ result.error_message|default:"An unexpected error occurred." }}</p>
+</div>

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Investment Accounts — RetireSim{% endblock %}
+{% block content %}
+
+<div class="flex items-center justify-between mb-6">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">Investment Accounts</h1>
+    <p class="text-sm text-gray-500 mt-1">Growing balances — 401(k), IRA, taxable brokerage, HSA, etc.</p>
+  </div>
+  <a href="{% url 'investments:create' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">+ Add Account</a>
+</div>
+
+{% if accounts %}
+<div class="bg-white rounded-xl shadow overflow-hidden mb-8">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 border-b">
+      <tr>
+        <th class="text-left px-6 py-3 font-semibold text-gray-600">Account</th>
+        <th class="text-left px-6 py-3 font-semibold text-gray-600">Owner</th>
+        <th class="text-left px-6 py-3 font-semibold text-gray-600">Tax Treatment</th>
+        <th class="text-right px-6 py-3 font-semibold text-gray-600">Balance</th>
+        <th class="text-right px-6 py-3 font-semibold text-gray-600">Annual Contribution</th>
+        <th class="text-right px-6 py-3 font-semibold text-gray-600">Allocation</th>
+        <th class="px-6 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for account in accounts %}
+      <tr class="hover:bg-gray-50 {% if not account.is_active %}opacity-50{% endif %}">
+        <td class="px-6 py-4">
+          <div class="font-medium text-gray-900">{{ account.name }}</div>
+          <div class="text-xs text-gray-400">{{ account.get_account_type_display }}</div>
+        </td>
+        <td class="px-6 py-4 text-gray-600">{{ account.get_owner_display }}</td>
+        <td class="px-6 py-4">
+          <span class="px-2 py-1 rounded-full text-xs font-semibold
+            {% if account.is_pre_tax %}bg-amber-100 text-amber-700
+            {% elif account.is_taxable %}bg-blue-100 text-blue-700
+            {% elif account.is_hsa %}bg-green-100 text-green-700
+            {% else %}bg-purple-100 text-purple-700{% endif %}">
+            {{ account.tax_label }}
+          </span>
+        </td>
+        <td class="px-6 py-4 text-right font-semibold text-gray-800">${{ account.current_balance|floatformat:0|intcomma }}</td>
+        <td class="px-6 py-4 text-right text-gray-600">${{ account.annual_contribution|floatformat:0|intcomma }}/yr</td>
+        <td class="px-6 py-4 text-right text-gray-500 text-xs">{{ account.asset_allocation_stocks|floatformat:0 }}% stocks / {{ account.asset_allocation_bonds|floatformat:0 }}% bonds</td>
+        <td class="px-6 py-4 text-right">
+          <a href="{% url 'investments:edit' account.pk %}" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium mr-3">Edit</a>
+          <a href="{% url 'investments:delete' account.pk %}" class="text-red-500 hover:text-red-700 text-xs font-medium">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot class="bg-gray-50 border-t">
+      <tr>
+        <td colspan="3" class="px-6 py-3 text-sm font-semibold text-gray-700">Total</td>
+        <td class="px-6 py-3 text-right font-bold text-gray-900">${{ total_balance|floatformat:0|intcomma }}</td>
+        <td class="px-6 py-3 text-right font-semibold text-gray-700">${{ total_contributions|floatformat:0|intcomma }}/yr</td>
+        <td colspan="2"></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow p-12 text-center text-gray-400 mb-8">
+  <p class="text-lg mb-2">No investment accounts yet.</p>
+  <a href="{% url 'investments:create' %}" class="text-indigo-600 hover:underline text-sm">Add your first account →</a>
+</div>
+{% endif %}
+
+<div class="flex items-center justify-between mb-4">
+  <div>
+    <h2 class="text-xl font-bold text-gray-900">Income Sources</h2>
+    <p class="text-sm text-gray-500 mt-1">Guaranteed payouts — Social Security, pension, IUL, rental, etc.</p>
+  </div>
+  <a href="{% url 'investments:income_create' %}" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700">+ Add Income Source</a>
+</div>
+
+{% if income_sources %}
+<div class="bg-white rounded-xl shadow overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 border-b">
+      <tr>
+        <th class="text-left px-6 py-3 font-semibold text-gray-600">Source</th>
+        <th class="text-left px-6 py-3 font-semibold text-gray-600">Owner</th>
+        <th class="text-right px-6 py-3 font-semibold text-gray-600">Annual Amount</th>
+        <th class="text-right px-6 py-3 font-semibold text-gray-600">Starts at Age</th>
+        <th class="text-right px-6 py-3 font-semibold text-gray-600">Ends at Age</th>
+        <th class="px-6 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for src in income_sources %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-6 py-4">
+          <div class="font-medium text-gray-900">{{ src.name }}</div>
+          <div class="text-xs text-gray-400">{{ src.get_source_type_display }}{% if not src.is_taxable %} · Tax-free{% endif %}</div>
+        </td>
+        <td class="px-6 py-4 text-gray-600">{{ src.get_owner_display }}</td>
+        <td class="px-6 py-4 text-right font-semibold text-gray-800">
+          {% if src.is_social_security %}
+            <span class="text-gray-400 text-xs">See SS estimates</span>
+          {% else %}
+            ${{ src.annual_amount|floatformat:0|intcomma }}/yr
+          {% endif %}
+        </td>
+        <td class="px-6 py-4 text-right text-gray-600">{{ src.start_age }}</td>
+        <td class="px-6 py-4 text-right text-gray-500">{{ src.end_age|default:"Lifetime" }}</td>
+        <td class="px-6 py-4 text-right">
+          <a href="{% url 'investments:income_edit' src.pk %}" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium mr-3">Edit</a>
+          <a href="{% url 'investments:income_delete' src.pk %}" class="text-red-500 hover:text-red-700 text-xs font-medium">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow p-10 text-center text-gray-400">
+  <p class="text-lg mb-2">No income sources yet.</p>
+  <a href="{% url 'investments:income_create' %}" class="text-indigo-600 hover:underline text-sm">Add Social Security, pension, rental income, IUL →</a>
+</div>
+{% endif %}
+
+{% endblock %}

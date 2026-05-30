@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}{% if account %}Edit{% else %}Add{% endif %} Account — RetireSim{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto">
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">{% if account %}Edit Account{% else %}Add Investment Account{% endif %}</h1>
+    <p class="text-sm text-gray-500 mt-1">For guaranteed income sources (Social Security, pension, IUL, rental), use <a href="{% url 'investments:income_create' %}" class="text-indigo-600 hover:underline">Income Sources</a> instead.</p>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-8">
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+      <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">{{ form.non_field_errors }}</div>
+      {% endif %}
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
+        {% render_field form.name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. Tom's 401(k) at Fidelity" %}
+        {% if form.name.errors %}<p class="text-xs text-red-600 mt-1">{{ form.name.errors.0 }}</p>{% endif %}
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
+          {% render_field form.account_type class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Owner</label>
+          {% render_field form.owner class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Current Balance ($)</label>
+          {% render_field form.current_balance class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Annual Contribution ($)</label>
+          {% render_field form.annual_contribution class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
+        </div>
+      </div>
+
+      <div class="border rounded-lg p-4 bg-gray-50 space-y-3">
+        <p class="text-sm font-medium text-gray-700">Employer Match (optional)</p>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">Match Rate (% of contribution)</label>
+            {% render_field form.employer_match_pct class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. 50" %}
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">Match Cap (% of salary)</label>
+            {% render_field form.employer_match_limit_pct class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. 6" %}
+          </div>
+        </div>
+      </div>
+
+      <div class="border rounded-lg p-4 bg-gray-50 space-y-3">
+        <p class="text-sm font-medium text-gray-700">Asset Allocation <span class="text-gray-400 font-normal">(must total 100%)</span></p>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">Stocks (%)</label>
+            {% render_field form.asset_allocation_stocks class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" id="id_stocks" %}
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">Bonds (%)</label>
+            {% render_field form.asset_allocation_bonds class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" id="id_bonds" %}
+          </div>
+        </div>
+        {% if form.non_field_errors %}<p class="text-xs text-red-600">{{ form.non_field_errors.0 }}</p>{% endif %}
+      </div>
+
+      <div class="flex items-center gap-2">
+        {% render_field form.is_active class="rounded" %}
+        <label class="text-sm text-gray-700">Still actively contributing to this account</label>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="flex-1 bg-indigo-600 text-white font-semibold py-2.5 rounded-lg hover:bg-indigo-700 transition">
+          {% if account %}Save Changes{% else %}Add Account{% endif %}
+        </button>
+        <a href="{% url 'investments:list' %}" class="flex-1 text-center border border-gray-300 text-gray-600 py-2.5 rounded-lg hover:bg-gray-50 transition">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

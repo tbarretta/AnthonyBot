@@ -1,0 +1,35 @@
+{% load humanize %}
+{% if result.status == "complete" %}
+<div class="space-y-4">
+  <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+    <div class="bg-white rounded-xl shadow p-4 text-center">
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">At Retirement</p>
+      <p class="text-2xl font-bold text-indigo-700">${{ result.median_balance_at_retirement|floatformat:0|intcomma }}</p>
+    </div>
+    <div class="bg-white rounded-xl shadow p-4 text-center">
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Final Balance</p>
+      <p class="text-2xl font-bold {% if result.deterministic_final_balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+        ${{ result.deterministic_final_balance|floatformat:0|intcomma }}
+      </p>
+    </div>
+    {% if result.portfolio_exhaustion_age %}
+    <div class="bg-red-50 rounded-xl shadow p-4 text-center border border-red-200">
+      <p class="text-xs text-red-400 uppercase tracking-wide mb-1">⚠️ Depleted at Age</p>
+      <p class="text-2xl font-bold text-red-600">{{ result.portfolio_exhaustion_age }}</p>
+    </div>
+    {% endif %}
+  </div>
+  <div class="text-right">
+    <a href="{% url 'simulations:result_detail' result.pk %}" class="text-sm text-indigo-600 hover:underline font-medium">View full results & chart →</a>
+  </div>
+</div>
+{% elif result.status == "failed" %}
+<div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center text-red-700">
+  <p class="font-semibold mb-1">Simulation failed</p>
+  <p class="text-sm">{{ result.error_message|default:"An unexpected error occurred." }}</p>
+</div>
+{% else %}
+<div class="bg-gray-50 rounded-xl p-6 text-center text-gray-400">
+  <p>Simulation is {{ result.status }}…</p>
+</div>
+{% endif %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Invitations — RetireSim{% endblock %}
+{% block content %}
+{% load humanize %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Invitations</h1>
+  <a href="{% url 'accounts:invite_create' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">+ Send Invitation</a>
+</div>
+
+<div class="bg-white rounded-xl shadow overflow-hidden">
+  {% if invitations %}
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 border-b">
+      <tr>
+        <th class="text-left px-6 py-3 font-semibold text-gray-600">Email</th>
+        <th class="text-left px-6 py-3 font-semibold text-gray-600">Sent</th>
+        <th class="text-left px-6 py-3 font-semibold text-gray-600">Expires</th>
+        <th class="text-left px-6 py-3 font-semibold text-gray-600">Status</th>
+        <th class="text-left px-6 py-3 font-semibold text-gray-600">Registered</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for inv in invitations %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-6 py-4 font-medium text-gray-900">{{ inv.email }}</td>
+        <td class="px-6 py-4 text-gray-500">{{ inv.created_at|date:"M d, Y" }}</td>
+        <td class="px-6 py-4 text-gray-500">{{ inv.expires_at|date:"M d, Y" }}</td>
+        <td class="px-6 py-4">
+          {% if inv.is_used %}
+            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">Used</span>
+          {% elif inv.is_expired %}
+            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">Expired</span>
+          {% else %}
+            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">Pending</span>
+          {% endif %}
+        </td>
+        <td class="px-6 py-4 text-gray-500">{{ inv.used_by.email|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="px-6 py-12 text-center text-gray-400">
+    No invitations sent yet. <a href="{% url 'accounts:invite_create' %}" class="text-indigo-600 hover:underline">Send one →</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

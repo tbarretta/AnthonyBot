@@ -1,0 +1,20 @@
+{% load humanize %}
+<tr class="hover:bg-gray-50">
+  <td class="px-6 py-4">
+    <div class="font-medium text-gray-900">{{ account.name }}</div>
+    <div class="text-xs text-gray-400">{{ account.get_account_type_display }}</div>
+  </td>
+  <td class="px-6 py-4 text-gray-600">{{ account.get_owner_display }}</td>
+  <td class="px-6 py-4">
+    <span class="px-2 py-1 rounded-full text-xs font-semibold
+      {% if account.is_pre_tax %}bg-amber-100 text-amber-700{% else %}bg-purple-100 text-purple-700{% endif %}">
+      {{ account.tax_label }}
+    </span>
+  </td>
+  <td class="px-6 py-4 text-right font-semibold">${{ account.current_balance|floatformat:0|intcomma }}</td>
+  <td class="px-6 py-4 text-right">${{ account.annual_contribution|floatformat:0|intcomma }}/yr</td>
+  <td class="px-6 py-4 text-right">
+    <a href="{% url 'investments:edit' account.pk %}" class="text-indigo-600 text-xs font-medium mr-3">Edit</a>
+    <a href="{% url 'investments:delete' account.pk %}" class="text-red-500 text-xs font-medium">Delete</a>
+  </td>
+</tr>
