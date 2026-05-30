@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.profiles.models import UserProfile, SpouseProfile, SocialSecurityEstimate
+from apps.profiles.models import UserProfile, SpouseProfile
 from apps.investments.models import InvestmentAccount
 from apps.simulations.models import Scenario, SimulationResult
 
@@ -12,18 +12,11 @@ class SpouseProfileSerializer(serializers.ModelSerializer):
         exclude = ["user_profile"]
 
 
-class SocialSecuritySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SocialSecurityEstimate
-        exclude = ["user_profile"]
-
-
 class UserProfileSerializer(serializers.ModelSerializer):
     current_age = serializers.ReadOnlyField()
     years_to_retirement = serializers.ReadOnlyField()
     has_spouse = serializers.ReadOnlyField()
     spouse = SpouseProfileSerializer(read_only=True)
-    ss_estimates = SocialSecuritySerializer(many=True, read_only=True)
 
     class Meta:
         model = UserProfile

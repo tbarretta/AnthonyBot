@@ -7,7 +7,6 @@ Views and API endpoints call these functions; they never call the engine directl
 from django.utils import timezone
 
 from apps.investments.models import InvestmentAccount
-from apps.profiles.models import SocialSecurityEstimate
 from .models import Scenario, SimulationResult, SimulationStatus
 from .engine.deterministic import SimulationInput, AccountState, BlackSwanConfig, run_deterministic
 
@@ -20,16 +19,23 @@ def build_simulation_input(scenario: Scenario) -> SimulationInput:
     profile = scenario.user_profile
     accounts_qs = InvestmentAccount.objects.filter(user_profile=profile)
 
-    # SS estimates
-    ss_self_obj = SocialSecurityEstimate.objects.filter(user_profile=profile, owner="self").first()
-    ss_spouse_obj = SocialSecurityEstimate.objects.filter(user_profile=profile, owner="spouse").first()
+    # SS data lives on the Scenario — interpolate monthly benefit at intended claim age
+    ss_monthly_self = _interpolate_ss(
+        float(scenario.ss_monthly_self_at_62),
+        float(scenario.ss_monthly_self_at_67),
+        float(scenario.ss_monthly_self_at_70),
+        scenario.ss_claim_age_self,
+    )
+    ss_claim_age_self = scenario.ss_claim_age_self
+    ss_cola = float(scenario.ss_cola_rate)
 
-    ss_monthly_self = float(ss_self_obj.monthly_benefit_at_claim_age()) if ss_self_obj else 0.0
-    ss_claim_age_self = ss_self_obj.claim_age if ss_self_obj else 67
-    ss_cola = float(ss_self_obj.cola_rate) if ss_self_obj else 2.5
-
-    ss_monthly_spouse = float(ss_spouse_obj.monthly_benefit_at_claim_age()) if ss_spouse_obj else 0.0
-    ss_claim_age_spouse = ss_spouse_obj.claim_age if ss_spouse_obj else 67
+    ss_monthly_spouse = _interpolate_ss(
+        float(scenario.ss_monthly_spouse_at_62),
+        float(scenario.ss_monthly_spouse_at_67),
+        float(scenario.ss_monthly_spouse_at_70),
+        scenario.ss_claim_age_spouse,
+    )
+    ss_claim_age_spouse = scenario.ss_claim_age_spouse
 
     # Spouse
     spouse_current_age = None
@@ -110,6 +116,20 @@ def build_simulation_input(scenario: Scenario) -> SimulationInput:
 
         black_swan=black_swan,
     )
+
+
+def _interpolate_ss(at_62: float, at_67: float, at_70: float, claim_age: int) -> float:
+    """Interpolate SS monthly benefit at the given claim age."""
+    if claim_age <= 62:
+        return at_62
+    elif claim_age >= 70:
+        return at_70
+    elif claim_age < 67:
+        fraction = (claim_age - 62) / (67 - 62)
+        return at_62 + fraction * (at_67 - at_62)
+    else:
+        fraction = (claim_age - 67) / (70 - 67)
+        return at_67 + fraction * (at_70 - at_67)
 
 
 def run_deterministic_sync(scenario: Scenario) -> SimulationResult:

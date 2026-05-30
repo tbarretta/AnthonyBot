@@ -5,14 +5,14 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from apps.profiles.models import UserProfile, SpouseProfile, SocialSecurityEstimate
+from apps.profiles.models import UserProfile, SpouseProfile
 from apps.investments.models import InvestmentAccount
 from apps.simulations.models import Scenario, SimulationResult, SimulationStatus
 from apps.simulations.services import run_deterministic_sync
 from apps.simulations.tasks import run_monte_carlo_task
 
 from .serializers import (
-    UserProfileSerializer, SpouseProfileSerializer, SocialSecuritySerializer,
+    UserProfileSerializer, SpouseProfileSerializer,
     InvestmentAccountSerializer, ScenarioSerializer,
     SimulationResultSerializer, SimulationResultStatusSerializer,
 )
@@ -46,28 +46,6 @@ class SpouseView(generics.RetrieveUpdateDestroyAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save(user_profile=profile)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class SocialSecurityListCreateView(generics.ListCreateAPIView):
-    serializer_class = SocialSecuritySerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        profile = get_object_or_404(UserProfile, user=self.request.user)
-        return SocialSecurityEstimate.objects.filter(user_profile=profile)
-
-    def perform_create(self, serializer):
-        profile = get_object_or_404(UserProfile, user=self.request.user)
-        serializer.save(user_profile=profile)
-
-
-class SocialSecurityDetailView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = SocialSecuritySerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        profile = get_object_or_404(UserProfile, user=self.request.user)
-        return SocialSecurityEstimate.objects.filter(user_profile=profile)
 
 
 # ----- Investments -----

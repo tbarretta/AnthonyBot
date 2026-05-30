@@ -134,6 +134,65 @@
       </div>
     </div>
 
+    <!-- Social Security -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Social Security</h2>
+
+      <div class="mb-2">
+        <p class="text-sm text-gray-500">Enter the monthly benefit estimates from your SSA statement (ssa.gov/myaccount). The engine interpolates to your chosen claim age.</p>
+      </div>
+
+      <!-- Primary user -->
+      <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Your Benefits</h3>
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="label">Monthly Benefit at 62</label>
+          {% render_field form.ss_monthly_self_at_62 class="input" %}
+        </div>
+        <div>
+          <label class="label">Monthly Benefit at 67 (FRA)</label>
+          {% render_field form.ss_monthly_self_at_67 class="input" %}
+        </div>
+        <div>
+          <label class="label">Monthly Benefit at 70</label>
+          {% render_field form.ss_monthly_self_at_70 class="input" %}
+        </div>
+      </div>
+      <div class="w-32">
+        <label class="label">Your Claim Age</label>
+        {% render_field form.ss_claim_age_self class="input" %}
+      </div>
+
+      {% if profile.has_spouse %}
+      <div class="border-t pt-4">
+        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Spouse's Benefits</h3>
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="label">Monthly Benefit at 62</label>
+            {% render_field form.ss_monthly_spouse_at_62 class="input" %}
+          </div>
+          <div>
+            <label class="label">Monthly Benefit at 67 (FRA)</label>
+            {% render_field form.ss_monthly_spouse_at_67 class="input" %}
+          </div>
+          <div>
+            <label class="label">Monthly Benefit at 70</label>
+            {% render_field form.ss_monthly_spouse_at_70 class="input" %}
+          </div>
+        </div>
+        <div class="w-32 mt-2">
+          <label class="label">Spouse Claim Age</label>
+          {% render_field form.ss_claim_age_spouse class="input" %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="w-32">
+        <label class="label">COLA Rate %</label>
+        {% render_field form.ss_cola_rate class="input" %}
+      </div>
+    </div>
+
     <!-- Tax -->
     <div class="bg-white rounded-xl shadow p-6 space-y-4">
       <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Tax Assumptions</h2>

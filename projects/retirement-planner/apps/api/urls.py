@@ -12,8 +12,7 @@ urlpatterns = [
     # Profile
     path("profile/", views.ProfileView.as_view(), name="profile"),
     path("profile/spouse/", views.SpouseView.as_view(), name="spouse"),
-    path("profile/social-security/", views.SocialSecurityListCreateView.as_view(), name="ss_list"),
-    path("profile/social-security/<int:pk>/", views.SocialSecurityDetailView.as_view(), name="ss_detail"),
+    # Social Security is configured per-scenario (see /simulations/scenarios/)
 
     # Investments
     path("investments/accounts/", views.InvestmentAccountListCreateView.as_view(), name="account_list"),

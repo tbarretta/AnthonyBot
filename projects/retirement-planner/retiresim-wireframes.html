@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>RetireSim — Wireframes</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+    background: #f1f5f9;
+    color: #1e293b;
+    padding: 0 0 60px 0;
+  }
+
+  /* ─── Header ─────────────────────────────────────────────── */
+  .page-header {
+    background: #1e293b;
+    color: #f8fafc;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .page-header h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .page-header span { font-size: 13px; color: #94a3b8; }
+
+  /* ─── Persona Tabs ────────────────────────────────────────── */
+  .persona-tabs {
+    display: flex;
+    gap: 0;
+    background: #e2e8f0;
+    border-bottom: 2px solid #cbd5e1;
+    padding: 0 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .tab-btn {
+    padding: 14px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all .15s;
+  }
+  .tab-btn.active { color: #4f46e5; border-bottom-color: #4f46e5; background: #f1f5f9; }
+  .tab-btn:hover:not(.active) { color: #1e293b; }
+
+  /* ─── Section ─────────────────────────────────────────────── */
+  .persona-section { display: none; padding: 36px 40px; }
+  .persona-section.active { display: block; }
+
+  .flow-group { margin-bottom: 48px; }
+  .flow-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    margin-bottom: 20px;
+    padding-left: 4px;
+    border-left: 3px solid #4f46e5;
+    padding-left: 10px;
+  }
+
+  /* ─── Flow Row ────────────────────────────────────────────── */
+  .flow-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    flex-wrap: wrap;
+    row-gap: 28px;
+  }
+  .flow-row.wrap-allow { flex-wrap: wrap; }
+
+  /* ─── Arrow ───────────────────────────────────────────────── */
+  .arrow {
+    display: flex;
+    align-items: center;
+    padding-top: 48px;
+    color: #94a3b8;
+    flex-shrink: 0;
+  }
+  .arrow svg { width: 36px; height: 18px; }
+  .arrow.down { padding-top: 0; padding-left: 48px; flex-direction: column; }
+  .arrow-label {
+    font-size: 10px;
+    color: #94a3b8;
+    text-align: center;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+
+  /* ─── Screen Wireframe ────────────────────────────────────── */
+  .screen {
+    width: 200px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    border: 2px solid #94a3b8;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  .screen-bar {
+    background: #334155;
+    color: #e2e8f0;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .screen-bar .dots { display: flex; gap: 4px; }
+  .screen-bar .dot { width: 6px; height: 6px; border-radius: 50%; background: #64748b; }
+  .screen-bar .screen-title { flex: 1; text-align: center; font-size: 10px; }
+
+  .screen-nav {
+    background: #4f46e5;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    gap: 8px;
+  }
+  .screen-nav span {
+    font-size: 9px;
+    color: #c7d2fe;
+    font-weight: 600;
+  }
+  .screen-nav .brand { color: #fff; font-weight: 700; }
+
+  .screen-body { padding: 10px; }
+
+  /* ─── Wireframe UI elements ───────────────────────────────── */
+  .wf-heading {
+    height: 10px;
+    background: #334155;
+    border-radius: 2px;
+    margin-bottom: 8px;
+    width: 70%;
+  }
+  .wf-sub {
+    height: 7px;
+    background: #cbd5e1;
+    border-radius: 2px;
+    margin-bottom: 10px;
+    width: 50%;
+  }
+  .wf-label {
+    height: 7px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    margin-bottom: 4px;
+    width: 40%;
+  }
+  .wf-input {
+    height: 18px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+  .wf-input-sm {
+    height: 16px;
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    width: 100%;
+  }
+  .wf-btn {
+    height: 20px;
+    background: #4f46e5;
+    border-radius: 4px;
+    margin-top: 6px;
+    width: 100%;
+  }
+  .wf-btn-sm {
+    height: 16px;
+    background: #4f46e5;
+    border-radius: 4px;
+    margin-top: 4px;
+    width: 60%;
+  }
+  .wf-btn-ghost {
+    height: 16px;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    margin-top: 4px;
+    width: 60%;
+  }
+  .wf-btn-green {
+    height: 20px;
+    background: #16a34a;
+    border-radius: 4px;
+    margin-top: 6px;
+    width: 100%;
+  }
+  .wf-btn-outline {
+    height: 20px;
+    background: #fff;
+    border: 1.5px solid #4f46e5;
+    border-radius: 4px;
+    margin-top: 6px;
+    width: 100%;
+  }
+  .wf-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 8px 0;
+  }
+  .wf-text-row {
+    height: 7px;
+    background: #e2e8f0;
+    border-radius: 2px;
+    margin-bottom: 5px;
+  }
+  .wf-text-row.short { width: 60%; }
+  .wf-text-row.med { width: 80%; }
+  .wf-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 8px;
+    margin-bottom: 6px;
+  }
+  .wf-card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .wf-stat {
+    background: #ede9fe;
+    border-radius: 6px;
+    padding: 6px;
+    margin-bottom: 6px;
+  }
+  .wf-stat-num {
+    height: 12px;
+    background: #4f46e5;
+    border-radius: 2px;
+    width: 50%;
+    margin-bottom: 4px;
+  }
+  .wf-stat-label {
+    height: 6px;
+    background: #c4b5fd;
+    border-radius: 2px;
+    width: 70%;
+  }
+  .wf-chart {
+    height: 50px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    margin-top: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+  .wf-chart-line {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #4f46e5;
+    clip-path: polygon(0% 80%, 20% 60%, 40% 50%, 60% 30%, 80% 20%, 100% 10%, 100% 100%, 0% 100%);
+  }
+  .wf-chart-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: rgba(79,70,229,.1);
+    clip-path: polygon(0% 80%, 20% 60%, 40% 50%, 60% 30%, 80% 20%, 100% 10%, 100% 100%, 0% 100%);
+  }
+  .wf-chart-fan {
+    position: absolute;
+    bottom: 0; left: 0; right: 0; top: 0;
+  }
+  .wf-table {
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .wf-table-head {
+    background: #e2e8f0;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 4px;
+  }
+  .wf-table-cell { height: 6px; background: #94a3b8; border-radius: 1px; flex: 1; }
+  .wf-table-row {
+    background: #fff;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    gap: 4px;
+    border-top: 1px solid #f1f5f9;
+  }
+  .wf-table-val { height: 5px; background: #e2e8f0; border-radius: 1px; flex: 1; }
+  .wf-table-badge { height: 10px; width: 30px; background: #bbf7d0; border-radius: 8px; }
+  .wf-table-badge.warn { background: #fef9c3; }
+  .wf-table-badge.used { background: #fecaca; }
+  .wf-step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .wf-step-num {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #4f46e5;
+    flex-shrink: 0;
+  }
+  .wf-step-num.done { background: #16a34a; }
+  .wf-step-num.active { background: #4f46e5; }
+  .wf-step-num.todo { background: #e2e8f0; }
+  .wf-step-line { height: 7px; background: #e2e8f0; border-radius: 2px; flex: 1; }
+  .wf-radio-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 5px;
+  }
+  .wf-radio { width: 10px; height: 10px; border-radius: 50%; border: 2px solid #94a3b8; flex-shrink: 0; }
+  .wf-radio.sel { border-color: #4f46e5; background: #4f46e5; }
+  .wf-icon { font-size: 18px; margin-bottom: 4px; }
+  .wf-chip {
+    display: inline-block;
+    height: 14px;
+    width: 50px;
+    background: #ede9fe;
+    border-radius: 8px;
+    margin-bottom: 4px;
+  }
+  .wf-chip.green { background: #dcfce7; }
+  .wf-chip.red { background: #fee2e2; }
+  .wf-chip.amber { background: #fef9c3; }
+  .wf-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 6px; }
+  .wf-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; margin-bottom: 6px; }
+  .wf-stat-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 6px;
+  }
+  .wf-progress {
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .wf-progress-fill {
+    height: 100%;
+    background: #4f46e5;
+    border-radius: 3px;
+  }
+  .wf-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid #e2e8f0;
+    border-top-color: #4f46e5;
+    border-radius: 50%;
+    margin: 10px auto 8px;
+  }
+  .wf-success-icon {
+    width: 24px;
+    height: 24px;
+    background: #16a34a;
+    border-radius: 50%;
+    margin: 8px auto;
+  }
+  .wf-tag {
+    font-size: 9px;
+    background: #ede9fe;
+    color: #4f46e5;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+  .wf-tag.green { background: #dcfce7; color: #16a34a; }
+  .wf-tag.amber { background: #fef9c3; color: #92400e; }
+  .wf-tag.red { background: #fee2e2; color: #991b1b; }
+  .annotation {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 8px;
+    padding: 6px 8px;
+    background: #fefce8;
+    border-left: 3px solid #fbbf24;
+    border-radius: 0 4px 4px 0;
+    max-width: 200px;
+  }
+
+  /* ─── Screen name labels ──────────────────────────────────── */
+  .screen-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-align: center;
+    margin-top: 6px;
+  }
+  .screen-wrap { display: flex; flex-direction: column; align-items: center; }
+
+  /* ─── Branch layout ───────────────────────────────────────── */
+  .branch-root { display: flex; flex-direction: column; align-items: center; }
+  .branch-arms { display: flex; gap: 20px; align-items: flex-start; }
+  .branch-arm { display: flex; flex-direction: column; align-items: center; }
+  .branch-line { width: 1px; height: 20px; background: #94a3b8; margin: 0 auto; }
+  .branch-h-line {
+    height: 1px; background: #94a3b8;
+    align-self: stretch;
+    margin-top: 10px;
+  }
+
+  /* Connector label */
+  .conn-label {
+    font-size: 9px;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 1px 5px;
+    border-radius: 8px;
+    position: absolute;
+    white-space: nowrap;
+  }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 6px;
+  }
+  .section-sub {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 28px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #64748b;
+  }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+  .flow-connector {
+    display: flex;
+    align-items: center;
+    padding-top: 50px;
+  }
+
+  hr.flow-hr { border: none; border-top: 2px dashed #e2e8f0; margin: 40px 0; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <h1>💰 RetireSim — Wireframes</h1>
+  </div>
+  <span>v1.0 · All Personas · MVP Scope</span>
+</div>
+
+<!-- Persona tabs -->
+<div class="persona-tabs">
+  <button class="tab-btn active" onclick="showTab('admin')">🛡️ Master Admin</button>
+  <button class="tab-btn" onclick="showTab('user')">👤 Regular User</button>
+  <button class="tab-btn" onclick="showTab('results')">📊 Simulation Results</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ADMIN PERSONA
+═══════════════════════════════════════════════ -->
+<div id="tab-admin" class="persona-section active">
+  <div class="section-title">Master Admin</div>
+  <div class="section-sub">Controls access (invitations), views all users, and uses the app as a regular user.</div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#334155"></div> Screen</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#4f46e5"></div> Action / Button</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div> Note / Annotation</div>
+  </div>
+
+  <!-- Flow 1: Login -->
+  <div class="flow-group">
+    <div class="flow-label">1 · Authentication</div>
+    <div class="flow-row">
+
+      <!-- Login -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/accounts/login/</div></div>
+          <div class="screen-body">
+            <div class="wf-heading" style="width:60%;margin:0 auto 10px;"></div>
+            <div style="text-align:center;margin-bottom:10px;"><div class="wf-text-row short" style="margin:0 auto 4px;"></div></div>
+            <div class="wf-label" style="width:30%"></div>
+            <div class="wf-input"></div>
+            <div class="wf-label" style="width:40%"></div>
+            <div class="wf-input"></div>
+            <div class="wf-btn" style="margin-top:10px;"></div>
+            <div style="text-align:center;margin-top:8px;"><div class="wf-text-row short" style="margin:0 auto;background:#cbd5e1;"></div></div>
+          </div>
+        </div>
+        <div class="screen-name">Login</div>
+      </div>
+
+      <div class="arrow">
+        <svg viewBox="0 0 36 18"><line x1="0" y1="9" x2="28" y2="9" stroke="#94a3b8" stroke-width="1.5"/><polygon points="28,5 36,9 28,13" fill="#94a3b8"/></svg>
+        <div class="arrow-label">credentials</div>
+      </div>
+
+      <!-- Admin Dashboard -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/dashboard/</div></div>
+          <div class="screen-nav"><span class="brand">RetireSim</span><span>Accounts</span><span>Scenarios</span><span style="color:#fde68a">Invitations</span></div>
+          <div class="screen-body">
+            <div class="wf-heading" style="width:80%"></div>
+            <div class="wf-sub"></div>
+            <div class="wf-grid-3">
+              <div class="wf-stat-box"><div class="wf-stat-num" style="background:#4f46e5;height:10px;margin-bottom:3px;"></div><div class="wf-stat-label" style="height:5px;background:#c4b5fd;"></div></div>
+              <div class="wf-stat-box"><div class="wf-stat-num" style="background:#16a34a;height:10px;margin-bottom:3px;"></div><div class="wf-stat-label" style="height:5px;background:#bbf7d0;"></div></div>
+              <div class="wf-stat-box"><div class="wf-stat-num" style="background:#f59e0b;height:10px;margin-bottom:3px;"></div><div class="wf-stat-label" style="height:5px;background:#fde68a;"></div></div>
+            </div>
+            <div class="wf-tag">ADMIN</div>
+            <div class="wf-card">
+              <div class="wf-card-row">
+                <div class="wf-text-row med" style="width:55%"></div>
+                <div class="wf-chip green"></div>
+              </div>
+              <div class="wf-card-row">
+                <div class="wf-text-row" style="width:55%"></div>
+                <div class="wf-chip"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-name">Admin Dashboard</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Flow 2: Invitation Management -->
+  <div class="flow-group">
+    <div class="flow-label">2 · Invitation Management</div>
+    <div class="flow-row">
+
+      <!-- Invitation List -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/accounts/invitations/</div></div>
+          <div class="screen-nav"><span class="brand">RetireSim</span><span style="color:#fde68a">Invitations</span></div>
+          <div class="screen-body">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <div class="wf-heading" style="width:50%;margin:0"></div>
+              <div style="height:16px;width:50px;background:#4f46e5;border-radius:4px;"></div>
+            </div>
+            <div class="wf-table">
+              <div class="wf-table-head">
+                <div class="wf-table-cell"></div><div class="wf-table-cell"></div><div class="wf-table-cell"></div>
+              </div>
+              <div class="wf-table-row"><div class="wf-table-val"></div><div class="wf-table-val"></div><div class="wf-table-badge green"></div></div>
+              <div class="wf-table-row"><div class="wf-table-val"></div><div class="wf-table-val"></div><div class="wf-table-badge warn"></div></div>
+              <div class="wf-table-row"><div class="wf-table-val"></div><div class="wf-table-val"></div><div class="wf-table-badge used"></div></div>
+            </div>
+            <div style="margin-top:6px;">
+              <div class="wf-text-row short" style="background:#94a3b8;width:80%;margin:0 auto;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-name">Invitation List</div>
+        <div class="annotation">Columns: Email · Sent · Status<br>Status: Pending / Used / Expired</div>
+      </div>
+
+      <div class="arrow">
+        <svg viewBox="0 0 36 18"><line x1="0" y1="9" x2="28" y2="9" stroke="#94a3b8" stroke-width="1.5"/><polygon points="28,5 36,9 28,13" fill="#94a3b8"/></svg>
+        <div class="arrow-label">+ Invite</div>
+      </div>
+
+      <!-- Create Invitation -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/accounts/invitations/new/</div></div>
+          <div class="screen-body" style="padding-top:14px;">
+            <div class="wf-heading" style="width:75%"></div>
+            <div class="wf-sub" style="width:90%"></div>
+            <div class="wf-divider"></div>
+            <div class="wf-label" style="width:35%"></div>
+            <div class="wf-input" style="margin-bottom:12px;"></div>
+            <div class="wf-text-row short" style="background:#cbd5e1;margin-bottom:10px;"></div>
+            <div class="wf-btn" style="margin-bottom:6px;"></div>
+            <div class="wf-btn-ghost"></div>
+          </div>
+        </div>
+        <div class="screen-name">Create Invitation</div>
+        <div class="annotation">Mailgun sends invite email<br>Token expires in 7 days</div>
+      </div>
+
+      <div class="arrow">
+        <svg viewBox="0 0 36 18"><line x1="0" y1="9" x2="28" y2="9" stroke="#94a3b8" stroke-width="1.5"/><polygon points="28,5 36,9 28,13" fill="#94a3b8"/></svg>
+        <div class="arrow-label">email sent</div>
+      </div>
+
+      <!-- Email -->
+      <div class="screen-wrap">
+        <div class="screen" style="border-color:#f59e0b;">
+          <div class="screen-bar" style="background:#92400e;"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">📧 Email Inbox</div></div>
+          <div class="screen-body">
+            <div class="wf-heading" style="width:90%;background:#92400e;"></div>
+            <div class="wf-divider"></div>
+            <div class="wf-text-row med"></div>
+            <div class="wf-text-row"></div>
+            <div class="wf-text-row short"></div>
+            <div style="margin:10px 0;height:18px;width:80%;background:#4f46e5;border-radius:4px;margin:10px auto;"></div>
+            <div class="wf-text-row short" style="margin:0 auto;"></div>
+          </div>
+        </div>
+        <div class="screen-name">Invitation Email</div>
+        <div class="annotation">Contains unique token link<br>→ /accounts/register/{token}/</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Flow 3: Admin-specific views -->
+  <div class="flow-group">
+    <div class="flow-label">3 · Admin Tools (staff-only)</div>
+    <div class="flow-row">
+
+      <!-- Django Admin -->
+      <div class="screen-wrap">
+        <div class="screen" style="border-color:#16a34a;">
+          <div class="screen-bar" style="background:#166534;"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/admin/</div></div>
+          <div class="screen-body">
+            <div class="wf-heading" style="width:80%;background:#166534;"></div>
+            <div class="wf-divider"></div>
+            <div class="wf-card" style="margin-bottom:4px;"><div class="wf-text-row" style="width:60%"></div></div>
+            <div class="wf-card" style="margin-bottom:4px;"><div class="wf-text-row" style="width:50%"></div></div>
+            <div class="wf-card" style="margin-bottom:4px;"><div class="wf-text-row" style="width:70%"></div></div>
+            <div class="wf-card"><div class="wf-text-row" style="width:55%"></div></div>
+          </div>
+        </div>
+        <div class="screen-name">Django Admin</div>
+        <div class="annotation">Full model CRUD<br>Users · Invitations · Scenarios · Results</div>
+      </div>
+
+    </div>
+    <div style="margin-top:12px;" class="annotation">Admin also has full regular user access — can manage their own profile, accounts, and scenarios just like any user.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     USER PERSONA
+═══════════════════════════════════════════════ -->
+<div id="tab-user" class="persona-section">
+  <div class="section-title">Regular User</div>
+  <div class="section-sub">Onboarding → profile setup → investments → scenarios → simulations</div>
+
+  <!-- Onboarding flow -->
+  <div class="flow-group">
+    <div class="flow-label">1 · Onboarding (one-time)</div>
+    <div class="flow-row">
+
+      <!-- Register -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/register/{token}/</div></div>
+          <div class="screen-body">
+            <div class="wf-heading" style="width:70%"></div>
+            <div class="wf-sub"></div>
+            <div class="wf-chip" style="width:80px;display:block;margin-bottom:8px;"></div>
+            <div class="wf-label" style="width:35%"></div>
+            <div class="wf-input-sm"></div>
+            <div class="wf-label" style="width:35%"></div>
+            <div class="wf-input-sm"></div>
+            <div class="wf-label" style="width:40%"></div>
+            <div class="wf-input-sm" style="background:#f1f5f9;border-color:#94a3b8;"></div>
+            <div class="wf-label" style="width:40%"></div>
+            <div class="wf-input-sm"></div>
+            <div class="wf-label" style="width:40%"></div>
+            <div class="wf-input-sm"></div>
+            <div class="wf-btn" style="margin-top:8px;"></div>
+          </div>
+        </div>
+        <div class="screen-name">Register</div>
+        <div class="annotation">Email pre-filled (read-only)<br>from invitation token</div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 36 18"><line x1="0" y1="9" x2="28" y2="9" stroke="#94a3b8" stroke-width="1.5"/><polygon points="28,5 36,9 28,13" fill="#94a3b8"/></svg><div class="arrow-label">submit</div></div>
+
+      <!-- Setup Step 1 -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/setup/ · Step 1 of 3</div></div>
+          <div class="screen-nav"><span class="brand">RetireSim</span></div>
+          <div class="screen-body">
+            <div style="display:flex;gap:4px;margin-bottom:8px;">
+              <div class="wf-step-num done"></div>
+              <div style="flex:1;height:2px;background:#4f46e5;align-self:center;margin-top:7px;"></div>
+              <div class="wf-step-num todo"></div>
+              <div style="flex:1;height:2px;background:#e2e8f0;align-self:center;margin-top:7px;"></div>
+              <div class="wf-step-num todo"></div>
+            </div>
+            <div class="wf-heading" style="width:80%"></div>
+            <div class="wf-grid-2">
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+            </div>
+            <div class="wf-label"></div><div class="wf-input-sm"></div>
+            <div class="wf-grid-2">
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+            </div>
+            <div class="wf-btn" style="margin-top:6px;"></div>
+          </div>
+        </div>
+        <div class="screen-name">Profile — Step 1</div>
+        <div class="annotation">Birth date · State · Filing status<br>Income · Retirement age · Risk</div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 36 18"><line x1="0" y1="9" x2="28" y2="9" stroke="#94a3b8" stroke-width="1.5"/><polygon points="28,5 36,9 28,13" fill="#94a3b8"/></svg><div class="arrow-label">next</div></div>
+
+      <!-- Setup Step 2 -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/setup/spouse/ · Step 2 of 3</div></div>
+          <div class="screen-nav"><span class="brand">RetireSim</span></div>
+          <div class="screen-body">
+            <div style="display:flex;gap:4px;margin-bottom:8px;">
+              <div class="wf-step-num done"></div>
+              <div style="flex:1;height:2px;background:#4f46e5;align-self:center;margin-top:7px;"></div>
+              <div class="wf-step-num active"></div>
+              <div style="flex:1;height:2px;background:#e2e8f0;align-self:center;margin-top:7px;"></div>
+              <div class="wf-step-num todo"></div>
+            </div>
+            <div class="wf-heading" style="width:75%"></div>
+            <div class="wf-sub" style="width:90%"></div>
+            <div class="wf-label" style="width:40%"></div><div class="wf-input-sm"></div>
+            <div class="wf-label" style="width:35%"></div><div class="wf-input-sm"></div>
+            <div class="wf-label" style="width:45%"></div><div class="wf-input-sm"></div>
+            <div class="wf-label" style="width:50%"></div><div class="wf-input-sm"></div>
+            <div class="wf-btn" style="margin-top:6px;"></div>
+            <div class="wf-btn-ghost" style="width:100%;margin-top:4px;"></div>
+          </div>
+        </div>
+        <div class="screen-name">Spouse — Step 2</div>
+        <div class="annotation">Optional — "Skip" goes directly<br>to Step 3 without spouse data</div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 36 18"><line x1="0" y1="9" x2="28" y2="9" stroke="#94a3b8" stroke-width="1.5"/><polygon points="28,5 36,9 28,13" fill="#94a3b8"/></svg><div class="arrow-label">next</div></div>
+
+      <!-- Setup Step 3 -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/setup/social-security/ · Step 3</div></div>
+          <div class="screen-nav"><span class="brand">RetireSim</span></div>
+          <div class="screen-body">
+            <div style="display:flex;gap:4px;margin-bottom:8px;">
+              <div class="wf-step-num done"></div>
+              <div style="flex:1;height:2px;background:#4f46e5;align-self:center;margin-top:7px;"></div>
+              <div class="wf-step-num done"></div>
+              <div style="flex:1;height:2px;background:#4f46e5;align-self:center;margin-top:7px;"></div>
+              <div class="wf-step-num active"></div>
+            </div>
+            <div class="wf-heading" style="width:70%"></div>
+            <div style="margin-bottom:6px;">
+              <div class="wf-chip" style="display:block;margin-bottom:4px;"></div>
+              <div class="wf-grid-3">
+                <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+                <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+                <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+              </div>
+              <div class="wf-label" style="width:40%"></div><div class="wf-input-sm"></div>
+            </div>
+            <div class="wf-divider"></div>
+            <div class="wf-chip" style="display:block;margin-bottom:4px;background:#ede9fe;"></div>
+            <div class="wf-grid-3">
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+            </div>
+            <div class="wf-btn" style="margin-top:4px;"></div>
+          </div>
+        </div>
+        <div class="screen-name">Social Security — Step 3</div>
+        <div class="annotation">Benefits at 62 / 67 / 70<br>+ intended claim age per person</div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 36 18"><line x1="0" y1="9" x2="28" y2="9" stroke="#94a3b8" stroke-width="1.5"/><polygon points="28,5 36,9 28,13" fill="#94a3b8"/></svg><div class="arrow-label">finish</div></div>
+
+      <!-- Dashboard (first time) -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/dashboard/</div></div>
+          <div class="screen-nav"><span class="brand">RetireSim</span><span>Accounts</span><span>Scenarios</span></div>
+          <div class="screen-body">
+            <div class="wf-heading" style="width:75%"></div>
+            <div class="wf-sub"></div>
+            <div class="wf-grid-3" style="margin-bottom:8px;">
+              <div class="wf-stat-box"><div style="height:10px;background:#4f46e5;border-radius:2px;margin-bottom:3px;"></div><div style="height:5px;background:#e2e8f0;border-radius:2px;"></div></div>
+              <div class="wf-stat-box"><div style="height:10px;background:#16a34a;border-radius:2px;margin-bottom:3px;"></div><div style="height:5px;background:#e2e8f0;border-radius:2px;"></div></div>
+              <div class="wf-stat-box"><div style="height:10px;background:#f59e0b;border-radius:2px;margin-bottom:3px;"></div><div style="height:5px;background:#e2e8f0;border-radius:2px;"></div></div>
+            </div>
+            <div class="wf-card" style="text-align:center;padding:10px;border-style:dashed;">
+              <div class="wf-text-row short" style="margin:0 auto 4px;"></div>
+              <div class="wf-btn-sm" style="margin:0 auto;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-name">Dashboard (Empty State)</div>
+        <div class="annotation">Empty state CTA:<br>"Add your first account →"</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Flow 2: Investment Accounts -->
+  <div class="flow-group">
+    <div class="flow-label">2 · Investment Accounts</div>
+    <div class="flow-row">
+
+      <!-- Account List -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/investments/</div></div>
+          <div class="screen-nav"><span class="brand">RetireSim</span><span style="color:#fde68a">Accounts</span><span>Scenarios</span></div>
+          <div class="screen-body">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <div class="wf-heading" style="margin:0;width:50%;"></div>
+              <div style="height:14px;width:45px;background:#4f46e5;border-radius:4px;"></div>
+            </div>
+            <div class="wf-card" style="margin-bottom:4px;">
+              <div class="wf-card-row">
+                <div><div class="wf-text-row" style="width:80px;margin-bottom:3px;"></div><div class="wf-chip" style="height:10px;width:60px;"></div></div>
+                <div class="wf-text-row" style="width:40px;background:#334155;"></div>
+              </div>
+            </div>
+            <div class="wf-card" style="margin-bottom:4px;">
+              <div class="wf-card-row">
+                <div><div class="wf-text-row" style="width:80px;margin-bottom:3px;"></div><div class="wf-chip green" style="height:10px;width:60px;"></div></div>
+                <div class="wf-text-row" style="width:40px;background:#334155;"></div>
+              </div>
+            </div>
+            <div class="wf-card">
+              <div class="wf-card-row">
+                <div><div class="wf-text-row" style="width:80px;margin-bottom:3px;"></div><div class="wf-chip amber" style="height:10px;width:60px;"></div></div>
+                <div class="wf-text-row" style="width:40px;background:#334155;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-name">Account List</div>
+        <div class="annotation">Shows all accounts with<br>type badge + balance</div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 36 18"><line x1="0" y1="9" x2="28" y2="9" stroke="#94a3b8" stroke-width="1.5"/><polygon points="28,5 36,9 28,13" fill="#94a3b8"/></svg><div class="arrow-label">+ Add</div></div>
+
+      <!-- Account Form -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/investments/new/</div></div>
+          <div class="screen-body">
+            <div class="wf-heading" style="width:65%"></div>
+            <div class="wf-divider"></div>
+            <div class="wf-label" style="width:25%"></div><div class="wf-input-sm"></div>
+            <div class="wf-label" style="width:40%"></div>
+            <div class="wf-input-sm" style="margin-bottom:4px;"></div>
+            <div class="wf-label" style="width:25%"></div>
+            <div style="display:flex;gap:4px;margin-bottom:6px;">
+              <div class="wf-radio sel"></div><div class="wf-step-line" style="width:30px;"></div>
+              <div class="wf-radio"></div><div class="wf-step-line" style="width:30px;"></div>
+            </div>
+            <div class="wf-grid-2">
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+            </div>
+            <div class="wf-label" style="width:50%"></div>
+            <div style="display:flex;gap:4px;margin-bottom:6px;">
+              <div class="wf-input-sm" style="width:50px;"></div>
+              <div style="font-size:9px;color:#64748b;align-self:center;">stocks /</div>
+              <div class="wf-input-sm" style="width:50px;"></div>
+              <div style="font-size:9px;color:#64748b;align-self:center;">bonds</div>
+            </div>
+            <div class="wf-btn" style="margin-top:4px;"></div>
+          </div>
+        </div>
+        <div class="screen-name">Add / Edit Account</div>
+        <div class="annotation">Account type auto-sets<br>pre-tax / post-tax flags<br>Stocks + Bonds must = 100%</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Flow 3: Scenario creation -->
+  <div class="flow-group">
+    <div class="flow-label">3 · Create & Run a Scenario</div>
+    <div class="flow-row">
+
+      <!-- Scenario List -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/simulations/</div></div>
+          <div class="screen-nav"><span class="brand">RetireSim</span><span>Accounts</span><span style="color:#fde68a">Scenarios</span></div>
+          <div class="screen-body">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <div class="wf-heading" style="margin:0;width:50%;"></div>
+              <div style="height:14px;width:55px;background:#4f46e5;border-radius:4px;"></div>
+            </div>
+            <div class="wf-card" style="margin-bottom:4px;">
+              <div class="wf-card-row">
+                <div><div class="wf-text-row" style="width:80px;margin-bottom:3px;"></div><div class="wf-chip" style="height:10px;width:70px;"></div></div>
+                <div class="wf-chip green" style="height:14px;width:45px;"></div>
+              </div>
+            </div>
+            <div class="wf-card">
+              <div class="wf-card-row">
+                <div><div class="wf-text-row" style="width:80px;margin-bottom:3px;"></div><div class="wf-chip amber" style="height:10px;width:70px;"></div></div>
+                <div style="height:14px;width:30px;background:#4f46e5;border-radius:4px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-name">Scenario List</div>
+        <div class="annotation">Shows latest result summary<br>or "Run" button if no result</div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 36 18"><line x1="0" y1="9" x2="28" y2="9" stroke="#94a3b8" stroke-width="1.5"/><polygon points="28,5 36,9 28,13" fill="#94a3b8"/></svg><div class="arrow-label">+ New</div></div>
+
+      <!-- Scenario Form -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/simulations/new/</div></div>
+          <div class="screen-body">
+            <div class="wf-heading" style="width:70%"></div>
+            <div class="wf-divider"></div>
+            <!-- Sim type radio -->
+            <div class="wf-label" style="width:50%"></div>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <div style="display:flex;align-items:center;gap:4px;"><div class="wf-radio sel"></div><div style="height:6px;width:55px;background:#e2e8f0;border-radius:2px;"></div></div>
+              <div style="display:flex;align-items:center;gap:4px;"><div class="wf-radio"></div><div style="height:6px;width:55px;background:#e2e8f0;border-radius:2px;"></div></div>
+            </div>
+            <!-- Returns -->
+            <div class="wf-grid-3">
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+            </div>
+            <!-- Spending -->
+            <div class="wf-grid-2">
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+              <div><div class="wf-label"></div><div class="wf-input-sm"></div></div>
+            </div>
+            <!-- Black swan toggle -->
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+              <div style="width:22px;height:12px;background:#4f46e5;border-radius:6px;"></div>
+              <div class="wf-step-line" style="width:80px;"></div>
+            </div>
+            <div class="wf-btn"></div>
+          </div>
+        </div>
+        <div class="screen-name">Scenario Form</div>
+        <div class="annotation">8 sections total (scrollable):<br>Basics · Returns · Spending<br>Monte Carlo · Black Swan<br>Tax · Longevity</div>
+      </div>
+
+      <div class="arrow"><svg viewBox="0 0 36 18"><line x1="0" y1="9" x2="28" y2="9" stroke="#94a3b8" stroke-width="1.5"/><polygon points="28,5 36,9 28,13" fill="#94a3b8"/></svg><div class="arrow-label">Run</div></div>
+
+      <!-- Running (MC) -->
+      <div class="screen-wrap">
+        <div class="screen">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">Running…</div></div>
+          <div class="screen-nav"><span class="brand">RetireSim</span></div>
+          <div class="screen-body" style="text-align:center;padding:20px 10px;">
+            <div class="wf-spinner" style="animation:spin 1s linear infinite;"></div>
+            <div class="wf-text-row short" style="margin:0 auto 6px;"></div>
+            <div class="wf-progress" style="margin:0 0 6px;">
+              <div class="wf-progress-fill" style="width:60%;"></div>
+            </div>
+            <div class="wf-text-row short" style="margin:0 auto;background:#94a3b8;"></div>
+          </div>
+        </div>
+        <div class="screen-name">Monte Carlo Running</div>
+        <div class="annotation">HTMX polls every 2s<br>Deterministic = instant<br>MC = 5–15s Celery task</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     RESULTS
+═══════════════════════════════════════════════ -->
+<div id="tab-results" class="persona-section">
+  <div class="section-title">Simulation Results</div>
+  <div class="section-sub">Two result experiences depending on simulation type chosen by the user.</div>
+
+  <!-- Deterministic Results -->
+  <div class="flow-group">
+    <div class="flow-label">Deterministic Results</div>
+    <div class="flow-row">
+
+      <div class="screen-wrap">
+        <div class="screen" style="width:240px;">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/simulations/results/{id}/</div></div>
+          <div class="screen-nav"><span class="brand">RetireSim</span><span>Accounts</span><span style="color:#fde68a">Scenarios</span></div>
+          <div class="screen-body">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+              <div class="wf-heading" style="margin:0;width:55%;"></div>
+              <div style="height:16px;width:40px;background:#4f46e5;border-radius:4px;"></div>
+            </div>
+            <!-- Stats row -->
+            <div class="wf-grid-3" style="margin-bottom:8px;">
+              <div class="wf-stat-box"><div style="height:14px;background:#4f46e5;border-radius:2px;margin-bottom:3px;"></div><div style="height:5px;background:#e2e8f0;border-radius:2px;"></div></div>
+              <div class="wf-stat-box"><div style="height:14px;background:#16a34a;border-radius:2px;margin-bottom:3px;"></div><div style="height:5px;background:#e2e8f0;border-radius:2px;"></div></div>
+              <div class="wf-stat-box"><div style="height:14px;background:#64748b;border-radius:2px;margin-bottom:3px;"></div><div style="height:5px;background:#e2e8f0;border-radius:2px;"></div></div>
+            </div>
+            <!-- Chart -->
+            <div class="wf-chart" style="height:65px;">
+              <div class="wf-chart-fill"></div>
+              <div class="wf-chart-line"></div>
+              <!-- spending line -->
+              <svg style="position:absolute;top:0;left:0;width:100%;height:100%;" viewBox="0 0 200 65" preserveAspectRatio="none">
+                <line x1="0" y1="52" x2="200" y2="46" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4,3"/>
+                <line x1="0" y1="58" x2="200" y2="55" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="3,3"/>
+              </svg>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <div style="display:flex;align-items:center;gap:3px;"><div style="width:10px;height:2px;background:#4f46e5;"></div><div style="height:5px;width:35px;background:#e2e8f0;border-radius:2px;"></div></div>
+              <div style="display:flex;align-items:center;gap:3px;"><div style="width:10px;height:2px;background:#ef4444;"></div><div style="height:5px;width:35px;background:#e2e8f0;border-radius:2px;"></div></div>
+              <div style="display:flex;align-items:center;gap:3px;"><div style="width:10px;height:2px;background:#22c55e;"></div><div style="height:5px;width:35px;background:#e2e8f0;border-radius:2px;"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-name">Deterministic Result</div>
+        <div class="annotation">Chart.js line chart<br>Portfolio · Spending · SS+Pension<br>Black swan markers if enabled<br>RMD years highlighted</div>
+      </div>
+
+      <div style="width:40px;"></div>
+
+      <!-- Deterministic summary panel -->
+      <div class="screen-wrap">
+        <div class="screen" style="width:200px;">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">Year-by-Year Table</div></div>
+          <div class="screen-body">
+            <div class="wf-heading" style="width:70%"></div>
+            <div class="wf-table">
+              <div class="wf-table-head">
+                <div class="wf-table-cell"></div><div class="wf-table-cell"></div><div class="wf-table-cell"></div><div class="wf-table-cell"></div>
+              </div>
+              <div class="wf-table-row"><div class="wf-table-val"></div><div class="wf-table-val"></div><div class="wf-table-val"></div><div class="wf-table-badge green"></div></div>
+              <div class="wf-table-row"><div class="wf-table-val"></div><div class="wf-table-val"></div><div class="wf-table-val"></div><div class="wf-table-badge green"></div></div>
+              <div class="wf-table-row" style="background:#fef9c3;"><div class="wf-table-val"></div><div class="wf-table-val"></div><div class="wf-table-val"></div><div class="wf-table-badge warn"></div></div>
+              <div class="wf-table-row"><div class="wf-table-val"></div><div class="wf-table-val"></div><div class="wf-table-val"></div><div class="wf-table-badge green"></div></div>
+              <div class="wf-table-row"><div class="wf-table-val"></div><div class="wf-table-val"></div><div class="wf-table-val"></div><div class="wf-table-badge green"></div></div>
+            </div>
+            <div class="wf-sub" style="width:80%"></div>
+            <div class="wf-btn-outline"></div>
+          </div>
+        </div>
+        <div class="screen-name">Year Detail Panel</div>
+        <div class="annotation">Age · Portfolio · Withdrawal · Phase<br>Yellow rows = black swan years<br>Download as CSV</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="flow-hr">
+
+  <!-- Monte Carlo Results -->
+  <div class="flow-group">
+    <div class="flow-label">Monte Carlo Results</div>
+    <div class="flow-row">
+
+      <!-- MC Result Screen -->
+      <div class="screen-wrap">
+        <div class="screen" style="width:240px;">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">/simulations/results/{id}/ (MC)</div></div>
+          <div class="screen-nav"><span class="brand">RetireSim</span></div>
+          <div class="screen-body">
+            <!-- Success gauge -->
+            <div style="display:flex;gap:6px;margin-bottom:8px;">
+              <div class="wf-stat-box" style="flex:1;text-align:center;">
+                <div style="height:18px;background:#16a34a;border-radius:3px;margin-bottom:4px;"></div>
+                <div style="height:5px;background:#bbf7d0;border-radius:2px;"></div>
+              </div>
+              <div class="wf-stat-box" style="flex:1;">
+                <div style="height:18px;background:#4f46e5;border-radius:3px;margin-bottom:4px;"></div>
+                <div style="height:5px;background:#c4b5fd;border-radius:2px;"></div>
+              </div>
+              <div class="wf-stat-box" style="flex:1;">
+                <div style="height:18px;background:#64748b;border-radius:3px;margin-bottom:4px;"></div>
+                <div style="height:5px;background:#e2e8f0;border-radius:2px;"></div>
+              </div>
+            </div>
+            <!-- Fan chart (percentile) -->
+            <div class="wf-chart" style="height:70px;">
+              <svg style="position:absolute;top:0;left:0;width:100%;height:100%;" viewBox="0 0 220 70" preserveAspectRatio="none">
+                <!-- P90-P10 band -->
+                <path d="M0,60 Q80,30 220,5 L220,25 Q80,55 0,68 Z" fill="rgba(79,70,229,0.08)"/>
+                <!-- P75-P25 band -->
+                <path d="M0,62 Q80,38 220,15 L220,30 Q80,50 0,65 Z" fill="rgba(79,70,229,0.15)"/>
+                <!-- P50 median -->
+                <path d="M0,64 Q80,44 220,22" stroke="#4f46e5" stroke-width="2" fill="none"/>
+                <!-- P90 -->
+                <path d="M0,60 Q80,30 220,5" stroke="#22c55e" stroke-width="1" fill="none"/>
+                <!-- P10 -->
+                <path d="M0,68 Q80,55 220,38" stroke="#ef4444" stroke-width="1" fill="none"/>
+              </svg>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:4px;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:3px;"><div style="width:8px;height:2px;background:#22c55e;"></div><div style="height:5px;width:18px;background:#e2e8f0;border-radius:2px;"></div></div>
+              <div style="display:flex;align-items:center;gap:3px;"><div style="width:8px;height:2px;background:#4f46e5;"></div><div style="height:5px;width:28px;background:#e2e8f0;border-radius:2px;"></div></div>
+              <div style="display:flex;align-items:center;gap:3px;"><div style="width:8px;height:2px;background:#ef4444;"></div><div style="height:5px;width:18px;background:#e2e8f0;border-radius:2px;"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-name">Monte Carlo — Fan Chart</div>
+        <div class="annotation">Percentile bands: 10/25/50/75/90<br>Success % gauge (green ≥85%)</div>
+      </div>
+
+      <div style="width:40px;"></div>
+
+      <!-- Histogram screen -->
+      <div class="screen-wrap">
+        <div class="screen" style="width:200px;">
+          <div class="screen-bar"><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div class="screen-title">Final Balance Distribution</div></div>
+          <div class="screen-body">
+            <div class="wf-heading" style="width:80%"></div>
+            <!-- Histogram bars -->
+            <div style="display:flex;align-items:flex-end;gap:3px;height:55px;margin-top:8px;margin-bottom:4px;border-bottom:1px solid #e2e8f0;">
+              <div style="flex:1;background:#c4b5fd;height:15%;border-radius:2px 2px 0 0;"></div>
+              <div style="flex:1;background:#a5b4fc;height:30%;border-radius:2px 2px 0 0;"></div>
+              <div style="flex:1;background:#818cf8;height:60%;border-radius:2px 2px 0 0;"></div>
+              <div style="flex:1;background:#4f46e5;height:90%;border-radius:2px 2px 0 0;"></div>
+              <div style="flex:1;background:#4338ca;height:80%;border-radius:2px 2px 0 0;"></div>
+              <div style="flex:1;background:#818cf8;height:55%;border-radius:2px 2px 0 0;"></div>
+              <div style="flex:1;background:#a5b4fc;height:35%;border-radius:2px 2px 0 0;"></div>
+              <div style="flex:1;background:#c4b5fd;height:20%;border-radius:2px 2px 0 0;"></div>
+              <div style="flex:1;background:#ddd6fe;height:10%;border-radius:2px 2px 0 0;"></div>
+            </div>
+            <div class="wf-text-row short" style="margin:0 auto 8px;background:#94a3b8;"></div>
+            <!-- BS events -->
+            <div style="background:#fef9c3;border-radius:4px;padding:6px;border:1px solid #fbbf24;">
+              <div class="wf-text-row" style="width:90%;margin-bottom:3px;background:#92400e;"></div>
+              <div class="wf-text-row short" style="background:#a16207;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="screen-name">Histogram + BS Events</div>
+        <div class="annotation">Distribution of final balances<br>across all MC runs<br>Black swan event log below</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.persona-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+</body>
+</html>

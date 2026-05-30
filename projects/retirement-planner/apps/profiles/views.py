@@ -4,8 +4,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from apps.investments.models import InvestmentAccount
 from apps.simulations.models import Scenario
-from .forms import UserProfileForm, SpouseProfileForm, SocialSecurityForm
-from .models import UserProfile, SpouseProfile, SocialSecurityEstimate
+from .forms import UserProfileForm, SpouseProfileForm
+from .models import UserProfile, SpouseProfile
 
 
 @login_required
@@ -69,59 +69,14 @@ def spouse_setup(request):
             sp = form.save(commit=False)
             sp.user_profile = profile
             sp.save()
-            return redirect("profiles:ss_setup")
+            profile.is_setup_complete = True
+            profile.save()
+            messages.success(request, "Profile setup complete! Add Social Security estimates when creating a scenario.")
+            return redirect("profiles:dashboard")
     else:
         form = SpouseProfileForm(instance=spouse)
 
     return render(request, "profiles/spouse_form.html", {"form": form, "step": 2})
-
-
-@login_required
-def ss_setup(request):
-    """Setup step 3: Social Security estimates."""
-    profile = get_object_or_404(UserProfile, user=request.user)
-    ss_self = SocialSecurityEstimate.objects.filter(user_profile=profile, owner="self").first()
-    ss_spouse = SocialSecurityEstimate.objects.filter(user_profile=profile, owner="spouse").first()
-
-    form_self = SocialSecurityForm(
-        request.POST if request.method == "POST" else None,
-        instance=ss_self,
-        prefix="self",
-    )
-    form_spouse = SocialSecurityForm(
-        request.POST if request.method == "POST" else None,
-        instance=ss_spouse,
-        prefix="spouse",
-    ) if profile.has_spouse else None
-
-    if request.method == "POST":
-        forms_valid = form_self.is_valid()
-        if form_spouse:
-            forms_valid = forms_valid and form_spouse.is_valid()
-
-        if forms_valid:
-            ss = form_self.save(commit=False)
-            ss.user_profile = profile
-            ss.owner = "self"
-            ss.save()
-
-            if form_spouse:
-                ss_sp = form_spouse.save(commit=False)
-                ss_sp.user_profile = profile
-                ss_sp.owner = "spouse"
-                ss_sp.save()
-
-            profile.is_setup_complete = True
-            profile.save()
-            messages.success(request, "Profile setup complete!")
-            return redirect("profiles:dashboard")
-
-    return render(request, "profiles/ss_form.html", {
-        "form_self": form_self,
-        "form_spouse": form_spouse,
-        "profile": profile,
-        "step": 3,
-    })
 
 
 @login_required

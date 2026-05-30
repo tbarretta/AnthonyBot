@@ -1,5 +1,5 @@
 from django import forms
-from .models import UserProfile, SpouseProfile, SocialSecurityEstimate
+from .models import UserProfile, SpouseProfile
 
 
 class UserProfileForm(forms.ModelForm):
@@ -22,13 +22,4 @@ class SpouseProfileForm(forms.ModelForm):
         fields = [
             "first_name", "birth_date", "annual_income", "income_growth_rate",
             "target_retirement_age", "income_end_age", "life_expectancy_age",
-        ]
-
-
-class SocialSecurityForm(forms.ModelForm):
-    class Meta:
-        model = SocialSecurityEstimate
-        fields = [
-            "owner", "monthly_benefit_at_62", "monthly_benefit_at_67",
-            "monthly_benefit_at_70", "claim_age", "cola_rate",
         ]
