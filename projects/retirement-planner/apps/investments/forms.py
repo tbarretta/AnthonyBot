@@ -11,6 +11,22 @@ class InvestmentAccountForm(forms.ModelForm):
         max_digits=10, decimal_places=0,
         widget=forms.TextInput(attrs={"inputmode": "numeric", "data-currency": "true", "placeholder": "0"})
     )
+    employer_match_pct = forms.DecimalField(
+        max_digits=4, decimal_places=1, required=False, initial=0,
+        widget=forms.NumberInput(attrs={"step": "0.1", "min": "0", "max": "100", "placeholder": "0.0"})
+    )
+    employer_match_limit_pct = forms.DecimalField(
+        max_digits=4, decimal_places=1, required=False, initial=0,
+        widget=forms.NumberInput(attrs={"step": "0.1", "min": "0", "max": "100", "placeholder": "0.0"})
+    )
+    asset_allocation_stocks = forms.DecimalField(
+        max_digits=5, decimal_places=0,
+        widget=forms.NumberInput(attrs={"step": "1", "min": "0", "max": "100", "placeholder": "80"})
+    )
+    asset_allocation_bonds = forms.DecimalField(
+        max_digits=5, decimal_places=0,
+        widget=forms.NumberInput(attrs={"step": "1", "min": "0", "max": "100", "placeholder": "20"})
+    )
 
     class Meta:
         model = InvestmentAccount
@@ -27,8 +43,8 @@ class InvestmentAccountForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        stocks = cleaned_data.get("asset_allocation_stocks", 0)
-        bonds = cleaned_data.get("asset_allocation_bonds", 0)
+        stocks = int(cleaned_data.get("asset_allocation_stocks") or 0)
+        bonds = int(cleaned_data.get("asset_allocation_bonds") or 0)
         if stocks + bonds != 100:
             raise forms.ValidationError("Stock + bond allocation must equal 100%.")
         return cleaned_data
