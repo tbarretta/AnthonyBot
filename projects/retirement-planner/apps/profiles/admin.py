@@ -9,7 +9,7 @@ class SpouseInline(admin.StackedInline):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ["user", "current_age", "target_retirement_age", "filing_status", "is_setup_complete"]
+    list_display = ["user", "current_age", "filing_status", "is_setup_complete"]
     search_fields = ["user__email"]
     inlines = [SpouseInline]
 

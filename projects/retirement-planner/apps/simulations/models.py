@@ -38,6 +38,16 @@ class Scenario(models.Model):
         default=SimulationType.DETERMINISTIC,
     )
 
+    # ---- Retirement Ages ----
+    retirement_age_self = models.PositiveSmallIntegerField(
+        default=65,
+        help_text="Age at which you plan to retire (stops contributions, starts withdrawals)"
+    )
+    retirement_age_spouse = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        help_text="Age at which spouse plans to retire"
+    )
+
     # ---- Return Assumptions ----
     expected_annual_return_stocks = models.DecimalField(
         max_digits=5, decimal_places=2, default=7.0,

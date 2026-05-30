@@ -15,12 +15,30 @@
     <div class="bg-white rounded-xl shadow p-6 space-y-4">
       <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Basics</h2>
       <div>
-        <label class="label">Name</label>
+        <label class="label">Scenario Name</label>
         {% render_field form.name class="input" %}
       </div>
       <div>
-        <label class="label">Description</label>
+        <label class="label">Description (optional)</label>
         {% render_field form.description class="input" %}
+      </div>
+    </div>
+
+    <!-- Retirement Ages -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Retirement Ages</h2>
+      <p class="text-sm text-gray-500">When does income stop and withdrawals begin? Different scenarios can model different retirement timelines.</p>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label">Your Retirement Age</label>
+          {% render_field form.retirement_age_self class="input" %}
+        </div>
+        {% if profile.has_spouse %}
+        <div>
+          <label class="label">Spouse Retirement Age</label>
+          {% render_field form.retirement_age_spouse class="input" %}
+        </div>
+        {% endif %}
       </div>
     </div>
 

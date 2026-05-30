@@ -7,7 +7,9 @@ class ScenarioForm(forms.ModelForm):
         model = Scenario
         fields = [
             "name", "description",
-            # simulation_type is fixed to deterministic — Monte Carlo coming later
+            # simulation_type fixed to deterministic — Monte Carlo coming later
+            # Retirement ages (moved from profile)
+            "retirement_age_self", "retirement_age_spouse",
             "expected_annual_return_stocks", "expected_annual_return_bonds", "inflation_rate",
             "annual_retirement_spending", "spending_growth_rate", "spending_strategy", "withdrawal_rate_pct",
             # mc_* fields omitted from UI until Monte Carlo is enabled

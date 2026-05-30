@@ -79,7 +79,8 @@ def build_simulation_input(scenario: Scenario) -> SimulationInput:
     if profile.has_spouse:
         sp = profile.spouse
         spouse_current_age = sp.current_age
-        spouse_retirement_age = sp.target_retirement_age
+        # Retirement age comes from Scenario, not the profile
+        spouse_retirement_age = scenario.retirement_age_spouse or 65
         spouse_life_expectancy = scenario.spouse_life_expectancy_age or sp.life_expectancy_age
         spouse_annual_income = float(sp.annual_income)
         spouse_income_growth = float(sp.income_growth_rate)
@@ -113,7 +114,7 @@ def build_simulation_input(scenario: Scenario) -> SimulationInput:
 
     return SimulationInput(
         current_age=profile.current_age,
-        target_retirement_age=scenario.user_life_expectancy_age or profile.target_retirement_age,
+        target_retirement_age=scenario.retirement_age_self,
         life_expectancy_age=scenario.user_life_expectancy_age or profile.life_expectancy_age,
         annual_income=float(profile.annual_income),
         income_growth_rate_pct=float(profile.income_growth_rate),

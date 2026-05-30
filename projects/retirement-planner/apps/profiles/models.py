@@ -11,16 +11,11 @@ class FilingStatus(models.TextChoices):
     HEAD_OF_HOUSEHOLD = "head_of_household", "Head of Household"
 
 
-class RiskTolerance(models.TextChoices):
-    CONSERVATIVE = "conservative", "Conservative"
-    MODERATE = "moderate", "Moderate"
-    AGGRESSIVE = "aggressive", "Aggressive"
-
-
 class UserProfile(models.Model):
     """
     Core financial profile for the primary user.
-    All monetary values in USD. All percentages stored as decimals (7.5 = 7.5%).
+    Demographic and income facts only — retirement age lives on Scenario.
+    All monetary values in USD. Percentages stored as decimals (7.5 = 7.5%).
     """
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
@@ -32,18 +27,12 @@ class UserProfile(models.Model):
     birth_date = models.DateField()
     state = models.CharField(max_length=2, help_text="2-letter state code for tax estimates")
     filing_status = models.CharField(max_length=30, choices=FilingStatus.choices, default=FilingStatus.SINGLE)
-    risk_tolerance = models.CharField(max_length=20, choices=RiskTolerance.choices, default=RiskTolerance.MODERATE)
 
     # Employment & Income
     annual_income = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     income_growth_rate = models.DecimalField(
-        max_digits=5, decimal_places=2, default=3.0,
+        max_digits=4, decimal_places=1, default=3.0,
         help_text="Expected annual raise %, e.g. 3.0"
-    )
-    target_retirement_age = models.PositiveSmallIntegerField(default=65)
-    income_end_age = models.PositiveSmallIntegerField(
-        default=65,
-        help_text="Age at which primary income stops (usually = retirement age)"
     )
 
     # Longevity
@@ -68,10 +57,6 @@ class UserProfile(models.Model):
         return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
     @property
-    def years_to_retirement(self):
-        return max(0, self.target_retirement_age - self.current_age)
-
-    @property
     def has_spouse(self):
         return hasattr(self, "spouse")
 
@@ -92,11 +77,9 @@ class SpouseProfile(models.Model):
     # Employment & Income
     annual_income = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     income_growth_rate = models.DecimalField(
-        max_digits=5, decimal_places=2, default=3.0,
+        max_digits=4, decimal_places=1, default=3.0,
         help_text="Expected annual raise %, e.g. 3.0"
     )
-    target_retirement_age = models.PositiveSmallIntegerField(default=65)
-    income_end_age = models.PositiveSmallIntegerField(default=65)
 
     # Longevity
     life_expectancy_age = models.PositiveSmallIntegerField(default=90)
