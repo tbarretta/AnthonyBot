@@ -5,6 +5,9 @@ from .models import InvestmentAccount, IncomeSource
 class InvestmentAccountForm(forms.ModelForm):
     class Meta:
         model = InvestmentAccount
+        widgets = {
+            "name": forms.TextInput(attrs={"placeholder": "e.g. Tom's 401(k) at Fidelity"}),
+        }
         fields = [
             "name", "account_type", "owner",
             "current_balance", "annual_contribution",
