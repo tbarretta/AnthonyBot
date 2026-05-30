@@ -51,18 +51,9 @@
 <!-- Chart -->
 <div id="result-area">
   <div class="bg-white rounded-xl shadow p-6 mb-8">
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">
-      {% if result.result_data.simulation_type == "monte_carlo" %}Portfolio Projection (Percentile Fan){% else %}Portfolio Projection{% endif %}
-    </h2>
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Portfolio Projection</h2>
     <canvas id="mainChart" height="100"></canvas>
   </div>
-
-  {% if result.result_data.simulation_type == "monte_carlo" %}
-  <div class="bg-white rounded-xl shadow p-6 mb-8">
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">Final Balance Distribution</h2>
-    <canvas id="histChart" height="80"></canvas>
-  </div>
-  {% endif %}
 
   {% if result.result_data.summary.black_swan_events %}
   <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-8">
@@ -83,12 +74,7 @@
 const chartData = {{ chart_data_json|safe }};
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (chartData.type === 'deterministic') {
-    renderDeterministicChart(chartData);
-  } else {
-    renderMonteCarloChart(chartData);
-    if (chartData.histogram) renderHistogram(chartData.histogram);
-  }
+  renderDeterministicChart(chartData);
 });
 
 function currency(val) {

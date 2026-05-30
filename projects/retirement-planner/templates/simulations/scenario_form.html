@@ -22,17 +22,6 @@
         <label class="label">Description</label>
         {% render_field form.description class="input" %}
       </div>
-      <div>
-        <label class="label">Simulation Type</label>
-        <div class="flex gap-6 mt-1">
-          {% for choice in form.simulation_type %}
-          <label class="flex items-center gap-2 cursor-pointer">
-            {{ choice.tag }}
-            <span class="text-sm text-gray-700">{{ choice.choice_label }}</span>
-          </label>
-          {% endfor %}
-        </div>
-      </div>
     </div>
 
     <!-- Return Assumptions -->
@@ -81,29 +70,6 @@
       <div>
         <label class="label">Withdrawal Rate % (for % of Portfolio strategy)</label>
         {% render_field form.withdrawal_rate_pct class="input w-32" %}
-      </div>
-    </div>
-
-    <!-- Monte Carlo -->
-    <div class="bg-white rounded-xl shadow p-6 space-y-4" id="mc-section">
-      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Monte Carlo Settings</h2>
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="label">Iterations</label>
-          {% render_field form.mc_iterations class="input" %}
-        </div>
-        <div>
-          <label class="label">Confidence Level %</label>
-          {% render_field form.mc_confidence_level class="input" %}
-        </div>
-        <div>
-          <label class="label">Stock Volatility (Std Dev %)</label>
-          {% render_field form.mc_return_std_dev_stocks class="input" %}
-        </div>
-        <div>
-          <label class="label">Bond Volatility (Std Dev %)</label>
-          {% render_field form.mc_return_std_dev_bonds class="input" %}
-        </div>
       </div>
     </div>
 

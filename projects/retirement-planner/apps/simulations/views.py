@@ -89,25 +89,14 @@ def run_simulation(request, pk):
     profile = get_object_or_404(UserProfile, user=request.user)
     scenario = get_object_or_404(Scenario, pk=pk, user_profile=profile)
 
-    if scenario.simulation_type == "deterministic":
-        result = run_deterministic_sync(scenario)
-        if request.headers.get("HX-Request"):
-            return render(request, "simulations/partials/result_summary.html", {
-                "result": result, "scenario": scenario
-            })
-        return redirect("simulations:result_detail", pk=result.pk)
-
-    else:  # monte_carlo
-        result = SimulationResult.objects.create(
-            scenario=scenario,
-            status=SimulationStatus.PENDING,
-        )
-        run_monte_carlo_task.delay(scenario.pk, result.pk)
-        if request.headers.get("HX-Request"):
-            return render(request, "simulations/partials/mc_polling.html", {
-                "result": result, "scenario": scenario
-            })
-        return redirect("simulations:result_detail", pk=result.pk)
+    # Monte Carlo is implemented but not yet exposed in the UI.
+    # All scenarios run deterministically for now.
+    result = run_deterministic_sync(scenario)
+    if request.headers.get("HX-Request"):
+        return render(request, "simulations/partials/result_summary.html", {
+            "result": result, "scenario": scenario
+        })
+    return redirect("simulations:result_detail", pk=result.pk)
 
 
 @login_required
