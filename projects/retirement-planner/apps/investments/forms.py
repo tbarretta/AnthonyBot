@@ -3,6 +3,15 @@ from .models import InvestmentAccount, IncomeSource
 
 
 class InvestmentAccountForm(forms.ModelForm):
+    current_balance = forms.DecimalField(
+        max_digits=14, decimal_places=0,
+        widget=forms.TextInput(attrs={"inputmode": "numeric", "data-currency": "true", "placeholder": "0"})
+    )
+    annual_contribution = forms.DecimalField(
+        max_digits=10, decimal_places=0,
+        widget=forms.TextInput(attrs={"inputmode": "numeric", "data-currency": "true", "placeholder": "0"})
+    )
+
     class Meta:
         model = InvestmentAccount
         widgets = {
