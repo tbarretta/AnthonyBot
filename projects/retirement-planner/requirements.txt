@@ -1,0 +1,43 @@
+# Core
+Django==5.1.*
+psycopg2-binary==2.9.*
+python-decouple==3.8
+
+# Task Queue
+celery==5.4.*
+redis==5.2.*
+django-celery-results==2.5.*
+
+# REST API (for mobile)
+djangorestframework==3.15.*
+djangorestframework-simplejwt==5.3.*
+django-cors-headers==4.4.*
+
+# Forms & Frontend
+django-widget-tweaks==1.5.*
+
+# Storage
+boto3==1.35.*
+django-storages==1.14.*
+
+# Email
+django-anymail[mailgun]==11.1.*
+
+# Simulation
+numpy==2.1.*
+scipy==1.14.*
+
+# Utilities
+Pillow==11.0.*
+django-extensions==3.2.*
+python-dateutil==2.9.*
+
+# Development
+django-debug-toolbar==4.4.*
+factory-boy==3.3.*
+Faker==30.*
+
+# Production
+gunicorn==23.*
+whitenoise==6.8.*
+sentry-sdk==2.*

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — RetireSim{% endblock %}
+{% block content %}
+{% load humanize %}
+
+<div class="mb-8">
+  <h1 class="text-3xl font-bold text-gray-900">
+    Hello, {{ user.first_name }} 👋
+  </h1>
+  <p class="text-gray-500 mt-1">Age {{ profile.current_age }} · Targeting retirement at {{ profile.target_retirement_age }}</p>
+</div>
+
+<!-- Key Stats -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+  <div class="bg-white rounded-xl shadow p-6">
+    <p class="text-sm text-gray-500 font-medium uppercase tracking-wide">Total Portfolio</p>
+    <p class="text-3xl font-bold text-indigo-700 mt-1">${{ total_balance|floatformat:0|intcomma }}</p>
+  </div>
+  <div class="bg-white rounded-xl shadow p-6">
+    <p class="text-sm text-gray-500 font-medium uppercase tracking-wide">Annual Contributions</p>
+    <p class="text-3xl font-bold text-green-600 mt-1">${{ annual_contributions|floatformat:0|intcomma }}</p>
+  </div>
+  <div class="bg-white rounded-xl shadow p-6">
+    <p class="text-sm text-gray-500 font-medium uppercase tracking-wide">Years to Retirement</p>
+    <p class="text-3xl font-bold text-orange-500 mt-1">{{ profile.years_to_retirement }}</p>
+  </div>
+</div>
+
+<!-- Accounts Summary -->
+<div class="bg-white rounded-xl shadow mb-8">
+  <div class="px-6 py-4 border-b flex items-center justify-between">
+    <h2 class="text-lg font-semibold text-gray-800">Investment Accounts</h2>
+    <a href="{% url 'investments:create' %}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">+ Add Account</a>
+  </div>
+  {% if accounts %}
+  <ul class="divide-y divide-gray-100">
+    {% for account in accounts %}
+    <li class="px-6 py-4 flex items-center justify-between">
+      <div>
+        <p class="font-medium text-gray-900">{{ account.name }}</p>
+        <p class="text-sm text-gray-500">{{ account.get_account_type_display }} · {{ account.tax_label }} · {{ account.owner|capfirst }}</p>
+      </div>
+      <div class="text-right">
+        <p class="font-semibold text-gray-800">${{ account.current_balance|floatformat:0|intcomma }}</p>
+        <p class="text-sm text-gray-400">${{ account.annual_contribution|floatformat:0|intcomma }}/yr</p>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="px-6 py-8 text-center text-gray-400">
+    <p>No accounts yet. <a href="{% url 'investments:create' %}" class="text-indigo-600 hover:underline">Add your first account →</a></p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Scenarios -->
+<div class="bg-white rounded-xl shadow">
+  <div class="px-6 py-4 border-b flex items-center justify-between">
+    <h2 class="text-lg font-semibold text-gray-800">Scenarios</h2>
+    <a href="{% url 'simulations:create' %}" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">+ New Scenario</a>
+  </div>
+  {% if scenarios %}
+  <ul class="divide-y divide-gray-100">
+    {% for scenario in scenarios %}
+    <li class="px-6 py-4 flex items-center justify-between">
+      <div>
+        <a href="{% url 'simulations:detail' scenario.pk %}" class="font-medium text-indigo-700 hover:underline">{{ scenario.name }}</a>
+        <p class="text-sm text-gray-500">{{ scenario.get_simulation_type_display }}
+          {% if scenario.black_swan_enabled %} · 🌪️ Black Swan{% endif %}
+        </p>
+      </div>
+      {% with result=scenario.latest_result %}
+      {% if result %}
+      <div class="text-right text-sm">
+        {% if scenario.simulation_type == "monte_carlo" %}
+        <p class="font-semibold {% if result.success_probability >= 85 %}text-green-600{% elif result.success_probability >= 70 %}text-yellow-600{% else %}text-red-600{% endif %}">
+          {{ result.success_probability }}% success
+        </p>
+        {% else %}
+        <p class="font-semibold text-gray-700">${{ result.deterministic_final_balance|floatformat:0|intcomma }}</p>
+        <p class="text-gray-400">final balance</p>
+        {% endif %}
+      </div>
+      {% else %}
+      <a href="{% url 'simulations:run' scenario.pk %}"
+         hx-post="{% url 'simulations:run' scenario.pk %}"
+         hx-swap="outerHTML"
+         class="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700">
+        Run
+      </a>
+      {% endif %}
+      {% endwith %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="px-6 py-8 text-center text-gray-400">
+    <p>No scenarios yet. <a href="{% url 'simulations:create' %}" class="text-indigo-600 hover:underline">Create your first →</a></p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}

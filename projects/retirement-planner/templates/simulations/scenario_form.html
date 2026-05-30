@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}{% if scenario %}Edit{% else %}New{% endif %} Scenario — RetireSim{% endblock %}
+{% block content %}
+{% load widget_tweaks %}
+
+<div class="max-w-3xl mx-auto">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">
+    {% if scenario %}Edit Scenario{% else %}New Scenario{% endif %}
+  </h1>
+
+  <form method="post" class="space-y-8">
+    {% csrf_token %}
+
+    <!-- Basics -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Basics</h2>
+      <div>
+        <label class="label">Name</label>
+        {% render_field form.name class="input" %}
+      </div>
+      <div>
+        <label class="label">Description</label>
+        {% render_field form.description class="input" %}
+      </div>
+      <div>
+        <label class="label">Simulation Type</label>
+        <div class="flex gap-6 mt-1">
+          {% for choice in form.simulation_type %}
+          <label class="flex items-center gap-2 cursor-pointer">
+            {{ choice.tag }}
+            <span class="text-sm text-gray-700">{{ choice.choice_label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Return Assumptions -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Return Assumptions</h2>
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="label">Stock Return %</label>
+          {% render_field form.expected_annual_return_stocks class="input" %}
+        </div>
+        <div>
+          <label class="label">Bond Return %</label>
+          {% render_field form.expected_annual_return_bonds class="input" %}
+        </div>
+        <div>
+          <label class="label">Inflation %</label>
+          {% render_field form.inflation_rate class="input" %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Retirement Spending -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Retirement Spending</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label">Annual Spending (today's $)</label>
+          {% render_field form.annual_retirement_spending class="input" %}
+        </div>
+        <div>
+          <label class="label">Spending Growth %</label>
+          {% render_field form.spending_growth_rate class="input" %}
+        </div>
+      </div>
+      <div>
+        <label class="label">Spending Strategy</label>
+        <div class="flex flex-col gap-2 mt-1">
+          {% for choice in form.spending_strategy %}
+          <label class="flex items-center gap-2 cursor-pointer">
+            {{ choice.tag }}
+            <span class="text-sm text-gray-700">{{ choice.choice_label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      <div>
+        <label class="label">Withdrawal Rate % (for % of Portfolio strategy)</label>
+        {% render_field form.withdrawal_rate_pct class="input w-32" %}
+      </div>
+    </div>
+
+    <!-- Monte Carlo -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4" id="mc-section">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Monte Carlo Settings</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label">Iterations</label>
+          {% render_field form.mc_iterations class="input" %}
+        </div>
+        <div>
+          <label class="label">Confidence Level %</label>
+          {% render_field form.mc_confidence_level class="input" %}
+        </div>
+        <div>
+          <label class="label">Stock Volatility (Std Dev %)</label>
+          {% render_field form.mc_return_std_dev_stocks class="input" %}
+        </div>
+        <div>
+          <label class="label">Bond Volatility (Std Dev %)</label>
+          {% render_field form.mc_return_std_dev_bonds class="input" %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Black Swan -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">🌪️ Black Swan Events</h2>
+      <label class="flex items-center gap-2 cursor-pointer">
+        {% render_field form.black_swan_enabled class="rounded" %}
+        <span class="text-sm font-medium text-gray-700">Enable black swan simulations</span>
+      </label>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label">Annual Probability %</label>
+          {% render_field form.black_swan_annual_probability class="input" %}
+        </div>
+        <div>
+          <label class="label">Recovery Years</label>
+          {% render_field form.black_swan_recovery_years class="input" %}
+        </div>
+        <div>
+          <label class="label">Min Loss %</label>
+          {% render_field form.black_swan_min_loss_pct class="input" %}
+        </div>
+        <div>
+          <label class="label">Max Loss %</label>
+          {% render_field form.black_swan_max_loss_pct class="input" %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Tax -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Tax Assumptions</h2>
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="label">Effective Rate (Working) %</label>
+          {% render_field form.effective_tax_rate_working class="input" %}
+        </div>
+        <div>
+          <label class="label">Effective Rate (Retirement) %</label>
+          {% render_field form.effective_tax_rate_retirement class="input" %}
+        </div>
+        <div>
+          <label class="label">Capital Gains Rate %</label>
+          {% render_field form.capital_gains_rate class="input" %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Longevity -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Longevity</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label">Your Life Expectancy Age</label>
+          {% render_field form.user_life_expectancy_age class="input" %}
+        </div>
+        <div>
+          <label class="label">Spouse Life Expectancy Age</label>
+          {% render_field form.spouse_life_expectancy_age class="input" %}
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-4">
+      <button type="submit" class="bg-indigo-600 text-white font-semibold px-6 py-2.5 rounded-lg hover:bg-indigo-700 transition">
+        {% if scenario %}Save Changes{% else %}Create Scenario{% endif %}
+      </button>
+      <a href="{% url 'simulations:list' %}" class="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50">
+        Cancel
+      </a>
+    </div>
+
+  </form>
+</div>
+
+<style>
+  .label { @apply block text-sm font-medium text-gray-700 mb-1; }
+  .input { @apply w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500; }
+</style>
+{% endblock %}

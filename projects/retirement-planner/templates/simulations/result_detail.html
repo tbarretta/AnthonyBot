@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Results: {{ scenario.name }} — RetireSim{% endblock %}
+
+{% block content %}
+{% load humanize %}
+
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900">{{ scenario.name }}</h1>
+    <p class="text-gray-500 text-sm mt-1">{{ scenario.get_simulation_type_display }}
+      {% if scenario.black_swan_enabled %} · 🌪️ Black Swan enabled{% endif %}
+    </p>
+  </div>
+  <a href="{% url 'simulations:run' scenario.pk %}"
+     hx-post="{% url 'simulations:run' scenario.pk %}"
+     hx-target="#result-area"
+     hx-swap="innerHTML"
+     class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
+    Re-run
+  </a>
+</div>
+
+<!-- Summary cards -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+  {% if result.success_probability is not None %}
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Success Rate</p>
+    <p class="text-3xl font-bold {% if result.success_probability >= 85 %}text-green-600{% elif result.success_probability >= 70 %}text-yellow-500{% else %}text-red-600{% endif %}">
+      {{ result.success_probability }}%
+    </p>
+  </div>
+  {% endif %}
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">At Retirement</p>
+    <p class="text-2xl font-bold text-indigo-700">${{ result.median_balance_at_retirement|floatformat:0|intcomma }}</p>
+  </div>
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Final Balance</p>
+    <p class="text-2xl font-bold text-gray-800">
+      ${% if result.deterministic_final_balance %}{{ result.deterministic_final_balance|floatformat:0|intcomma }}{% else %}{{ result.median_balance_at_end|floatformat:0|intcomma }}{% endif %}
+    </p>
+  </div>
+  {% if result.portfolio_exhaustion_age %}
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">⚠️ Exhausted at</p>
+    <p class="text-2xl font-bold text-red-600">Age {{ result.portfolio_exhaustion_age }}</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Chart -->
+<div id="result-area">
+  <div class="bg-white rounded-xl shadow p-6 mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">
+      {% if result.result_data.simulation_type == "monte_carlo" %}Portfolio Projection (Percentile Fan){% else %}Portfolio Projection{% endif %}
+    </h2>
+    <canvas id="mainChart" height="100"></canvas>
+  </div>
+
+  {% if result.result_data.simulation_type == "monte_carlo" %}
+  <div class="bg-white rounded-xl shadow p-6 mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 mb-4">Final Balance Distribution</h2>
+    <canvas id="histChart" height="80"></canvas>
+  </div>
+  {% endif %}
+
+  {% if result.result_data.summary.black_swan_events %}
+  <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-8">
+    <h3 class="font-semibold text-amber-800 mb-2">🌪️ Black Swan Events</h3>
+    <ul class="space-y-1 text-sm text-amber-700">
+      {% for event in result.result_data.summary.black_swan_events %}
+      <li>Age {{ event.age }} ({{ event.year }}): -{{ event.loss_pct }}% loss — ${{ event.loss_amount|floatformat:0 }} wiped out</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const chartData = {{ chart_data_json|safe }};
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (chartData.type === 'deterministic') {
+    renderDeterministicChart(chartData);
+  } else {
+    renderMonteCarloChart(chartData);
+    if (chartData.histogram) renderHistogram(chartData.histogram);
+  }
+});
+
+function currency(val) {
+  return '$' + Math.round(val).toLocaleString();
+}
+
+function renderDeterministicChart(data) {
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.ages,
+      datasets: [
+        {
+          label: 'Total Portfolio',
+          data: data.total_portfolio,
+          borderColor: '#4f46e5',
+          backgroundColor: 'rgba(79,70,229,0.08)',
+          fill: true,
+          tension: 0.3,
+          pointRadius: 1,
+        },
+        {
+          label: 'Annual Spending',
+          data: data.annual_spending,
+          borderColor: '#ef4444',
+          borderDash: [5,5],
+          pointRadius: 0,
+          tension: 0.3,
+        },
+        {
+          label: 'SS + Pension Income',
+          data: data.ages.map((_, i) => (data.ss_income[i] || 0) + (data.pension_income[i] || 0)),
+          borderColor: '#22c55e',
+          borderDash: [3,3],
+          pointRadius: 0,
+          tension: 0.3,
+        },
+      ]
+    },
+    options: {
+      plugins: { tooltip: { callbacks: { label: ctx => currency(ctx.raw) } } },
+      scales: {
+        x: { title: { display: true, text: 'Age' } },
+        y: { title: { display: true, text: 'Balance (USD)' }, ticks: { callback: v => currency(v) } }
+      }
+    }
+  });
+}
+
+function renderMonteCarloChart(data) {
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.ages,
+      datasets: [
+        { label: '90th %ile', data: data.p90, borderColor: '#22c55e', borderWidth: 1, pointRadius: 0, fill: false },
+        { label: '75th %ile', data: data.p75, borderColor: '#86efac', borderWidth: 1, pointRadius: 0, fill: '+1', backgroundColor: 'rgba(134,239,172,0.15)' },
+        { label: 'Median',    data: data.p50, borderColor: '#4f46e5', borderWidth: 2, pointRadius: 1, fill: false },
+        { label: '25th %ile', data: data.p25, borderColor: '#fca5a5', borderWidth: 1, pointRadius: 0, fill: '+1', backgroundColor: 'rgba(252,165,165,0.15)' },
+        { label: '10th %ile', data: data.p10, borderColor: '#ef4444', borderWidth: 1, pointRadius: 0, fill: false },
+      ]
+    },
+    options: {
+      plugins: { tooltip: { callbacks: { label: ctx => currency(ctx.raw) } } },
+      scales: {
+        x: { title: { display: true, text: 'Age' } },
+        y: { title: { display: true, text: 'Balance (USD)' }, ticks: { callback: v => currency(v) } }
+      }
+    }
+  });
+}
+
+function renderHistogram(hist) {
+  const ctx = document.getElementById('histChart').getContext('2d');
+  const labels = hist.bins.slice(0,-1).map((b,i) => currency(b) + ' – ' + currency(hist.bins[i+1]));
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ label: 'Runs', data: hist.counts, backgroundColor: '#818cf8' }]
+    },
+    options: { plugins: { legend: { display: false } } }
+  });
+}
+</script>
+{% endblock %}
