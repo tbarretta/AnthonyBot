@@ -6,7 +6,7 @@ Fast (~50ms); runs synchronously in the web request.
 
 Output schema (result_data):
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "simulation_type": "deterministic",
   "years": [
     {
@@ -16,8 +16,18 @@ Output schema (result_data):
       "phase": "accumulation",    # or "retirement" or "both_retired"
       "total_income": 150000.0,
       "total_contributions": 25000.0,
-      "ss_income": 0.0,
-      "pension_income": 0.0,
+      "income_sources": [         # per-source breakdown for this year
+        {
+          "id": 1,
+          "name": "Tom's SS",
+          "source_type": "social_security",
+          "annual_income": 0.0,
+          "is_active": false,
+          "years_until_start": 22
+        },
+        ...
+      ],
+      "total_guaranteed_income": 0.0,   # sum of active income sources
       "annual_spending": 80000.0,
       "withdrawal_needed": 0.0,
       "total_portfolio": 450000.0,
@@ -75,12 +85,41 @@ class AccountState:
     is_pre_tax: bool
     is_taxable: bool
     is_hsa: bool
-    is_pension: bool
     owner: str              # "self" or "spouse"
     is_active: bool
-    # Pension
-    expected_pension_annual: float = 0.0
-    pension_start_age: Optional[int] = None
+
+
+@dataclass
+class IncomeSourceInput:
+    """
+    A single guaranteed / recurring income stream for the engine.
+    Services layer pre-populates all fields; the engine does not touch models.
+    """
+    id: int
+    name: str
+    source_type: str          # matches IncomeSourceType values
+    owner: str                # "self" or "spouse"
+
+    # SS-specific (pre-interpolated by services.py)
+    ss_monthly_at_claim_age: float = 0.0
+    ss_cola_rate: float = 2.5
+    ss_claim_age: int = 67
+
+    # Non-SS
+    annual_amount: float = 0.0
+    start_age: int = 65
+    end_age: Optional[int] = None
+
+    # Growth / inflation
+    is_inflation_adjusted: bool = False
+    inflation_rate_override: Optional[float] = None
+
+    # Tax treatment
+    is_taxable: bool = True
+    tax_rate_override: Optional[float] = None
+
+    # Pension survivor benefit
+    survivor_benefit_pct: Optional[float] = None
 
 
 @dataclass
@@ -100,12 +139,8 @@ class SimulationInput:
     spouse_annual_income: float = 0.0
     spouse_income_growth_rate_pct: float = 3.0
 
-    # SS
-    ss_monthly_self: float = 0.0
-    ss_claim_age_self: int = 67
-    ss_cola_pct: float = 2.5
-    ss_monthly_spouse: float = 0.0
-    ss_claim_age_spouse: int = 67
+    # Income sources (replaces SS + pension fields)
+    income_sources: List[IncomeSourceInput] = field(default_factory=list)
 
     # Accounts
     accounts: List[AccountState] = field(default_factory=list)
@@ -126,6 +161,57 @@ class SimulationInput:
 
     # Black swan
     black_swan: Optional[BlackSwanConfig] = None
+
+
+def _compute_income_source_annual(
+    src: IncomeSourceInput,
+    age: int,
+    spouse_age: Optional[int],
+    current_year_index: int,
+    inflation_pct: float,
+    tax_rate_retirement_pct: float,
+    retired_self: bool,
+    retired_spouse: bool,
+) -> tuple[float, bool, int]:
+    """
+    Compute annual income from a single IncomeSourceInput for the given year.
+
+    Returns:
+        (annual_income, is_active, years_until_start)
+    """
+    # Determine owner's current age
+    owner_age = age if src.owner == "self" else (spouse_age if spouse_age is not None else None)
+    owner_retired = retired_self if src.owner == "self" else retired_spouse
+
+    if owner_age is None:
+        # No spouse in plan; skip spouse-owned sources
+        return 0.0, False, 0
+
+    if src.source_type == "social_security":
+        # SS: active when owner's age >= ss_claim_age
+        if owner_age >= src.ss_claim_age:
+            # COLA factor from claim age onwards
+            years_collecting = owner_age - src.ss_claim_age
+            cola_factor = (1 + src.ss_cola_rate / 100) ** years_collecting
+            annual = src.ss_monthly_at_claim_age * 12 * cola_factor
+            return annual, True, 0
+        else:
+            years_until = src.ss_claim_age - owner_age
+            return 0.0, False, years_until
+    else:
+        # Non-SS: active when owner's age >= start_age AND (no end_age or age <= end_age)
+        started = owner_age >= src.start_age
+        not_ended = src.end_age is None or owner_age <= src.end_age
+        if started and not_ended:
+            base = src.annual_amount
+            if src.is_inflation_adjusted:
+                rate = src.inflation_rate_override if src.inflation_rate_override is not None else inflation_pct
+                years_inflated = owner_age - src.start_age
+                base = base * (1 + rate / 100) ** years_inflated
+            return base, True, 0
+        else:
+            years_until = max(0, src.start_age - owner_age) if not started else 0
+            return 0.0, False, years_until
 
 
 def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dict:
@@ -168,40 +254,56 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
             spouse_age >= inputs.spouse_retirement_age
         )
 
-        # ---- Income ----
+        # ---- Employment Income ----
         total_income = 0.0
         if not retired_self:
             total_income += income_self
         if spouse_age is not None and not retired_spouse:
             total_income += income_spouse
 
-        # ---- Social Security ----
-        ss_self = 0.0
-        if retired_self and age >= inputs.ss_claim_age_self:
-            years_since_62 = max(0, age - 62)
-            cola_factor = (1 + inputs.ss_cola_pct / 100) ** years_since_62
-            ss_self = inputs.ss_monthly_self * 12 * cola_factor
+        # ---- Guaranteed Income Sources ----
+        income_source_rows = []
+        total_guaranteed_income = 0.0
 
-        ss_spouse = 0.0
-        if (spouse_age is not None and retired_spouse and
-                inputs.ss_monthly_spouse > 0 and
-                spouse_age >= inputs.ss_claim_age_spouse):
-            years_since_62 = max(0, spouse_age - 62)
-            cola_factor = (1 + inputs.ss_cola_pct / 100) ** years_since_62
-            ss_spouse = inputs.ss_monthly_spouse * 12 * cola_factor
+        for src in inputs.income_sources:
+            annual_income, is_active, years_until_start = _compute_income_source_annual(
+                src=src,
+                age=age,
+                spouse_age=spouse_age,
+                current_year_index=current_year_index,
+                inflation_pct=inputs.inflation_pct,
+                tax_rate_retirement_pct=inputs.tax_rate_retirement_pct,
+                retired_self=retired_self,
+                retired_spouse=retired_spouse,
+            )
+            if is_active:
+                total_guaranteed_income += annual_income
 
-        ss_total = ss_self + ss_spouse
+            row = {
+                "id": src.id,
+                "name": src.name,
+                "source_type": src.source_type,
+                "annual_income": round(annual_income, 2),
+                "is_active": is_active,
+            }
+            if not is_active:
+                row["years_until_start"] = years_until_start
+            income_source_rows.append(row)
 
-        # ---- Pension income ----
-        pension_total = 0.0
-        for acct in accounts:
-            if acct.is_pension and acct.pension_start_age and age >= acct.pension_start_age:
-                pension_total += acct.expected_pension_annual
+        # Legacy aliases for backward compat with existing result templates
+        ss_total = sum(
+            r["annual_income"] for r in income_source_rows
+            if r["source_type"] == "social_security" and r["is_active"]
+        )
+        pension_total = sum(
+            r["annual_income"] for r in income_source_rows
+            if r["source_type"] == "pension" and r["is_active"]
+        )
 
         # ---- Contributions (accumulation phase) ----
         total_contributions = 0.0
         for acct in accounts:
-            if acct.is_active and not acct.is_pension:
+            if acct.is_active:
                 owner_retired = retired_self if acct.owner == "self" else retired_spouse
                 if not owner_retired:
                     contrib = acct.annual_contribution + acct.employer_match_annual
@@ -209,7 +311,7 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
                     total_contributions += contrib
 
         # ---- Grow accounts ----
-        total_portfolio_before = sum(a.balance for a in accounts if not a.is_pension)
+        total_portfolio_before = sum(a.balance for a in accounts)
 
         # Black swan: apply event and get suppression factor
         total_portfolio_before, bs_state, bs_event = check_and_apply_black_swan(
@@ -221,15 +323,13 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
         bs_state = advance_recoveries(bs_state)
 
         # Apply suppression proportionally to each account's balance
-        if sum(a.balance for a in accounts if not a.is_pension) > 0:
-            ratio = total_portfolio_before / sum(a.balance for a in accounts if not a.is_pension)
+        acct_total = sum(a.balance for a in accounts)
+        if acct_total > 0:
+            ratio = total_portfolio_before / acct_total
             for acct in accounts:
-                if not acct.is_pension:
-                    acct.balance *= ratio
+                acct.balance *= ratio
 
         for acct in accounts:
-            if acct.is_pension:
-                continue
             stock_return = (inputs.return_stocks_pct / 100) * suppression
             bond_return = (inputs.return_bonds_pct / 100) * suppression
             blended_return = (acct.stock_pct / 100) * stock_return + (acct.bond_pct / 100) * bond_return
@@ -252,16 +352,16 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
             if inputs.spending_strategy == "fixed":
                 target_spending = annual_spending * inflation_factor
             elif inputs.spending_strategy == "percent_portfolio":
-                total_port = sum(a.balance for a in accounts if not a.is_pension)
+                total_port = sum(a.balance for a in accounts)
                 target_spending = total_port * (inputs.withdrawal_rate_pct / 100)
             else:  # guardrails
                 target_spending = annual_spending * inflation_factor
-                total_port = sum(a.balance for a in accounts if not a.is_pension)
+                total_port = sum(a.balance for a in accounts)
                 peak = max(target_spending, total_port * 0.04)  # simplified
                 if total_port < peak * 0.80:
                     target_spending *= 0.90  # reduce 10% if down 20%
 
-            gap = max(0.0, target_spending - ss_total - pension_total)
+            gap = max(0.0, target_spending - total_guaranteed_income)
             if gap > 0:
                 withdrawn = _withdraw_from_accounts(accounts, gap, "tax_efficient", owner="self")
                 if withdrawn < gap:
@@ -272,12 +372,9 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
             gap = 0.0
 
         # ---- Year-end snapshot ----
-        total_portfolio = sum(a.balance for a in accounts if not a.is_pension)
+        total_portfolio = sum(a.balance for a in accounts)
         if balance_at_user_retirement is None and retired_self:
             balance_at_user_retirement = total_portfolio
-
-        if portfolio_exhausted and exhaustion_age == age:
-            pass  # already recorded
 
         year_row = {
             "year": year,
@@ -286,6 +383,10 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
             "phase": _phase(retired_self, retired_spouse, spouse_age),
             "total_income": round(total_income, 2),
             "total_contributions": round(total_contributions, 2),
+            # Guaranteed income breakdown
+            "income_sources": income_source_rows,
+            "total_guaranteed_income": round(total_guaranteed_income, 2),
+            # Legacy aliases (kept for template compatibility)
             "ss_income": round(ss_total, 2),
             "pension_income": round(pension_total, 2),
             "annual_spending": round(target_spending, 2),
@@ -322,7 +423,7 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
     }
 
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "simulation_type": "deterministic",
         "years": years_output,
         "summary": summary,
@@ -366,12 +467,10 @@ def _withdraw_from_accounts(
                 break
             if acct.owner != owner:
                 continue
-            if acct.is_pension:
-                continue
             matches = (
                 (acct_type == "taxable" and acct.is_taxable) or
                 (acct_type == "pre_tax" and acct.is_pre_tax) or
-                (acct_type == "roth" and not acct.is_pre_tax and not acct.is_taxable and not acct.is_hsa and not acct.is_pension)
+                (acct_type == "roth" and not acct.is_pre_tax and not acct.is_taxable and not acct.is_hsa)
             )
             if not matches:
                 continue

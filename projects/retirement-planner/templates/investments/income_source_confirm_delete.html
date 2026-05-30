@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Delete Income Source — RetireSim{% endblock %}
+{% block content %}
+
+<div class="max-w-md mx-auto">
+  <div class="bg-white rounded-xl shadow p-8">
+    <h1 class="text-xl font-bold text-gray-900 mb-2">Delete Income Source</h1>
+    <p class="text-gray-600 mb-6">
+      Are you sure you want to delete <strong>{{ income_source.name }}</strong>
+      ({{ income_source.get_source_type_display }})?
+      This cannot be undone.
+    </p>
+    <form method="post" class="flex gap-4">
+      {% csrf_token %}
+      <button type="submit"
+              class="bg-red-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-red-700 transition">
+        Yes, Delete
+      </button>
+      <a href="{% url 'investments:income_list' %}"
+         class="px-5 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition">
+        Cancel
+      </a>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

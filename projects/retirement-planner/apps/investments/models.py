@@ -9,7 +9,6 @@ class AccountType(models.TextChoices):
     ROTH_IRA = "roth_ira", "Roth IRA — Post-Tax"
     K403B = "403b", "403(b) — Pre-Tax"
     K457 = "457", "457(b) — Pre-Tax"
-    PENSION = "pension", "Pension"
     TAXABLE = "taxable", "Taxable Brokerage"
     HSA = "hsa", "HSA — Triple Tax-Advantaged"
     OTHER_PRETAX = "other_pretax", "Other Pre-Tax"
@@ -39,10 +38,6 @@ HSA_TYPES = {
     AccountType.HSA,
 }
 
-PENSION_TYPES = {
-    AccountType.PENSION,
-}
-
 
 class AccountOwner(models.TextChoices):
     SELF = "self", "Primary User"
@@ -53,6 +48,7 @@ class InvestmentAccount(models.Model):
     """
     A single investment account (401k, Roth IRA, taxable, etc.).
     Pre-tax vs post-tax drives tax treatment in the simulation engine.
+    Pension income is now modeled as an IncomeSource, not an InvestmentAccount.
     """
     user_profile = models.ForeignKey(
         UserProfile,
@@ -74,7 +70,6 @@ class InvestmentAccount(models.Model):
         help_text="Taxable brokerage: contributions post-tax, gains taxed annually"
     )
     is_hsa = models.BooleanField(default=False)
-    is_pension = models.BooleanField(default=False)
 
     # Balances & Contributions
     current_balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
@@ -103,16 +98,6 @@ class InvestmentAccount(models.Model):
         help_text="% allocated to bonds/fixed income (0–100)"
     )
 
-    # Pension-specific fields
-    expected_pension_annual = models.DecimalField(
-        max_digits=12, decimal_places=2, default=0,
-        help_text="Expected annual pension payment (pension accounts only)"
-    )
-    pension_start_age = models.PositiveSmallIntegerField(
-        null=True, blank=True,
-        help_text="Age at which pension payments begin"
-    )
-
     # Status
     is_active = models.BooleanField(
         default=True,
@@ -134,8 +119,7 @@ class InvestmentAccount(models.Model):
         self.is_pre_tax = self.account_type in PRE_TAX_TYPES
         self.is_taxable = self.account_type in TAXABLE_TYPES
         self.is_hsa = self.account_type in HSA_TYPES
-        self.is_pension = self.account_type in PENSION_TYPES
-        # Post-tax (Roth): not pre-tax, not taxable, not hsa, not pension
+        # Post-tax (Roth): not pre-tax, not taxable, not hsa
         super().save(*args, **kwargs)
 
     @property
@@ -146,8 +130,6 @@ class InvestmentAccount(models.Model):
             return "Taxable"
         elif self.is_hsa:
             return "HSA"
-        elif self.is_pension:
-            return "Pension"
         else:
             return "Post-Tax (Roth)"
 
@@ -166,3 +148,133 @@ class InvestmentAccount(models.Model):
         actual_contribution = float(self.annual_contribution)
         matched_contribution = min(actual_contribution, max_matchable)
         return matched_contribution * float(self.employer_match_pct) / 100
+
+
+# ---------------------------------------------------------------------------
+# IncomeSource — guaranteed / recurring income streams
+# ---------------------------------------------------------------------------
+
+class IncomeSourceType(models.TextChoices):
+    SOCIAL_SECURITY = "social_security", "Social Security"
+    PENSION         = "pension",         "Pension"
+    ANNUITY         = "annuity",         "Annuity"
+    IUL             = "iul",             "Indexed Universal Life (IUL)"
+    RENTAL          = "rental",          "Rental Property"
+    BUSINESS        = "business",        "Business / Royalty"
+    PART_TIME       = "part_time",       "Part-Time Work"
+    OTHER           = "other",           "Other Income"
+
+
+class IncomeSource(models.Model):
+    """
+    A guaranteed or recurring income stream (not a growing investment account).
+    Examples: Social Security, pension, IUL distributions, rental income.
+
+    Social Security:  populate ss_monthly_at_62/67/70; annual_amount left 0.
+                      The Scenario supplies claim_age for interpolation.
+    All other types:  populate annual_amount + start_age. SS fields left null.
+
+    IUL note: modeled during distribution phase only (no accumulation/premium logic).
+    """
+    user_profile  = models.ForeignKey(
+        UserProfile,
+        on_delete=models.CASCADE,
+        related_name="income_sources",
+    )
+    owner = models.CharField(
+        max_length=10,
+        choices=[("self", "Primary User"), ("spouse", "Spouse")],
+        default="self",
+    )
+    name        = models.CharField(max_length=200, help_text="e.g. 'Tom's Pension', 'Rental — 123 Main St'")
+    source_type = models.CharField(max_length=20, choices=IncomeSourceType.choices)
+
+    # ── Social Security only ──────────────────────────────────────────────────
+    ss_monthly_at_62 = models.DecimalField(
+        max_digits=8, decimal_places=2, null=True, blank=True,
+        help_text="Monthly SS benefit if claimed at 62 (from SSA statement)",
+    )
+    ss_monthly_at_67 = models.DecimalField(
+        max_digits=8, decimal_places=2, null=True, blank=True,
+        help_text="Monthly SS benefit at Full Retirement Age / 67",
+    )
+    ss_monthly_at_70 = models.DecimalField(
+        max_digits=8, decimal_places=2, null=True, blank=True,
+        help_text="Monthly SS benefit if claimed at 70",
+    )
+    ss_cola_rate = models.DecimalField(
+        max_digits=4, decimal_places=2, default=2.5,
+        help_text="Annual SS COLA %, default 2.5%",
+    )
+
+    # ── All other source types ────────────────────────────────────────────────
+    annual_amount = models.DecimalField(
+        max_digits=12, decimal_places=2, default=0,
+        help_text="Annual payout in today's dollars (not used for Social Security)",
+    )
+    start_age = models.PositiveSmallIntegerField(
+        default=65,
+        help_text="Age at which this income begins",
+    )
+    end_age = models.PositiveSmallIntegerField(
+        null=True, blank=True,
+        help_text="Age at which income ends; blank = lifetime / until plan end",
+    )
+
+    # ── Growth / inflation ────────────────────────────────────────────────────
+    is_inflation_adjusted = models.BooleanField(
+        default=False,
+        help_text="True = amount grows annually with inflation",
+    )
+    inflation_rate_override = models.DecimalField(
+        max_digits=4, decimal_places=2, null=True, blank=True,
+        help_text="Override inflation %; blank = use scenario inflation rate",
+    )
+
+    # ── Tax treatment ─────────────────────────────────────────────────────────
+    is_taxable = models.BooleanField(
+        default=True,
+        help_text="False = tax-free (e.g. Roth, IUL distributions, HSA medical)",
+    )
+    tax_rate_override = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True,
+        help_text="Override tax rate %; blank = use scenario retirement tax rate",
+    )
+
+    # ── Pension / survivor ────────────────────────────────────────────────────
+    survivor_benefit_pct = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True,
+        help_text="Pension survivor benefit % paid to spouse after owner dies (pension only)",
+    )
+
+    notes = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["source_type", "name"]
+        verbose_name = "Income Source"
+
+    def __str__(self):
+        return f"{self.name} ({self.get_source_type_display()}) — {self.owner}"
+
+    @property
+    def is_social_security(self):
+        return self.source_type == IncomeSourceType.SOCIAL_SECURITY
+
+    def monthly_ss_at_claim_age(self, claim_age: int) -> float:
+        """Interpolate SS monthly benefit at the given claim age (62–70)."""
+        at_62 = float(self.ss_monthly_at_62 or 0)
+        at_67 = float(self.ss_monthly_at_67 or 0)
+        at_70 = float(self.ss_monthly_at_70 or 0)
+        if claim_age <= 62:
+            return at_62
+        elif claim_age >= 70:
+            return at_70
+        elif claim_age < 67:
+            f = (claim_age - 62) / (67 - 62)
+            return at_62 + f * (at_67 - at_62)
+        else:
+            f = (claim_age - 67) / (70 - 67)
+            return at_67 + f * (at_70 - at_67)

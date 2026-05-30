@@ -6,9 +6,15 @@ Views and API endpoints call these functions; they never call the engine directl
 """
 from django.utils import timezone
 
-from apps.investments.models import InvestmentAccount
+from apps.investments.models import InvestmentAccount, IncomeSource
 from .models import Scenario, SimulationResult, SimulationStatus
-from .engine.deterministic import SimulationInput, AccountState, BlackSwanConfig, run_deterministic
+from .engine.deterministic import (
+    SimulationInput,
+    AccountState,
+    IncomeSourceInput,
+    BlackSwanConfig,
+    run_deterministic,
+)
 
 
 def build_simulation_input(scenario: Scenario) -> SimulationInput:
@@ -18,26 +24,53 @@ def build_simulation_input(scenario: Scenario) -> SimulationInput:
     """
     profile = scenario.user_profile
     accounts_qs = InvestmentAccount.objects.filter(user_profile=profile)
+    income_sources_qs = IncomeSource.objects.filter(user_profile=profile)
 
-    # SS data lives on the Scenario — interpolate monthly benefit at intended claim age
-    ss_monthly_self = _interpolate_ss(
-        float(scenario.ss_monthly_self_at_62),
-        float(scenario.ss_monthly_self_at_67),
-        float(scenario.ss_monthly_self_at_70),
-        scenario.ss_claim_age_self,
-    )
-    ss_claim_age_self = scenario.ss_claim_age_self
-    ss_cola = float(scenario.ss_cola_rate)
+    # ---- Income Sources ----
+    income_source_inputs = []
+    for src in income_sources_qs:
+        if src.is_social_security:
+            # Claim age comes from Scenario (the simulation variable)
+            claim_age = (
+                scenario.ss_claim_age_self if src.owner == "self"
+                else scenario.ss_claim_age_spouse
+            )
+            monthly = src.monthly_ss_at_claim_age(claim_age)
+            income_source_inputs.append(IncomeSourceInput(
+                id=src.id,
+                name=src.name,
+                source_type=src.source_type,
+                owner=src.owner,
+                ss_monthly_at_claim_age=monthly,
+                ss_cola_rate=float(src.ss_cola_rate),
+                ss_claim_age=claim_age,
+            ))
+        else:
+            income_source_inputs.append(IncomeSourceInput(
+                id=src.id,
+                name=src.name,
+                source_type=src.source_type,
+                owner=src.owner,
+                annual_amount=float(src.annual_amount),
+                start_age=src.start_age,
+                end_age=src.end_age,
+                is_inflation_adjusted=src.is_inflation_adjusted,
+                inflation_rate_override=(
+                    float(src.inflation_rate_override)
+                    if src.inflation_rate_override is not None else None
+                ),
+                is_taxable=src.is_taxable,
+                tax_rate_override=(
+                    float(src.tax_rate_override)
+                    if src.tax_rate_override is not None else None
+                ),
+                survivor_benefit_pct=(
+                    float(src.survivor_benefit_pct)
+                    if src.survivor_benefit_pct is not None else None
+                ),
+            ))
 
-    ss_monthly_spouse = _interpolate_ss(
-        float(scenario.ss_monthly_spouse_at_62),
-        float(scenario.ss_monthly_spouse_at_67),
-        float(scenario.ss_monthly_spouse_at_70),
-        scenario.ss_claim_age_spouse,
-    )
-    ss_claim_age_spouse = scenario.ss_claim_age_spouse
-
-    # Spouse
+    # ---- Spouse ----
     spouse_current_age = None
     spouse_retirement_age = None
     spouse_life_expectancy = None
@@ -51,7 +84,7 @@ def build_simulation_input(scenario: Scenario) -> SimulationInput:
         spouse_annual_income = float(sp.annual_income)
         spouse_income_growth = float(sp.income_growth_rate)
 
-    # Accounts → AccountState
+    # ---- Accounts → AccountState ----
     account_states = []
     for acct in accounts_qs:
         account_states.append(AccountState(
@@ -65,13 +98,11 @@ def build_simulation_input(scenario: Scenario) -> SimulationInput:
             is_pre_tax=acct.is_pre_tax,
             is_taxable=acct.is_taxable,
             is_hsa=acct.is_hsa,
-            is_pension=acct.is_pension,
             owner=acct.owner,
             is_active=acct.is_active,
-            expected_pension_annual=float(acct.expected_pension_annual),
-            pension_start_age=acct.pension_start_age,
         ))
 
+    # ---- Black Swan ----
     black_swan = BlackSwanConfig(
         enabled=scenario.black_swan_enabled,
         annual_probability_pct=float(scenario.black_swan_annual_probability),
@@ -94,12 +125,7 @@ def build_simulation_input(scenario: Scenario) -> SimulationInput:
         spouse_annual_income=spouse_annual_income,
         spouse_income_growth_rate_pct=spouse_income_growth,
 
-        ss_monthly_self=ss_monthly_self,
-        ss_claim_age_self=ss_claim_age_self,
-        ss_cola_pct=ss_cola,
-        ss_monthly_spouse=ss_monthly_spouse,
-        ss_claim_age_spouse=ss_claim_age_spouse,
-
+        income_sources=income_source_inputs,
         accounts=account_states,
 
         return_stocks_pct=float(scenario.expected_annual_return_stocks),
@@ -118,20 +144,6 @@ def build_simulation_input(scenario: Scenario) -> SimulationInput:
     )
 
 
-def _interpolate_ss(at_62: float, at_67: float, at_70: float, claim_age: int) -> float:
-    """Interpolate SS monthly benefit at the given claim age."""
-    if claim_age <= 62:
-        return at_62
-    elif claim_age >= 70:
-        return at_70
-    elif claim_age < 67:
-        fraction = (claim_age - 62) / (67 - 62)
-        return at_62 + fraction * (at_67 - at_62)
-    else:
-        fraction = (claim_age - 67) / (70 - 67)
-        return at_67 + fraction * (at_70 - at_67)
-
-
 def run_deterministic_sync(scenario: Scenario) -> SimulationResult:
     """
     Run a deterministic simulation synchronously.
@@ -148,7 +160,6 @@ def run_deterministic_sync(scenario: Scenario) -> SimulationResult:
         data = run_deterministic(inputs)
 
         summary = data["summary"]
-        years = data["years"]
 
         result.status = SimulationStatus.COMPLETE
         result.result_data = data

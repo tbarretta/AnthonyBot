@@ -12,11 +12,14 @@ urlpatterns = [
     # Profile
     path("profile/", views.ProfileView.as_view(), name="profile"),
     path("profile/spouse/", views.SpouseView.as_view(), name="spouse"),
-    # Social Security is configured per-scenario (see /simulations/scenarios/)
 
-    # Investments
+    # Investments — Accounts
     path("investments/accounts/", views.InvestmentAccountListCreateView.as_view(), name="account_list"),
     path("investments/accounts/<int:pk>/", views.InvestmentAccountDetailView.as_view(), name="account_detail"),
+
+    # Investments — Income Sources
+    path("investments/income/", views.IncomeSourceListCreateView.as_view(), name="income_list"),
+    path("investments/income/<int:pk>/", views.IncomeSourceDetailView.as_view(), name="income_detail"),
 
     # Simulations
     path("simulations/scenarios/", views.ScenarioListCreateView.as_view(), name="scenario_list"),

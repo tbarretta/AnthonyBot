@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — RetireSim{% endblock %}
+{% block content %}
+{% load widget_tweaks %}
+
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ title }}</h1>
+
+  {% if form.errors %}
+  <div class="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm">
+    <p class="font-semibold mb-1">Please correct the errors below:</p>
+    {{ form.non_field_errors }}
+  </div>
+  {% endif %}
+
+  <form method="post" class="space-y-6">
+    {% csrf_token %}
+
+    <!-- Identity -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Basic Info</h2>
+      <div>
+        <label class="label">Name <span class="text-red-500">*</span></label>
+        {% render_field form.name class="input" placeholder="e.g. Tom's SS, Rental – 123 Main St" %}
+        {% if form.name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>{% endif %}
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label">Type <span class="text-red-500">*</span></label>
+          {% render_field form.source_type class="input" id="id_source_type" %}
+          {% if form.source_type.errors %}<p class="text-red-500 text-xs mt-1">{{ form.source_type.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="label">Owner <span class="text-red-500">*</span></label>
+          {% render_field form.owner class="input" %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Social Security (shown only when type = social_security) -->
+    <div id="ss-section" class="bg-white rounded-xl shadow p-6 space-y-4" style="display:none;">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Social Security Estimates</h2>
+      <p class="text-sm text-gray-500">
+        Enter the monthly benefit amounts from your SSA statement (<a href="https://ssa.gov/myaccount" target="_blank" class="text-indigo-600 hover:underline">ssa.gov/myaccount</a>).
+        The simulation engine interpolates to your chosen claim age (set per Scenario).
+      </p>
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="label">Monthly at 62</label>
+          {% render_field form.ss_monthly_at_62 class="input" placeholder="0.00" %}
+          {% if form.ss_monthly_at_62.errors %}<p class="text-red-500 text-xs mt-1">{{ form.ss_monthly_at_62.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="label">Monthly at 67 (FRA)</label>
+          {% render_field form.ss_monthly_at_67 class="input" placeholder="0.00" %}
+          {% if form.ss_monthly_at_67.errors %}<p class="text-red-500 text-xs mt-1">{{ form.ss_monthly_at_67.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="label">Monthly at 70</label>
+          {% render_field form.ss_monthly_at_70 class="input" placeholder="0.00" %}
+          {% if form.ss_monthly_at_70.errors %}<p class="text-red-500 text-xs mt-1">{{ form.ss_monthly_at_70.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+      <div class="w-32">
+        <label class="label">COLA Rate %</label>
+        {% render_field form.ss_cola_rate class="input" %}
+        <p class="text-xs text-gray-400 mt-1">Default 2.5%</p>
+      </div>
+    </div>
+
+    <!-- Non-SS Amount & Schedule (hidden when type = social_security) -->
+    <div id="amount-section" class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Amount &amp; Schedule</h2>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label">Annual Amount (today's $) <span class="text-red-500">*</span></label>
+          {% render_field form.annual_amount class="input" %}
+          {% if form.annual_amount.errors %}<p class="text-red-500 text-xs mt-1">{{ form.annual_amount.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="label">Start Age</label>
+          {% render_field form.start_age class="input" %}
+          {% if form.start_age.errors %}<p class="text-red-500 text-xs mt-1">{{ form.start_age.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="label">End Age <span class="text-gray-400 font-normal">(blank = lifetime)</span></label>
+          {% render_field form.end_age class="input" placeholder="—" %}
+          {% if form.end_age.errors %}<p class="text-red-500 text-xs mt-1">{{ form.end_age.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Inflation -->
+    <div id="inflation-section" class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Inflation Adjustment</h2>
+      <label class="flex items-center gap-2 cursor-pointer">
+        {% render_field form.is_inflation_adjusted class="rounded" %}
+        <span class="text-sm font-medium text-gray-700">Adjust annually for inflation</span>
+      </label>
+      <div>
+        <label class="label">Custom Inflation Rate % <span class="text-gray-400 font-normal">(blank = scenario rate)</span></label>
+        {% render_field form.inflation_rate_override class="input w-32" placeholder="—" %}
+      </div>
+    </div>
+
+    <!-- Tax Treatment -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Tax Treatment</h2>
+      <label class="flex items-center gap-2 cursor-pointer">
+        {% render_field form.is_taxable class="rounded" %}
+        <span class="text-sm font-medium text-gray-700">This income is taxable (uncheck for Roth, IUL distributions, HSA medical)</span>
+      </label>
+      <div>
+        <label class="label">Custom Tax Rate % <span class="text-gray-400 font-normal">(blank = scenario retirement rate)</span></label>
+        {% render_field form.tax_rate_override class="input w-32" placeholder="—" %}
+      </div>
+    </div>
+
+    <!-- Pension Survivor (shown only when type = pension) -->
+    <div id="pension-section" class="bg-white rounded-xl shadow p-6 space-y-4" style="display:none;">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Pension Survivor Benefit</h2>
+      <div class="w-48">
+        <label class="label">Survivor Benefit % <span class="text-gray-400 font-normal">(blank = none)</span></label>
+        {% render_field form.survivor_benefit_pct class="input" placeholder="e.g. 50" %}
+        <p class="text-xs text-gray-400 mt-1">% of pension paid to spouse after owner dies.</p>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="bg-white rounded-xl shadow p-6 space-y-4">
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Notes</h2>
+      {% render_field form.notes class="input" placeholder="Optional notes about this income source..." %}
+    </div>
+
+    <div class="flex gap-4">
+      <button type="submit"
+              class="bg-indigo-600 text-white font-semibold px-6 py-2.5 rounded-lg hover:bg-indigo-700 transition">
+        {% if income_source %}Save Changes{% else %}Add Income Source{% endif %}
+      </button>
+      <a href="{% url 'investments:income_list' %}"
+         class="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 transition">
+        Cancel
+      </a>
+    </div>
+  </form>
+</div>
+
+<script>
+(function () {
+  const typeSelect = document.getElementById('id_source_type');
+  const ssSection = document.getElementById('ss-section');
+  const amountSection = document.getElementById('amount-section');
+  const inflationSection = document.getElementById('inflation-section');
+  const pensionSection = document.getElementById('pension-section');
+
+  function updateVisibility() {
+    const val = typeSelect ? typeSelect.value : '';
+    const isSS = val === 'social_security';
+    const isPension = val === 'pension';
+
+    if (ssSection) ssSection.style.display = isSS ? '' : 'none';
+    if (amountSection) amountSection.style.display = isSS ? 'none' : '';
+    if (inflationSection) inflationSection.style.display = isSS ? 'none' : '';
+    if (pensionSection) pensionSection.style.display = isPension ? '' : 'none';
+  }
+
+  if (typeSelect) {
+    typeSelect.addEventListener('change', updateVisibility);
+    updateVisibility();
+  }
+})();
+</script>
+
+{% endblock %}

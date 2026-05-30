@@ -6,14 +6,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.profiles.models import UserProfile, SpouseProfile
-from apps.investments.models import InvestmentAccount
+from apps.investments.models import InvestmentAccount, IncomeSource
 from apps.simulations.models import Scenario, SimulationResult, SimulationStatus
 from apps.simulations.services import run_deterministic_sync
 from apps.simulations.tasks import run_monte_carlo_task
 
 from .serializers import (
     UserProfileSerializer, SpouseProfileSerializer,
-    InvestmentAccountSerializer, ScenarioSerializer,
+    InvestmentAccountSerializer, IncomeSourceSerializer,
+    ScenarioSerializer,
     SimulationResultSerializer, SimulationResultStatusSerializer,
 )
 
@@ -70,6 +71,30 @@ class InvestmentAccountDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         profile = get_object_or_404(UserProfile, user=self.request.user)
         return InvestmentAccount.objects.filter(user_profile=profile)
+
+
+# ----- Income Sources -----
+
+class IncomeSourceListCreateView(generics.ListCreateAPIView):
+    serializer_class = IncomeSourceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        profile = get_object_or_404(UserProfile, user=self.request.user)
+        return IncomeSource.objects.filter(user_profile=profile)
+
+    def perform_create(self, serializer):
+        profile = get_object_or_404(UserProfile, user=self.request.user)
+        serializer.save(user_profile=profile)
+
+
+class IncomeSourceDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = IncomeSourceSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        profile = get_object_or_404(UserProfile, user=self.request.user)
+        return IncomeSource.objects.filter(user_profile=profile)
 
 
 # ----- Simulations -----

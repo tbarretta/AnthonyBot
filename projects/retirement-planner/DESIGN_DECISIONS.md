@@ -52,13 +52,13 @@ User (Mobile)  → DRF API   → Services → Models / Celery
 - `UserProfile` — primary user financial data
 - `SpouseProfile` — spouse financial data (optional; linked to UserProfile)
 - Pre-retirement income sources (both user and spouse)
-- Social Security estimates (both)
 
 ### `investments`
 - `InvestmentAccount` — individual accounts (401k, Roth IRA, etc.)
 - Account types: pre-tax and post-tax tracked explicitly
 - Employer match logic per account
 - Asset allocation (stocks/bonds %) per account
+- `IncomeSource` — guaranteed/recurring income streams (SS, pension, rental, IUL, etc.)
 
 ### `simulations`
 - `Scenario` — named simulation configuration
@@ -113,34 +113,65 @@ income_growth_rate
 income_end_age
 ```
 
-### SocialSecurityEstimate
-```
-user_profile (FK → UserProfile)
-owner (self | spouse)
-monthly_benefit_at_62
-monthly_benefit_at_67 (FRA)
-monthly_benefit_at_70
-claim_age (user's intended claim age)
-cola_rate (cost-of-living adjustment %, default 2.5%)
-```
-
 ### InvestmentAccount
 ```
 user_profile (FK → UserProfile)
 owner (self | spouse)
 name (label, e.g. "Tom's 401k at Fidelity")
-account_type (401k | roth_401k | traditional_ira | roth_ira | 403b | 457 | pension | taxable | hsa | other)
+account_type (401k | roth_401k | traditional_ira | roth_ira | 403b | 457 | taxable | hsa | other_pretax | other_posttax)
 is_pre_tax (computed from type; editable for 'other')
+is_taxable (bool)
+is_hsa (bool)
 current_balance
 annual_contribution
 employer_match_pct (% of contribution matched)
 employer_match_limit_pct (% of income up to which match applies)
 asset_allocation_stocks (% in equities, 0–100)
 asset_allocation_bonds (% in bonds/fixed income)
-expected_pension_annual (for pension type only)
-pension_start_age (for pension type only)
 is_active (False = stopped contributing, e.g. old job)
 ```
+
+**Note:** Pension is no longer an InvestmentAccount type. Pension income is modeled as an `IncomeSource` with `source_type = "pension"`.
+
+### IncomeSource
+```
+user_profile (FK → UserProfile)
+owner (self | spouse)
+name (label, e.g. "Tom's Pension", "Rental — 123 Main St")
+source_type (social_security | pension | annuity | iul | rental | business | part_time | other)
+
+# Social Security only (leave null for other types)
+ss_monthly_at_62 (monthly benefit from SSA statement)
+ss_monthly_at_67 (monthly benefit at FRA)
+ss_monthly_at_70 (monthly benefit if delayed to 70)
+ss_cola_rate (annual COLA %, default 2.5%; per-source, not scenario-wide)
+
+# All other types (leave at 0 for SS)
+annual_amount (annual payout in today's dollars)
+start_age (age at which income begins)
+end_age (age at which income ends; null = lifetime)
+
+# Growth
+is_inflation_adjusted (bool; True = grows annually with inflation)
+inflation_rate_override (override inflation %; null = use scenario rate)
+
+# Tax
+is_taxable (bool; False = tax-free e.g. Roth, IUL, HSA medical)
+tax_rate_override (override tax rate %; null = use scenario retirement rate)
+
+# Pension
+survivor_benefit_pct (% paid to spouse after owner dies; pension only)
+
+notes
+created_at, updated_at
+```
+
+**Design rationale for IncomeSource:**
+- Social Security benefit *amounts* (at 62/67/70) are stable facts from the SSA statement → live on `IncomeSource`
+- SS *claim age* is the planning variable that differs per scenario → lives on `Scenario`
+- `services.py` calls `IncomeSource.monthly_ss_at_claim_age(claim_age)` to interpolate before passing to the engine
+- Pension fields (previously on `InvestmentAccount`) are now a first-class income source
+- IUL distributions are modeled in the distribution phase only (no accumulation/premium logic)
 
 ### Scenario
 ```
@@ -167,6 +198,9 @@ black_swan_annual_probability (%, e.g. 3%)
 black_swan_min_loss_pct (e.g. 20%)
 black_swan_max_loss_pct (e.g. 50%)
 black_swan_recovery_years (avg years to recover, e.g. 3)
+# Social Security claim strategy (amounts now on IncomeSource)
+ss_claim_age_self (age at which user claims SS, 62–70)
+ss_claim_age_spouse (age at which spouse claims SS, 62–70)
 # Longevity
 user_life_expectancy_age
 spouse_life_expectancy_age
@@ -188,7 +222,7 @@ success_probability (% of MC runs that don't run out of money; null for determin
 median_balance_at_retirement
 median_balance_at_end
 deterministic_final_balance
-# Full result data (stored as JSON)
+# Full result data (stored as JSON, schema_version 2)
 result_data (JSONField) — year-by-year rows for deterministic; percentile curves for MC
 # Timestamps
 started_at
@@ -199,26 +233,74 @@ completed_at
 
 ## Simulation Engine Design
 
-### Year-by-Year Loop (shared by both engine types)
+### IncomeSourceInput Dataclass
+
+The engine never touches Django models. Services layer converts `IncomeSource` ORM objects
+into `IncomeSourceInput` dataclasses before calling the engine:
+
+```python
+@dataclass
+class IncomeSourceInput:
+    id: int
+    name: str
+    source_type: str          # "social_security", "pension", etc.
+    owner: str                # "self" or "spouse"
+
+    # SS (pre-interpolated by services.py)
+    ss_monthly_at_claim_age: float = 0.0
+    ss_cola_rate: float = 2.5
+    ss_claim_age: int = 67
+
+    # Non-SS
+    annual_amount: float = 0.0
+    start_age: int = 65
+    end_age: Optional[int] = None
+    is_inflation_adjusted: bool = False
+    inflation_rate_override: Optional[float] = None
+    is_taxable: bool = True
+    tax_rate_override: Optional[float] = None
+    survivor_benefit_pct: Optional[float] = None
+```
+
+### Year-by-Year Loop (deterministic engine)
 
 For each year from `current_age` to `max(life_expectancies)`:
-1. Apply income growth to pre-retirement income sources
-2. Apply contributions to each InvestmentAccount (with employer match)
-3. Grow each account by its allocated return rate
-4. Apply taxes on contributions (pre-tax deferred, post-tax already taxed)
-5. At `retirement_age`: stop contributions, start withdrawals
-6. Calculate SS benefits at `claim_age`
-7. Compute annual spending need (inflation-adjusted)
-8. Determine withdrawal gap = spending - SS - pension
-9. Withdraw from accounts in order: taxable → pre-tax → Roth (tax-efficient ordering)
-10. Apply RMD rules (age 73+) to pre-tax accounts
-11. Apply tax on withdrawals based on account type
-12. Record year-end balances
+1. Compute employment income (self + spouse, while not yet retired)
+2. **Per-source income computation** for each `IncomeSourceInput`:
+   - **Social Security**: active when `owner_age >= ss_claim_age`; applies COLA from claim age
+   - **All others**: active when `owner_age >= start_age` AND `owner_age <= end_age` (or no end_age)
+   - Apply inflation adjustment if `is_inflation_adjusted` (from start_age, not from year 0)
+3. Record per-source breakdown in year row: `{id, name, source_type, annual_income, is_active, years_until_start}`
+4. Apply contributions to each InvestmentAccount (with employer match, while owner not yet retired)
+5. Grow each account by its blended return rate (optionally suppressed by black swan)
+6. Apply RMDs (age 73+) from pre-tax accounts
+7. At retirement: compute spending target (strategy-dependent)
+8. Withdrawal gap = spending − sum(active income sources)
+9. Withdraw from accounts in order: taxable → pre-tax → Roth (tax-efficient)
+10. Record year-end snapshot
+
+### Result Schema (v2)
+
+Year rows include:
+```json
+{
+  "income_sources": [
+    {"id": 1, "name": "Tom's SS", "source_type": "social_security",
+     "annual_income": 28800.0, "is_active": true},
+    {"id": 2, "name": "Rental", "source_type": "rental",
+     "annual_income": 0.0, "is_active": false, "years_until_start": 5}
+  ],
+  "total_guaranteed_income": 28800.0,
+  "ss_income": 28800.0,         // legacy alias for template compat
+  "pension_income": 0.0,        // legacy alias
+  ...
+}
+```
 
 ### Deterministic Engine (`engine/deterministic.py`)
 - Single pass of the year-by-year loop
 - Uses fixed expected return rates
-- Returns array of annual snapshots
+- Returns array of annual snapshots (schema_version 2)
 
 ### Monte Carlo Engine (`engine/monte_carlo.py`)
 - Runs N iterations of the year-by-year loop
@@ -239,7 +321,8 @@ For each year from `current_age` to `max(life_expectancies)`:
 - Post-tax (Roth): contributions already taxed; growth and withdrawals tax-free
 - Taxable: contributions after-tax; dividends/gains taxed annually at capital_gains_rate
 - HSA: triple tax-advantaged if used for healthcare
-- Pension: ordinary income
+- Pension income: modeled as ordinary income via IncomeSource (is_taxable=True default)
+- IUL distributions: tax-free modeled via IncomeSource (is_taxable=False)
 - SS: up to 85% taxable depending on combined income (simplified model)
 
 ---
@@ -258,7 +341,8 @@ For each year from `current_age` to `max(life_expectancies)`:
 
 **Deterministic:**
 - Balance over time (stacked by account)
-- Income vs spending waterfall (SS + pension + withdrawals vs expenses)
+- Income vs spending waterfall (all income sources + withdrawals vs expenses)
+- Income source breakdown per year (from `income_sources` array in year rows)
 - Account composition at retirement
 
 **Monte Carlo:**
@@ -274,16 +358,17 @@ For each year from `current_age` to `max(life_expectancies)`:
 Base: `/api/v1/`
 Auth: JWT (`/api/v1/auth/token/`, `/api/v1/auth/token/refresh/`)
 
-| Endpoint | Methods |
-|---|---|
-| `/api/v1/profiles/` | GET, PATCH |
-| `/api/v1/profiles/spouse/` | GET, POST, PATCH, DELETE |
-| `/api/v1/profiles/social-security/` | GET, POST, PATCH |
-| `/api/v1/investments/accounts/` | GET, POST, PATCH, DELETE |
-| `/api/v1/simulations/scenarios/` | GET, POST, PATCH, DELETE |
-| `/api/v1/simulations/scenarios/{id}/run/` | POST (triggers run) |
-| `/api/v1/simulations/results/{id}/` | GET |
-| `/api/v1/simulations/results/{id}/status/` | GET (polling) |
+| Endpoint | Methods | Notes |
+|---|---|---|
+| `/api/v1/profile/` | GET, PATCH | Includes nested `income_sources` (read-only) |
+| `/api/v1/profile/spouse/` | GET, POST, PATCH, DELETE | |
+| `/api/v1/investments/accounts/` | GET, POST, PATCH, DELETE | InvestmentAccount CRUD |
+| `/api/v1/investments/income/` | GET, POST | IncomeSource list/create |
+| `/api/v1/investments/income/<pk>/` | GET, PATCH, DELETE | IncomeSource detail |
+| `/api/v1/simulations/scenarios/` | GET, POST, PATCH, DELETE | |
+| `/api/v1/simulations/scenarios/<id>/run/` | POST | Triggers run |
+| `/api/v1/simulations/results/<id>/` | GET | |
+| `/api/v1/simulations/results/<id>/status/` | GET | Polling |
 
 ---
 
@@ -305,6 +390,7 @@ When extending to mobile:
 3. JWT auth already configured
 4. Simulation results stored in DB — mobile polls `/results/{id}/status/`
 5. Chart data returned as structured JSON — mobile renders its own charts
+6. Income Sources available at `/api/v1/investments/income/`
 
 No backend changes needed for mobile beyond CORS/auth config.
 
@@ -331,8 +417,8 @@ retirement-planner/
 │   └── asgi.py
 ├── apps/
 │   ├── accounts/              # Auth, invites, User model
-│   ├── profiles/              # UserProfile, SpouseProfile, SS estimates
-│   ├── investments/           # InvestmentAccount
+│   ├── profiles/              # UserProfile, SpouseProfile
+│   ├── investments/           # InvestmentAccount, IncomeSource
 │   ├── simulations/           # Scenarios, results, engine
 │   │   └── engine/
 │   │       ├── deterministic.py
@@ -342,7 +428,6 @@ retirement-planner/
 │   └── api/                   # DRF routers, serializers, JWT
 ├── templates/
 │   ├── base.html
-│   ├── components/            # HTMX partials
 │   ├── accounts/
 │   ├── profiles/
 │   ├── investments/
@@ -365,4 +450,6 @@ retirement-planner/
 - Spouse data is always optional; engine handles single vs dual scenarios gracefully
 - All monetary values stored as `DecimalField` (never `FloatField`) for precision
 - All percentages stored as decimal (e.g. 7.5 means 7.5%, not 0.075)
-- `result_data` JSON schema is versioned (`schema_version` key) to support migrations
+- `result_data` JSON schema is versioned (`schema_version` key); current version is 2
+- SS benefit amounts belong on `IncomeSource`; SS claim ages belong on `Scenario`
+- Pension income is always an `IncomeSource`, never an `InvestmentAccount`

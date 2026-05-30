@@ -109,46 +109,16 @@ class Scenario(models.Model):
         help_text="Average years for portfolio to recover post-event"
     )
 
-    # ---- Social Security — Primary User ----
-    ss_monthly_self_at_62 = models.DecimalField(
-        max_digits=8, decimal_places=2, default=0,
-        help_text="Your estimated monthly SS benefit if claimed at 62 (today's dollars)"
-    )
-    ss_monthly_self_at_67 = models.DecimalField(
-        max_digits=8, decimal_places=2, default=0,
-        help_text="Your estimated monthly SS benefit at Full Retirement Age (67)"
-    )
-    ss_monthly_self_at_70 = models.DecimalField(
-        max_digits=8, decimal_places=2, default=0,
-        help_text="Your estimated monthly SS benefit if claimed at 70"
-    )
+    # ---- Social Security Claim Strategy ----
+    # SS monthly benefit amounts (at 62/67/70) and COLA are now stored on IncomeSource.
+    # The Scenario only retains the claiming age (the simulation variable).
     ss_claim_age_self = models.PositiveSmallIntegerField(
         default=67,
         help_text="Age at which you intend to claim SS benefits (62–70)"
     )
-
-    # ---- Social Security — Spouse ----
-    ss_monthly_spouse_at_62 = models.DecimalField(
-        max_digits=8, decimal_places=2, default=0,
-        help_text="Spouse's estimated monthly SS benefit if claimed at 62"
-    )
-    ss_monthly_spouse_at_67 = models.DecimalField(
-        max_digits=8, decimal_places=2, default=0,
-        help_text="Spouse's estimated monthly SS benefit at Full Retirement Age (67)"
-    )
-    ss_monthly_spouse_at_70 = models.DecimalField(
-        max_digits=8, decimal_places=2, default=0,
-        help_text="Spouse's estimated monthly SS benefit if claimed at 70"
-    )
     ss_claim_age_spouse = models.PositiveSmallIntegerField(
         default=67,
         help_text="Age at which spouse intends to claim SS benefits (62–70)"
-    )
-
-    # ---- SS shared ----
-    ss_cola_rate = models.DecimalField(
-        max_digits=4, decimal_places=2, default=2.5,
-        help_text="Annual SS cost-of-living adjustment %, default 2.5%"
     )
 
     # ---- Tax Assumptions ----
