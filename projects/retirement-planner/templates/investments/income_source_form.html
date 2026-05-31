@@ -21,7 +21,7 @@
       <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Basic Info</h2>
       <div>
         <label class="label">Name <span class="text-red-500">*</span></label>
-        {% render_field form.name class="input" placeholder="e.g. Tom's SS, Rental – 123 Main St" %}
+        {% render_field form.name class="input" %}
         {% if form.name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>{% endif %}
       </div>
       <div class="grid grid-cols-2 gap-4">

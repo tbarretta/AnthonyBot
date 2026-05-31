@@ -55,6 +55,7 @@ def account_edit(request, pk):
             form.save()
             messages.success(request, "Account updated.")
             return redirect("investments:list")
+
     else:
         form = InvestmentAccountForm(instance=account)
     return render(request, "investments/account_form.html", {"form": form, "account": account})

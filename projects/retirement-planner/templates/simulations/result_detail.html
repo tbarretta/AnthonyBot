@@ -4,59 +4,125 @@
 {% block content %}
 {% load humanize %}
 
+<!-- Header -->
 <div class="mb-6 flex items-center justify-between">
   <div>
+    <div class="flex items-center gap-2 text-sm text-gray-400 mb-1">
+      <a href="{% url 'simulations:list' %}" class="hover:text-indigo-600">Scenarios</a>
+      <span>/</span>
+      <a href="{% url 'simulations:detail' scenario.pk %}" class="hover:text-indigo-600">{{ scenario.name }}</a>
+      <span>/</span>
+      <span class="text-gray-700">Results</span>
+    </div>
     <h1 class="text-2xl font-bold text-gray-900">{{ scenario.name }}</h1>
-    <p class="text-gray-500 text-sm mt-1">{{ scenario.get_simulation_type_display }}
-      {% if scenario.black_swan_enabled %} · 🌪️ Black Swan enabled{% endif %}
-    </p>
+    <p class="text-gray-500 text-sm mt-1">Deterministic simulation{% if scenario.black_swan_enabled %} · 🌪️ Black Swan enabled{% endif %} · Run {{ result.completed_at|date:"M j, Y g:i a" }}</p>
   </div>
-  <a href="{% url 'simulations:run' scenario.pk %}"
-     hx-post="{% url 'simulations:run' scenario.pk %}"
-     hx-target="#result-area"
-     hx-swap="innerHTML"
-     class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">
-    Re-run
-  </a>
+  <a href="{% url 'simulations:edit' scenario.pk %}" class="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg text-sm hover:bg-gray-50">Edit Scenario</a>
 </div>
 
 <!-- Summary cards -->
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-  {% if result.success_probability is not None %}
-  <div class="bg-white rounded-xl shadow p-5 text-center">
-    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Success Rate</p>
-    <p class="text-3xl font-bold {% if result.success_probability >= 85 %}text-green-600{% elif result.success_probability >= 70 %}text-yellow-500{% else %}text-red-600{% endif %}">
-      {{ result.success_probability }}%
-    </p>
-  </div>
-  {% endif %}
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
   <div class="bg-white rounded-xl shadow p-5 text-center">
     <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">At Retirement</p>
     <p class="text-2xl font-bold text-indigo-700">${{ result.median_balance_at_retirement|floatformat:0|intcomma }}</p>
   </div>
   <div class="bg-white rounded-xl shadow p-5 text-center">
     <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Final Balance</p>
-    <p class="text-2xl font-bold text-gray-800">
-      ${% if result.deterministic_final_balance %}{{ result.deterministic_final_balance|floatformat:0|intcomma }}{% else %}{{ result.median_balance_at_end|floatformat:0|intcomma }}{% endif %}
+    <p class="text-2xl font-bold {% if result.deterministic_final_balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+      ${{ result.deterministic_final_balance|floatformat:0|intcomma }}
     </p>
   </div>
   {% if result.portfolio_exhaustion_age %}
-  <div class="bg-white rounded-xl shadow p-5 text-center">
-    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">⚠️ Exhausted at</p>
+  <div class="bg-red-50 rounded-xl shadow p-5 text-center border border-red-200">
+    <p class="text-xs text-red-400 uppercase tracking-wide mb-1">⚠️ Exhausted at</p>
     <p class="text-2xl font-bold text-red-600">Age {{ result.portfolio_exhaustion_age }}</p>
   </div>
+  {% else %}
+  <div class="bg-green-50 rounded-xl shadow p-5 text-center border border-green-200">
+    <p class="text-xs text-green-600 uppercase tracking-wide mb-1">✓ Portfolio Survives</p>
+    <p class="text-sm font-semibold text-green-700">To age {{ scenario.user_life_expectancy_age|default:profile.life_expectancy_age }}</p>
+  </div>
   {% endif %}
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Retire at Age</p>
+    <p class="text-2xl font-bold text-gray-800">{{ scenario.retirement_age_self }}</p>
+  </div>
+</div>
+
+<!-- Scenario Assumptions -->
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+  <h2 class="text-base font-semibold text-gray-800 mb-4 border-b pb-2">Scenario Assumptions</h2>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-4 text-sm">
+
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Retirement Age</p>
+      <p class="font-medium text-gray-800">{{ scenario.retirement_age_self }}{% if profile.has_spouse %} / {{ scenario.retirement_age_spouse }} (spouse){% endif %}</p>
+    </div>
+
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Life Expectancy</p>
+      <p class="font-medium text-gray-800">{{ scenario.user_life_expectancy_age|default:profile.life_expectancy_age }}{% if profile.has_spouse %} / {{ scenario.spouse_life_expectancy_age|default:profile.spouse.life_expectancy_age }} (spouse){% endif %}</p>
+    </div>
+
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Annual Spending</p>
+      <p class="font-medium text-gray-800">${{ scenario.annual_retirement_spending|floatformat:0|intcomma }} / yr <span class="text-gray-400 font-normal">({{ scenario.get_spending_strategy_display }})</span></p>
+    </div>
+
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Spending Growth</p>
+      <p class="font-medium text-gray-800">{{ scenario.spending_growth_rate }}% / yr</p>
+    </div>
+
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Stock / Bond Return</p>
+      <p class="font-medium text-gray-800">{{ scenario.expected_annual_return_stocks }}% / {{ scenario.expected_annual_return_bonds }}%</p>
+    </div>
+
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Inflation Rate</p>
+      <p class="font-medium text-gray-800">{{ scenario.inflation_rate }}% / yr</p>
+    </div>
+
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">SS Claim Age</p>
+      <p class="font-medium text-gray-800">{{ scenario.ss_claim_age_self }}{% if profile.has_spouse %} / {{ scenario.ss_claim_age_spouse }} (spouse){% endif %}</p>
+    </div>
+
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Tax Rate (Working)</p>
+      <p class="font-medium text-gray-800">{{ scenario.effective_tax_rate_working }}%</p>
+    </div>
+
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Tax Rate (Retirement)</p>
+      <p class="font-medium text-gray-800">{{ scenario.effective_tax_rate_retirement }}%</p>
+    </div>
+
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Capital Gains Rate</p>
+      <p class="font-medium text-gray-800">{{ scenario.capital_gains_rate }}%</p>
+    </div>
+
+    {% if scenario.black_swan_enabled %}
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Black Swan Prob.</p>
+      <p class="font-medium text-gray-800">{{ scenario.black_swan_annual_probability }}% / yr ({{ scenario.black_swan_min_loss_pct }}–{{ scenario.black_swan_max_loss_pct }}% loss)</p>
+    </div>
+    {% endif %}
+
+  </div>
 </div>
 
 <!-- Chart -->
 <div id="result-area">
-  <div class="bg-white rounded-xl shadow p-6 mb-8">
-    <h2 class="text-lg font-semibold text-gray-800 mb-4">Portfolio Projection</h2>
+  <div class="bg-white rounded-xl shadow p-6 mb-6">
+    <h2 class="text-base font-semibold text-gray-800 mb-4">Portfolio Projection</h2>
     <canvas id="mainChart" height="100"></canvas>
   </div>
 
   {% if result.result_data.summary.black_swan_events %}
-  <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-8">
+  <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">
     <h3 class="font-semibold text-amber-800 mb-2">🌪️ Black Swan Events</h3>
     <ul class="space-y-1 text-sm text-amber-700">
       {% for event in result.result_data.summary.black_swan_events %}
@@ -67,9 +133,69 @@
   {% endif %}
 </div>
 
+<!-- Year-by-Year Data Table -->
+{% if years %}
+<div class="bg-white rounded-xl shadow overflow-hidden mb-8">
+  <div class="px-6 py-4 border-b">
+    <h2 class="text-base font-semibold text-gray-800">Year-by-Year Detail</h2>
+    <p class="text-xs text-gray-400 mt-0.5">All dollar values inflation-adjusted in simulation year dollars</p>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+        <tr>
+          <th class="px-4 py-3 text-left">Age</th>
+          {% if profile.has_spouse %}<th class="px-4 py-3 text-left">Spouse Age</th>{% endif %}
+          <th class="px-4 py-3 text-left">Phase</th>
+          <th class="px-4 py-3 text-right">Portfolio Balance</th>
+          <th class="px-4 py-3 text-right">Contributions</th>
+          <th class="px-4 py-3 text-right">Guaranteed Income</th>
+          <th class="px-4 py-3 text-right">Annual Spending</th>
+          <th class="px-4 py-3 text-right">Withdrawal</th>
+          <th class="px-4 py-3 text-right">RMD</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for row in years %}
+        <tr class="{% if row.phase == 'accumulation' %}text-gray-500{% elif row.portfolio_exhaustion_age and row.age >= row.portfolio_exhaustion_age %}bg-red-50{% else %}text-gray-800{% endif %} hover:bg-gray-50">
+          <td class="px-4 py-2.5 font-medium">{{ row.age }}</td>
+          {% if profile.has_spouse %}<td class="px-4 py-2.5">{{ row.spouse_age|default:"—" }}</td>{% endif %}
+          <td class="px-4 py-2.5">
+            <span class="px-2 py-0.5 rounded-full text-xs font-medium
+              {% if row.phase == 'accumulation' %}bg-blue-100 text-blue-700
+              {% elif row.phase == 'both_retired' %}bg-green-100 text-green-700
+              {% else %}bg-amber-100 text-amber-700{% endif %}">
+              {{ row.phase|title|cut:"_" }}
+            </span>
+          </td>
+          <td class="px-4 py-2.5 text-right font-semibold">${{ row.total_portfolio|floatformat:0|intcomma }}</td>
+          <td class="px-4 py-2.5 text-right text-blue-600">
+            {% if row.total_contributions > 0 %}${{ row.total_contributions|floatformat:0|intcomma }}{% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-2.5 text-right text-green-600">
+            {% if row.total_guaranteed_income > 0 %}${{ row.total_guaranteed_income|floatformat:0|intcomma }}{% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-2.5 text-right text-red-600">
+            {% if row.annual_spending > 0 %}${{ row.annual_spending|floatformat:0|intcomma }}{% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-2.5 text-right">
+            {% if row.withdrawal_needed > 0 %}${{ row.withdrawal_needed|floatformat:0|intcomma }}{% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-2.5 text-right text-amber-600">
+            {% if row.is_rmd_year %}${{ row.rmd_amount|floatformat:0|intcomma }}{% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const chartData = {{ chart_data_json|safe }};
 
@@ -104,14 +230,7 @@ function renderDeterministicChart(data) {
           borderDash: [5,5],
           pointRadius: 0,
           tension: 0.3,
-        },
-        {
-          label: 'SS + Pension Income',
-          data: data.ages.map((_, i) => (data.ss_income[i] || 0) + (data.pension_income[i] || 0)),
-          borderColor: '#22c55e',
-          borderDash: [3,3],
-          pointRadius: 0,
-          tension: 0.3,
+          yAxisID: 'y2',
         },
       ]
     },
@@ -119,46 +238,19 @@ function renderDeterministicChart(data) {
       plugins: { tooltip: { callbacks: { label: ctx => currency(ctx.raw) } } },
       scales: {
         x: { title: { display: true, text: 'Age' } },
-        y: { title: { display: true, text: 'Balance (USD)' }, ticks: { callback: v => currency(v) } }
+        y: {
+          position: 'left',
+          title: { display: true, text: 'Portfolio Balance' },
+          ticks: { callback: v => currency(v) }
+        },
+        y2: {
+          position: 'right',
+          title: { display: true, text: 'Annual Spending' },
+          ticks: { callback: v => currency(v) },
+          grid: { drawOnChartArea: false },
+        }
       }
     }
-  });
-}
-
-function renderMonteCarloChart(data) {
-  const ctx = document.getElementById('mainChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: data.ages,
-      datasets: [
-        { label: '90th %ile', data: data.p90, borderColor: '#22c55e', borderWidth: 1, pointRadius: 0, fill: false },
-        { label: '75th %ile', data: data.p75, borderColor: '#86efac', borderWidth: 1, pointRadius: 0, fill: '+1', backgroundColor: 'rgba(134,239,172,0.15)' },
-        { label: 'Median',    data: data.p50, borderColor: '#4f46e5', borderWidth: 2, pointRadius: 1, fill: false },
-        { label: '25th %ile', data: data.p25, borderColor: '#fca5a5', borderWidth: 1, pointRadius: 0, fill: '+1', backgroundColor: 'rgba(252,165,165,0.15)' },
-        { label: '10th %ile', data: data.p10, borderColor: '#ef4444', borderWidth: 1, pointRadius: 0, fill: false },
-      ]
-    },
-    options: {
-      plugins: { tooltip: { callbacks: { label: ctx => currency(ctx.raw) } } },
-      scales: {
-        x: { title: { display: true, text: 'Age' } },
-        y: { title: { display: true, text: 'Balance (USD)' }, ticks: { callback: v => currency(v) } }
-      }
-    }
-  });
-}
-
-function renderHistogram(hist) {
-  const ctx = document.getElementById('histChart').getContext('2d');
-  const labels = hist.bins.slice(0,-1).map((b,i) => currency(b) + ' – ' + currency(hist.bins[i+1]));
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [{ label: 'Runs', data: hist.counts, backgroundColor: '#818cf8' }]
-    },
-    options: { plugins: { legend: { display: false } } }
   });
 }
 </script>

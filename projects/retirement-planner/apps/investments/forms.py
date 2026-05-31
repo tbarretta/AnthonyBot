@@ -2,29 +2,38 @@ from django import forms
 from .models import InvestmentAccount, IncomeSource
 
 
+class CommaDecimalField(forms.DecimalField):
+    """DecimalField that accepts comma-formatted numbers like 1,250,000."""
+
+    def to_python(self, value):
+        if isinstance(value, str):
+            value = value.replace(",", "")
+        return super().to_python(value)
+
+
 class InvestmentAccountForm(forms.ModelForm):
-    current_balance = forms.DecimalField(
+    current_balance = CommaDecimalField(
         max_digits=14, decimal_places=0,
         widget=forms.TextInput(attrs={"inputmode": "numeric", "data-currency": "true", "placeholder": "0"})
     )
-    annual_contribution = forms.DecimalField(
+    annual_contribution = CommaDecimalField(
         max_digits=10, decimal_places=0,
         widget=forms.TextInput(attrs={"inputmode": "numeric", "data-currency": "true", "placeholder": "0"})
     )
     employer_match_pct = forms.DecimalField(
-        max_digits=4, decimal_places=1, required=False, initial=0,
+        max_digits=5, decimal_places=2, required=False, initial=0,
         widget=forms.NumberInput(attrs={"step": "0.1", "min": "0", "max": "100", "placeholder": "0.0"})
     )
     employer_match_limit_pct = forms.DecimalField(
-        max_digits=4, decimal_places=1, required=False, initial=0,
+        max_digits=5, decimal_places=2, required=False, initial=0,
         widget=forms.NumberInput(attrs={"step": "0.1", "min": "0", "max": "100", "placeholder": "0.0"})
     )
-    asset_allocation_stocks = forms.DecimalField(
-        max_digits=5, decimal_places=0,
+    asset_allocation_stocks = forms.IntegerField(
+        min_value=0, max_value=100,
         widget=forms.NumberInput(attrs={"step": "1", "min": "0", "max": "100", "placeholder": "80"})
     )
-    asset_allocation_bonds = forms.DecimalField(
-        max_digits=5, decimal_places=0,
+    asset_allocation_bonds = forms.IntegerField(
+        min_value=0, max_value=100,
         widget=forms.NumberInput(attrs={"step": "1", "min": "0", "max": "100", "placeholder": "20"})
     )
 
@@ -43,9 +52,9 @@ class InvestmentAccountForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        stocks = int(cleaned_data.get("asset_allocation_stocks") or 0)
-        bonds = int(cleaned_data.get("asset_allocation_bonds") or 0)
-        if stocks + bonds != 100:
+        stocks = cleaned_data.get("asset_allocation_stocks")
+        bonds = cleaned_data.get("asset_allocation_bonds")
+        if stocks is not None and bonds is not None and stocks + bonds != 100:
             raise forms.ValidationError("Stock + bond allocation must equal 100%.")
         return cleaned_data
 
@@ -68,6 +77,7 @@ class IncomeSourceForm(forms.ModelForm):
             "notes",
         ]
         widgets = {
+            "name": forms.TextInput(attrs={"placeholder": "e.g. Tom's SS, Rental - 123 Main St"}),
             "notes": forms.Textarea(attrs={"rows": 2}),
         }
 

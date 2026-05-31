@@ -15,13 +15,6 @@
   </div>
   <div class="flex gap-2">
     <a href="{% url 'simulations:edit' scenario.pk %}" class="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg text-sm hover:bg-gray-50">Edit</a>
-    <a href="{% url 'simulations:run' scenario.pk %}"
-       hx-post="{% url 'simulations:run' scenario.pk %}"
-       hx-target="#result-area"
-       hx-swap="innerHTML"
-       class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
-      {% if latest_result %}Re-run{% else %}Run Simulation{% endif %}
-    </a>
   </div>
 </div>
 

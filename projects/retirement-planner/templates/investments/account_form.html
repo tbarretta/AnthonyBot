@@ -58,10 +58,12 @@
           <div>
             <label class="block text-xs text-gray-500 mb-1">Match Rate (% of contribution)</label>
             {% render_field form.employer_match_pct class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. 50" %}
+          {% if form.employer_match_pct.errors %}<p class="text-xs text-red-600 mt-1">{{ form.employer_match_pct.errors.0 }}</p>{% endif %}
           </div>
           <div>
             <label class="block text-xs text-gray-500 mb-1">Match Cap (% of salary)</label>
             {% render_field form.employer_match_limit_pct class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. 6" %}
+            {% if form.employer_match_limit_pct.errors %}<p class="text-xs text-red-600 mt-1">{{ form.employer_match_limit_pct.errors.0 }}</p>{% endif %}
           </div>
         </div>
       </div>
@@ -72,10 +74,12 @@
           <div>
             <label class="block text-xs text-gray-500 mb-1">Stocks (%)</label>
             {% render_field form.asset_allocation_stocks class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" id="id_stocks" %}
+            {% if form.asset_allocation_stocks.errors %}<p class="text-xs text-red-600 mt-1">{{ form.asset_allocation_stocks.errors.0 }}</p>{% endif %}
           </div>
           <div>
             <label class="block text-xs text-gray-500 mb-1">Bonds (%)</label>
             {% render_field form.asset_allocation_bonds class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" id="id_bonds" %}
+            {% if form.asset_allocation_bonds.errors %}<p class="text-xs text-red-600 mt-1">{{ form.asset_allocation_bonds.errors.0 }}</p>{% endif %}
           </div>
         </div>
         {% if form.non_field_errors %}<p class="text-xs text-red-600">{{ form.non_field_errors.0 }}</p>{% endif %}

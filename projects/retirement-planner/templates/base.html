@@ -16,7 +16,7 @@
 
   {% block extra_head %}{% endblock %}
 </head>
-<body class="h-full">
+<body class="h-full" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
 <!-- Nav -->
 <nav class="bg-indigo-700 text-white shadow-md">

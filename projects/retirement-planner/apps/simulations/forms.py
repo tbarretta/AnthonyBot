@@ -1,8 +1,13 @@
 from django import forms
+from apps.investments.forms import CommaDecimalField
 from .models import Scenario, SimulationType, SpendingStrategy
 
 
 class ScenarioForm(forms.ModelForm):
+    annual_retirement_spending = CommaDecimalField(
+        max_digits=12, decimal_places=0,
+        widget=forms.TextInput(attrs={"inputmode": "numeric", "data-currency": "true", "placeholder": "0"})
+    )
     class Meta:
         model = Scenario
         fields = [
