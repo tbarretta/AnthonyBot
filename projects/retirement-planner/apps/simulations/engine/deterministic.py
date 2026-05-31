@@ -361,15 +361,30 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
                 if total_port < peak * 0.80:
                     target_spending *= 0.90  # reduce 10% if down 20%
 
-            gap = max(0.0, target_spending - total_guaranteed_income)
-            if gap > 0:
-                withdrawn = _withdraw_from_accounts(accounts, gap, "tax_efficient", owner="self")
-                if withdrawn < gap:
+            # net_gap = after-tax dollars still needed from the portfolio
+            net_gap = max(0.0, target_spending - total_guaranteed_income)
+            gross_gap = 0.0
+            taxes_paid = 0.0
+            if net_gap > 0:
+                # Gross up: withdraw enough to cover taxes and still net net_gap
+                gross_gap = _compute_gross_withdrawal_needed(
+                    net_needed=net_gap,
+                    accounts=accounts,
+                    owner="self",
+                    tax_rate_retirement_pct=inputs.tax_rate_retirement_pct,
+                    cap_gains_rate_pct=inputs.cap_gains_rate_pct,
+                )
+                taxes_paid = gross_gap - net_gap
+                withdrawn = _withdraw_from_accounts(accounts, gross_gap, "tax_efficient", owner="self")
+                if withdrawn < gross_gap - 0.01:  # accounts exhausted
                     portfolio_exhausted = True
                     exhaustion_age = age
+            gap = net_gap  # keep as net spending gap for display
         else:
             target_spending = 0.0
             gap = 0.0
+            gross_gap = 0.0
+            taxes_paid = 0.0
 
         # ---- Year-end snapshot ----
         total_portfolio = sum(a.balance for a in accounts)
@@ -389,8 +404,9 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
             # Legacy aliases (kept for template compatibility)
             "ss_income": round(ss_total, 2),
             "pension_income": round(pension_total, 2),
-            "annual_spending": round(target_spending, 2),
-            "withdrawal_needed": round(gap, 2),
+            "annual_spending": round(target_spending, 2),   # after-tax spending target
+            "withdrawal_needed": round(gross_gap, 2),          # gross pulled from portfolio
+            "taxes_paid": round(taxes_paid, 2),                # estimated tax on withdrawals
             "total_portfolio": round(total_portfolio, 2),
             "accounts": {str(a.id): round(a.balance, 2) for a in accounts},
             "black_swan_event": bs_event,
@@ -438,6 +454,66 @@ def _phase(retired_self: bool, retired_spouse: bool, spouse_age) -> str:
     if retired_self or retired_spouse:
         return "partial_retirement"
     return "accumulation"
+
+
+def _compute_gross_withdrawal_needed(
+    net_needed: float,
+    accounts: List[AccountState],
+    owner: str,
+    tax_rate_retirement_pct: float,
+    cap_gains_rate_pct: float,
+    gain_fraction: float = 0.5,
+) -> float:
+    """
+    Given the net (after-tax) dollars needed from the portfolio, compute the
+    gross withdrawal required, accounting for the tax treatment of each account
+    type in tax-efficient withdrawal order (taxable → pre-tax → Roth).
+
+    - Pre-tax (trad 401k/IRA): taxed at effective_tax_rate_retirement
+    - Taxable brokerage: cap gains on estimated gain_fraction of withdrawal
+    - Roth / HSA (medical): tax-free, keep 100%
+    """
+    tax_rate = tax_rate_retirement_pct / 100.0
+    cap_gains_rate = cap_gains_rate_pct / 100.0
+
+    remaining_net = net_needed
+    gross_total = 0.0
+
+    for acct_type in ["taxable", "pre_tax", "roth"]:
+        if remaining_net <= 0:
+            break
+        for acct in accounts:
+            if remaining_net <= 0:
+                break
+            if acct.owner != owner or acct.balance <= 0:
+                continue
+            matches = (
+                (acct_type == "taxable" and acct.is_taxable) or
+                (acct_type == "pre_tax" and acct.is_pre_tax) or
+                (acct_type == "roth" and not acct.is_pre_tax and not acct.is_taxable and not acct.is_hsa)
+            )
+            if not matches:
+                continue
+
+            if acct.is_pre_tax:
+                keep_rate = 1.0 - tax_rate
+            elif acct.is_taxable:
+                keep_rate = 1.0 - (gain_fraction * cap_gains_rate)
+            else:  # Roth / HSA
+                keep_rate = 1.0
+
+            keep_rate = max(keep_rate, 0.01)  # safety floor
+            max_net_from_acct = acct.balance * keep_rate
+            net_from_acct = min(remaining_net, max_net_from_acct)
+            gross_total += net_from_acct / keep_rate
+            remaining_net -= net_from_acct
+
+    # If accounts are exhausted before covering net_needed, add remainder 1:1
+    # (the depletion check in the caller will flag this run)
+    if remaining_net > 0:
+        gross_total += remaining_net
+
+    return gross_total
 
 
 def _withdraw_from_accounts(
