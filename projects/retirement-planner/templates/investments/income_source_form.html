@@ -46,16 +46,16 @@
         Benefits at other claim ages (63–70) are calculated automatically using official
         SSA early-reduction and delayed-credit rules.
       </p>
-      <div class="grid grid-cols-2 gap-4 max-w-sm">
-        <div>
+      <div class="flex flex-wrap gap-6 items-end">
+        <div class="flex-1 min-w-[180px] max-w-xs">
           <label class="label">Monthly Benefit at 62 <span class="text-red-500">*</span></label>
           <div class="relative">
-            <span class="absolute left-3 top-2.5 text-gray-400 text-sm">$</span>
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm leading-none">$</span>
             {% render_field form.ss_monthly_at_62 class="input pl-7" placeholder="0.00" %}
           </div>
           {% if form.ss_monthly_at_62.errors %}<p class="text-red-500 text-xs mt-1">{{ form.ss_monthly_at_62.errors.0 }}</p>{% endif %}
         </div>
-        <div>
+        <div class="w-28">
           <label class="label">COLA Rate %</label>
           {% render_field form.ss_cola_rate class="input" %}
           <p class="text-xs text-gray-400 mt-1">Default 2.5%</p>
