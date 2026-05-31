@@ -170,8 +170,9 @@ class IncomeSource(models.Model):
     A guaranteed or recurring income stream (not a growing investment account).
     Examples: Social Security, pension, IUL distributions, rental income.
 
-    Social Security:  populate ss_monthly_at_62/67/70; annual_amount left 0.
-                      The Scenario supplies claim_age for interpolation.
+    Social Security:  populate ss_monthly_at_62 (from SSA statement); annual_amount left 0.
+                      The Scenario supplies claim_age; benefits at other ages are
+                      computed via official SSA early-reduction / delayed-credit rules.
     All other types:  populate annual_amount + start_age. SS fields left null.
 
     IUL note: modeled during distribution phase only (no accumulation/premium logic).
@@ -193,14 +194,6 @@ class IncomeSource(models.Model):
     ss_monthly_at_62 = models.DecimalField(
         max_digits=8, decimal_places=2, null=True, blank=True,
         help_text="Monthly SS benefit if claimed at 62 (from SSA statement)",
-    )
-    ss_monthly_at_67 = models.DecimalField(
-        max_digits=8, decimal_places=2, null=True, blank=True,
-        help_text="Monthly SS benefit at Full Retirement Age / 67",
-    )
-    ss_monthly_at_70 = models.DecimalField(
-        max_digits=8, decimal_places=2, null=True, blank=True,
-        help_text="Monthly SS benefit if claimed at 70",
     )
     ss_cola_rate = models.DecimalField(
         max_digits=4, decimal_places=2, default=2.5,
@@ -264,17 +257,38 @@ class IncomeSource(models.Model):
         return self.source_type == IncomeSourceType.SOCIAL_SECURITY
 
     def monthly_ss_at_claim_age(self, claim_age: int) -> float:
-        """Interpolate SS monthly benefit at the given claim age (62–70)."""
+        """
+        Compute SS monthly benefit at the given claim age using official SSA rules,
+        derived solely from the at-62 benefit on the SSA statement.
+
+        Assumes Full Retirement Age (FRA) = 67 (born 1960 or later).
+
+        Early claiming (62–66):
+          First 36 months before FRA: benefit reduced 5/9 of 1% per month.
+          Beyond 36 months before FRA: reduced 5/12 of 1% per month.
+          → At 62 (60 months early): 36×(5/9%) + 24×(5/12%) = 30% reduction = 70% of FRA.
+
+        Delayed credits (68–70): +8% per year after FRA, up to age 70.
+        """
         at_62 = float(self.ss_monthly_at_62 or 0)
-        at_67 = float(self.ss_monthly_at_67 or 0)
-        at_70 = float(self.ss_monthly_at_70 or 0)
-        if claim_age <= 62:
-            return at_62
-        elif claim_age >= 70:
-            return at_70
-        elif claim_age < 67:
-            f = (claim_age - 62) / (67 - 62)
-            return at_62 + f * (at_67 - at_62)
+        if at_62 == 0:
+            return 0.0
+
+        fra_age = 67
+        # At-62 is always 30% below FRA (60 months early under SSA rules)
+        fra_benefit = at_62 / 0.70
+
+        claim_age = max(62, min(70, claim_age))
+
+        if claim_age == fra_age:
+            return fra_benefit
+        elif claim_age < fra_age:
+            months_before_fra = (fra_age - claim_age) * 12
+            if months_before_fra <= 36:
+                reduction_pct = months_before_fra * (5 / 9) / 100
+            else:
+                reduction_pct = (36 * (5 / 9) + (months_before_fra - 36) * (5 / 12)) / 100
+            return fra_benefit * (1 - reduction_pct)
         else:
-            f = (claim_age - 67) / (70 - 67)
-            return at_67 + f * (at_70 - at_67)
+            years_after_fra = claim_age - fra_age
+            return fra_benefit * (1 + 0.08 * years_after_fra)

@@ -65,7 +65,7 @@ class IncomeSourceForm(forms.ModelForm):
         fields = [
             "name", "source_type", "owner",
             # SS-specific
-            "ss_monthly_at_62", "ss_monthly_at_67", "ss_monthly_at_70", "ss_cola_rate",
+            "ss_monthly_at_62", "ss_cola_rate",
             # Non-SS
             "annual_amount", "start_age", "end_age",
             # Growth / inflation
@@ -83,9 +83,8 @@ class IncomeSourceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Make SS fields optional — they are only required for social_security type
-        for field in ["ss_monthly_at_62", "ss_monthly_at_67", "ss_monthly_at_70"]:
-            self.fields[field].required = False
+        # SS fields optional — only required when source_type == social_security
+        self.fields["ss_monthly_at_62"].required = False
         # Non-SS overrides are always optional
         for field in ["end_age", "inflation_rate_override", "tax_rate_override", "survivor_benefit_pct"]:
             self.fields[field].required = False
@@ -95,11 +94,9 @@ class IncomeSourceForm(forms.ModelForm):
         source_type = cleaned_data.get("source_type")
         if source_type == "social_security":
             at_62 = cleaned_data.get("ss_monthly_at_62")
-            at_67 = cleaned_data.get("ss_monthly_at_67")
-            at_70 = cleaned_data.get("ss_monthly_at_70")
-            if not any([at_62, at_67, at_70]):
+            if not at_62:
                 raise forms.ValidationError(
-                    "For Social Security, enter at least one monthly benefit estimate "
-                    "(at 62, 67, or 70)."
+                    "For Social Security, enter your monthly benefit amount at age 62 "
+                    "(from your SSA statement at ssa.gov/myaccount)."
                 )
         return cleaned_data

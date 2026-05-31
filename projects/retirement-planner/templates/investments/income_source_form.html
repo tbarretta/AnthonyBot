@@ -39,32 +39,33 @@
 
     <!-- Social Security (shown only when type = social_security) -->
     <div id="ss-section" class="bg-white rounded-xl shadow p-6 space-y-4" style="display:none;">
-      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Social Security Estimates</h2>
+      <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Social Security</h2>
       <p class="text-sm text-gray-500">
-        Enter the monthly benefit amounts from your SSA statement (<a href="https://ssa.gov/myaccount" target="_blank" class="text-indigo-600 hover:underline">ssa.gov/myaccount</a>).
-        The simulation engine interpolates to your chosen claim age (set per Scenario).
+        Enter your monthly benefit at age 62 from your SSA statement
+        (<a href="https://ssa.gov/myaccount" target="_blank" class="text-indigo-600 hover:underline">ssa.gov/myaccount</a>).
+        Benefits at other claim ages (63–70) are calculated automatically using official
+        SSA early-reduction and delayed-credit rules.
       </p>
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-2 gap-4 max-w-sm">
         <div>
-          <label class="label">Monthly at 62</label>
-          {% render_field form.ss_monthly_at_62 class="input" placeholder="0.00" %}
+          <label class="label">Monthly Benefit at 62 <span class="text-red-500">*</span></label>
+          <div class="relative">
+            <span class="absolute left-3 top-2.5 text-gray-400 text-sm">$</span>
+            {% render_field form.ss_monthly_at_62 class="input pl-7" placeholder="0.00" %}
+          </div>
           {% if form.ss_monthly_at_62.errors %}<p class="text-red-500 text-xs mt-1">{{ form.ss_monthly_at_62.errors.0 }}</p>{% endif %}
         </div>
         <div>
-          <label class="label">Monthly at 67 (FRA)</label>
-          {% render_field form.ss_monthly_at_67 class="input" placeholder="0.00" %}
-          {% if form.ss_monthly_at_67.errors %}<p class="text-red-500 text-xs mt-1">{{ form.ss_monthly_at_67.errors.0 }}</p>{% endif %}
-        </div>
-        <div>
-          <label class="label">Monthly at 70</label>
-          {% render_field form.ss_monthly_at_70 class="input" placeholder="0.00" %}
-          {% if form.ss_monthly_at_70.errors %}<p class="text-red-500 text-xs mt-1">{{ form.ss_monthly_at_70.errors.0 }}</p>{% endif %}
+          <label class="label">COLA Rate %</label>
+          {% render_field form.ss_cola_rate class="input" %}
+          <p class="text-xs text-gray-400 mt-1">Default 2.5%</p>
         </div>
       </div>
-      <div class="w-32">
-        <label class="label">COLA Rate %</label>
-        {% render_field form.ss_cola_rate class="input" %}
-        <p class="text-xs text-gray-400 mt-1">Default 2.5%</p>
+      <div class="rounded-lg bg-indigo-50 border border-indigo-100 px-4 py-3 text-xs text-indigo-700 space-y-1">
+        <p class="font-semibold">How claim age affects your benefit:</p>
+        <p>Ages 62–66: reduced 5/9% per month (first 36 mo.) then 5/12% per month &mdash; up to 30% less than FRA.</p>
+        <p>Age 67 (FRA): full benefit &mdash; about 43% more than your age-62 amount.</p>
+        <p>Ages 68–70: +8% per year delayed credit &mdash; up to 24% above FRA at 70.</p>
       </div>
     </div>
 
