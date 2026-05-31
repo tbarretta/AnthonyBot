@@ -27,7 +27,7 @@
       <p class="text-sm text-gray-500 mb-3 truncate">{{ scenario.description }}</p>
       {% endif %}
       <div class="flex flex-wrap gap-4 text-xs text-gray-500">
-        <span>Retire at <strong class="text-gray-700">{{ scenario.user_life_expectancy_age|default:profile.target_retirement_age }}</strong></span>
+        <span>Retire at <strong class="text-gray-700">{{ scenario.retirement_age_self }}</strong></span>
         <span>{{ scenario.expected_annual_return_stocks }}% stocks / {{ scenario.expected_annual_return_bonds }}% bonds</span>
         <span>{{ scenario.inflation_rate }}% inflation</span>
         <span>${{ scenario.annual_retirement_spending|floatformat:0|intcomma }}/yr spending</span>
@@ -53,7 +53,8 @@
           <a href="{% url 'simulations:result_detail' result.pk %}" class="text-xs bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg hover:bg-gray-200 text-center">View Results</a>
           <a href="{% url 'simulations:run' scenario.pk %}"
              hx-post="{% url 'simulations:run' scenario.pk %}"
-             hx-target="closest div"
+             hx-target="closest .bg-white"
+             hx-swap="outerHTML"
              class="text-xs border border-indigo-300 text-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-50 text-center">Re-run</a>
         </div>
       {% else %}
@@ -67,6 +68,7 @@
 
       <div class="flex flex-col gap-1 border-l pl-3 ml-1">
         <a href="{% url 'simulations:edit' scenario.pk %}" class="text-xs text-gray-500 hover:text-gray-800">Edit</a>
+        <a href="{% url 'simulations:copy' scenario.pk %}" class="text-xs text-indigo-400 hover:text-indigo-600">Copy</a>
         <a href="{% url 'simulations:delete' scenario.pk %}" class="text-xs text-red-400 hover:text-red-600">Delete</a>
       </div>
     </div>

@@ -8,6 +8,7 @@ urlpatterns = [
     path("new/", views.scenario_create, name="create"),
     path("<int:pk>/", views.scenario_detail, name="detail"),
     path("<int:pk>/edit/", views.scenario_edit, name="edit"),
+    path("<int:pk>/copy/", views.scenario_copy, name="copy"),
     path("<int:pk>/delete/", views.scenario_delete, name="delete"),
     path("<int:pk>/run/", views.run_simulation, name="run"),
     path("results/<int:pk>/", views.result_detail, name="result_detail"),

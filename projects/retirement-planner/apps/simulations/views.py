@@ -68,6 +68,20 @@ def scenario_detail(request, pk):
 
 
 @login_required
+def scenario_copy(request, pk):
+    profile = get_object_or_404(UserProfile, user=request.user)
+    original = get_object_or_404(Scenario, pk=pk, user_profile=profile)
+
+    # Duplicate: clear pk so Django inserts a new row
+    original.pk = None
+    original.name = f"{original.name}-copy"
+    original.save()
+
+    messages.success(request, f"Scenario copied as '{original.name}'. Make your adjustments and save.")
+    return redirect("simulations:edit", pk=original.pk)
+
+
+@login_required
 def scenario_delete(request, pk):
     profile = get_object_or_404(UserProfile, user=request.user)
     scenario = get_object_or_404(Scenario, pk=pk, user_profile=profile)
@@ -133,11 +147,14 @@ def result_detail(request, pk):
     # Prepare chart data
     chart_data = _build_chart_data(result)
 
+    years = result.result_data.get("years", []) if result.result_data else []
+
     return render(request, "simulations/result_detail.html", {
         "result": result,
         "scenario": scenario,
         "profile": profile,
         "chart_data_json": json.dumps(chart_data),
+        "years": years,
     })
 
 
