@@ -1,14 +1,6 @@
 services:
-  db:
-    ports:
-      - "127.0.0.1:5433:5432"  # Not exposed externally; only localhost access
-
-  redis:
-    ports:
-      - "127.0.0.1:6380:6379"  # Not exposed externally; only localhost access
-
   web:
     command: gunicorn retirement_planner.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 120
+    volumes: []  # No source mount in prod — use built image only
     ports:
       - "127.0.0.1:8002:8000"  # Nginx proxies in
-    volumes: []  # No source mount in prod — use built image only
