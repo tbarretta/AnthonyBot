@@ -350,7 +350,7 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
         # ---- Spending & Withdrawals ----
         inflation_factor = (1 + inputs.inflation_pct / 100) ** current_year_index
 
-        if retired_self or (retired_spouse and spouse_age is not None):
+        if retired_self:  # spending phase begins when the primary user retires, not the spouse
             # Base spending target
             if inputs.spending_strategy == "percent_portfolio":
                 total_port = sum(a.balance for a in accounts)
