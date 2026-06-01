@@ -330,11 +330,13 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
             for acct in accounts:
                 acct.balance *= ratio
 
-        for acct in accounts:
-            stock_return = (inputs.return_stocks_pct / 100) * suppression
-            bond_return = (inputs.return_bonds_pct / 100) * suppression
-            blended_return = (acct.stock_pct / 100) * stock_return + (acct.bond_pct / 100) * bond_return
-            acct.balance *= (1 + blended_return)
+        # Growth applies from year 2 onwards; year 1 reflects current balances + contributions only
+        if current_year_index > 0:
+            for acct in accounts:
+                stock_return = (inputs.return_stocks_pct / 100) * suppression
+                bond_return = (inputs.return_bonds_pct / 100) * suppression
+                blended_return = (acct.stock_pct / 100) * stock_return + (acct.bond_pct / 100) * bond_return
+                acct.balance *= (1 + blended_return)
 
         # ---- RMD ----
         rmd_amount = 0.0
