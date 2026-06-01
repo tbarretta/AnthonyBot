@@ -32,6 +32,7 @@
 
   {% if income_sources %}
   <div class="bg-white rounded-xl shadow overflow-hidden">
+    <div class="overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50">
         <tr>
@@ -87,6 +88,7 @@
         {% endfor %}
       </tbody>
     </table>
+    </div>
   </div>
   {% else %}
   <div class="bg-white rounded-xl shadow px-6 py-12 text-center text-gray-400">

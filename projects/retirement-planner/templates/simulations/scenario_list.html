@@ -15,61 +15,60 @@
 <div class="space-y-4">
   {% for scenario in scenarios %}
   {% with result=scenario.latest_result %}
-  <div class="bg-white rounded-xl shadow p-6 flex items-start justify-between gap-4">
-    <div class="flex-1 min-w-0">
-      <div class="flex items-center gap-3 mb-1">
-        <span class="text-lg font-semibold text-gray-900 truncate">{{ scenario.name }}</span>
+  <div class="bg-white rounded-xl shadow p-5">
+
+    <!-- Row 1: name + edit/copy/delete -->
+    <div class="flex items-start justify-between gap-3 mb-2">
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <span class="text-base font-semibold text-gray-900 truncate">{{ scenario.name }}</span>
         {% if scenario.black_swan_enabled %}
-        <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium flex-shrink-0">🌪️ Black Swan</span>
+        <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium whitespace-nowrap">🌪️ Black Swan</span>
         {% endif %}
       </div>
-      {% if scenario.description %}
-      <p class="text-sm text-gray-500 mb-3 truncate">{{ scenario.description }}</p>
-      {% endif %}
-      <div class="flex flex-wrap gap-4 text-xs text-gray-500">
-        <span>Retire at <strong class="text-gray-700">{{ scenario.retirement_age_self }}</strong></span>
-        <span>{{ scenario.expected_annual_return_stocks }}% stocks / {{ scenario.expected_annual_return_bonds }}% bonds</span>
-        <span>{{ scenario.inflation_rate }}% inflation</span>
-        <span>${{ scenario.annual_retirement_spending|floatformat:0|intcomma }}/yr spending</span>
-        <span>SS at {{ scenario.ss_claim_age_self }}</span>
+      <div class="flex items-center gap-3 flex-shrink-0 text-xs pt-0.5">
+        <a href="{% url 'simulations:edit' scenario.pk %}" class="text-gray-500 hover:text-gray-800 font-medium">Edit</a>
+        <a href="{% url 'simulations:copy' scenario.pk %}" class="text-indigo-400 hover:text-indigo-600 font-medium">Copy</a>
+        <a href="{% url 'simulations:delete' scenario.pk %}" class="text-red-400 hover:text-red-600 font-medium">Delete</a>
       </div>
     </div>
 
-    <div class="flex items-center gap-3 flex-shrink-0">
+    {% if scenario.description %}
+    <p class="text-sm text-gray-500 mb-2 truncate">{{ scenario.description }}</p>
+    {% endif %}
+
+    <!-- Row 2: key stats in a 2-col grid (mobile) / wrapping flex (desktop) -->
+    <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 mb-4">
+      <span>Retire at <strong class="text-gray-700">{{ scenario.retirement_age_self }}</strong></span>
+      <span>SS at <strong class="text-gray-700">{{ scenario.ss_claim_age_self }}</strong></span>
+      <span>${{ scenario.annual_retirement_spending|floatformat:0|intcomma }}/yr spending</span>
+      <span>{{ scenario.inflation_rate }}% inflation</span>
+      <span class="col-span-2 sm:col-span-1">{{ scenario.expected_annual_return_stocks }}% stocks / {{ scenario.expected_annual_return_bonds }}% bonds</span>
+    </div>
+
+    <!-- Row 3: result + action button -->
+    <div class="flex items-center justify-between pt-3 border-t border-gray-100 gap-3">
       {% if result %}
-        <div class="text-right">
+        <div>
           {% if result.deterministic_final_balance >= 0 %}
-          <p class="text-lg font-bold text-green-600">${{ result.deterministic_final_balance|floatformat:0|intcomma }}</p>
+          <p class="text-base font-bold text-green-600">${{ result.deterministic_final_balance|floatformat:0|intcomma }}</p>
           <p class="text-xs text-gray-400">final balance</p>
           {% else %}
-          <p class="text-lg font-bold text-red-600">Depleted</p>
-          <p class="text-xs text-gray-400">at age {{ result.portfolio_exhaustion_age }}</p>
-          {% endif %}
-          {% if result.median_balance_at_retirement %}
-          <p class="text-xs text-gray-400 mt-1">${{ result.median_balance_at_retirement|floatformat:0|intcomma }} at retirement</p>
+          <p class="text-base font-bold text-red-600">Depleted at age {{ result.portfolio_exhaustion_age }}</p>
           {% endif %}
         </div>
-        <div class="flex flex-col gap-1">
-          <form method="post" action="{% url 'simulations:run' scenario.pk %}">
-            {% csrf_token %}
-            <button type="submit" class="w-full text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 text-center">View Results</button>
-          </form>
-        </div>
-      {% else %}
-        <form method="post" action="{% url 'simulations:run' scenario.pk %}">
+        <form method="post" action="{% url 'simulations:run' scenario.pk %}" class="flex-shrink-0">
           {% csrf_token %}
-          <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
-            Run Simulation
-          </button>
+          <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">View Results</button>
+        </form>
+      {% else %}
+        <p class="text-xs text-gray-400">Not yet run</p>
+        <form method="post" action="{% url 'simulations:run' scenario.pk %}" class="flex-shrink-0">
+          {% csrf_token %}
+          <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">Run Simulation</button>
         </form>
       {% endif %}
-
-      <div class="flex flex-col gap-1 border-l pl-3 ml-1">
-        <a href="{% url 'simulations:edit' scenario.pk %}" class="text-xs text-gray-500 hover:text-gray-800">Edit</a>
-        <a href="{% url 'simulations:copy' scenario.pk %}" class="text-xs text-indigo-400 hover:text-indigo-600">Copy</a>
-        <a href="{% url 'simulations:delete' scenario.pk %}" class="text-xs text-red-400 hover:text-red-600">Delete</a>
-      </div>
     </div>
+
   </div>
   {% endwith %}
   {% endfor %}
