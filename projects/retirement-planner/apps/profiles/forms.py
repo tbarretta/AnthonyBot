@@ -8,6 +8,11 @@ class MonthYearInput(forms.DateInput):
     input_type = "month"
     format = "%Y-%m"
 
+    def format_value(self, value):
+        if hasattr(value, "strftime"):
+            return value.strftime("%Y-%m")
+        return value
+
 
 class MonthYearField(forms.DateField):
     """Accepts YYYY-MM input and stores as the 1st of that month."""
