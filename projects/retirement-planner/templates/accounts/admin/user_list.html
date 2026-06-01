@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Users — Admin Panel — RetireSim{% endblock %}
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <a href="{% url 'accounts:admin_dashboard' %}" class="text-indigo-600 text-sm hover:underline">← Admin Panel</a>
+    <h1 class="text-2xl font-bold text-gray-900 mt-1">Users</h1>
+  </div>
+  <a href="{% url 'accounts:invite_create' %}"
+     class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
+    + Send Invitation
+  </a>
+</div>
+
+<div class="bg-white rounded-xl shadow overflow-hidden">
+  <div class="overflow-x-auto">
+    {% if users %}
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 border-b">
+        <tr>
+          <th class="text-left px-6 py-3 font-semibold text-gray-600">Email</th>
+          <th class="text-left px-6 py-3 font-semibold text-gray-600">Name</th>
+          <th class="text-left px-6 py-3 font-semibold text-gray-600">Joined</th>
+          <th class="text-left px-6 py-3 font-semibold text-gray-600">Last Login</th>
+          <th class="text-left px-6 py-3 font-semibold text-gray-600">Staff</th>
+          <th class="text-left px-6 py-3 font-semibold text-gray-600">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for u in users %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-4 font-medium text-gray-900">{{ u.email }}</td>
+          <td class="px-6 py-4 text-gray-600">
+            {{ u.get_full_name|default:"—" }}
+          </td>
+          <td class="px-6 py-4 text-gray-500 whitespace-nowrap">{{ u.date_joined|date:"M d, Y" }}</td>
+          <td class="px-6 py-4 text-gray-500 whitespace-nowrap">
+            {% if u.last_login %}{{ u.last_login|date:"M d, Y H:i" }}{% else %}—{% endif %}
+          </td>
+          <td class="px-6 py-4">
+            {% if u.is_staff %}
+              <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">Staff</span>
+            {% else %}
+              <span class="text-gray-400">—</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+              {% if u != request.user %}
+              <a href="{% url 'accounts:admin_user_reset_password' u.pk %}"
+                 class="text-indigo-600 hover:underline text-xs font-medium whitespace-nowrap">Reset Password</a>
+              <a href="{% url 'accounts:admin_user_delete' u.pk %}"
+                 class="text-red-600 hover:underline text-xs font-medium">Delete</a>
+              {% else %}
+              <span class="text-gray-400 text-xs italic">You</span>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="px-6 py-12 text-center text-gray-400 text-sm">No users found.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

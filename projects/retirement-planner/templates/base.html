@@ -51,7 +51,7 @@
         <a href="{% url 'investments:income_list' %}" class="hover:text-indigo-200">Income Sources</a>
         <a href="{% url 'simulations:list' %}" class="hover:text-indigo-200">Scenarios</a>
         {% if user.is_staff %}
-        <a href="{% url 'accounts:invite_list' %}" class="hover:text-indigo-200">Invitations</a>
+        <a href="{% url 'accounts:admin_dashboard' %}" class="hover:text-indigo-200">Admin</a>
         {% endif %}
         <a href="{% url 'profiles:help' %}" class="hover:text-indigo-200">Help</a>
         <a href="{% url 'accounts:settings' %}" class="hover:text-indigo-200 text-indigo-300">{{ user.email }}</a>
@@ -81,7 +81,7 @@
       <a href="{% url 'investments:income_list' %}" class="block px-2 py-2 rounded hover:bg-indigo-600">Income Sources</a>
       <a href="{% url 'simulations:list' %}" class="block px-2 py-2 rounded hover:bg-indigo-600">Scenarios</a>
       {% if user.is_staff %}
-      <a href="{% url 'accounts:invite_list' %}" class="block px-2 py-2 rounded hover:bg-indigo-600">Invitations</a>
+      <a href="{% url 'accounts:admin_dashboard' %}" class="block px-2 py-2 rounded hover:bg-indigo-600">Admin</a>
       {% endif %}
       <a href="{% url 'profiles:help' %}" class="block px-2 py-2 rounded hover:bg-indigo-600">Help</a>
       <a href="{% url 'accounts:settings' %}" class="block px-2 py-2 rounded hover:bg-indigo-600 text-indigo-300">{{ user.email }}</a>

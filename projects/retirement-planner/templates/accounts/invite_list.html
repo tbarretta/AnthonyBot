@@ -2,6 +2,9 @@
 {% block title %}Invitations — RetireSim{% endblock %}
 {% block content %}
 {% load humanize %}
+<div class="mb-4">
+  <a href="{% url 'accounts:admin_dashboard' %}" class="text-indigo-600 text-sm hover:underline">← Admin Panel</a>
+</div>
 <div class="flex items-center justify-between mb-6">
   <h1 class="text-2xl font-bold text-gray-900">Invitations</h1>
   <a href="{% url 'accounts:invite_create' %}" class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">+ Send Invitation</a>

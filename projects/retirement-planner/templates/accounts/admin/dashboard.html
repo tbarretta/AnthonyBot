@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Admin Panel — RetireSim{% endblock %}
+{% block content %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Admin Panel</h1>
+  <p class="text-gray-500 text-sm mt-1">Manage users, invitations, and review activity logs.</p>
+</div>
+
+<!-- Stat cards -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+  <div class="bg-white rounded-xl shadow p-6 flex flex-col items-start">
+    <span class="text-4xl font-bold text-indigo-600">{{ user_count }}</span>
+    <span class="text-gray-500 text-sm mt-1">Total Users</span>
+  </div>
+  <div class="bg-white rounded-xl shadow p-6 flex flex-col items-start">
+    <span class="text-4xl font-bold text-indigo-600">{{ recent_event_count }}</span>
+    <span class="text-gray-500 text-sm mt-1">Events (last 24h)</span>
+  </div>
+  <div class="bg-white rounded-xl shadow p-6 flex flex-col items-start">
+    <span class="text-4xl font-bold text-indigo-600">{{ pending_invitations }}</span>
+    <span class="text-gray-500 text-sm mt-1">Pending Invitations</span>
+  </div>
+</div>
+
+<!-- Quick actions -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+  <a href="{% url 'accounts:admin_user_list' %}"
+     class="bg-indigo-600 text-white rounded-xl shadow p-5 hover:bg-indigo-700 transition flex items-center gap-3">
+    <span class="text-2xl">👥</span>
+    <div>
+      <div class="font-semibold">Manage Users</div>
+      <div class="text-xs text-indigo-200">View, reset, delete accounts</div>
+    </div>
+  </a>
+  <a href="{% url 'accounts:invite_list' %}"
+     class="bg-white border border-gray-200 text-gray-800 rounded-xl shadow p-5 hover:bg-gray-50 transition flex items-center gap-3">
+    <span class="text-2xl">✉️</span>
+    <div>
+      <div class="font-semibold">Invitations</div>
+      <div class="text-xs text-gray-500">Send and track invite links</div>
+    </div>
+  </a>
+  <a href="{% url 'accounts:admin_audit_log' %}"
+     class="bg-white border border-gray-200 text-gray-800 rounded-xl shadow p-5 hover:bg-gray-50 transition flex items-center gap-3">
+    <span class="text-2xl">📋</span>
+    <div>
+      <div class="font-semibold">Audit Log</div>
+      <div class="text-xs text-gray-500">Full event history</div>
+    </div>
+  </a>
+</div>
+
+<!-- Recent activity -->
+<div class="bg-white rounded-xl shadow overflow-hidden">
+  <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+    <h2 class="font-semibold text-gray-800">Recent Activity</h2>
+    <a href="{% url 'accounts:admin_audit_log' %}" class="text-indigo-600 text-sm hover:underline">View all →</a>
+  </div>
+  {% if recent %}
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 border-b">
+        <tr>
+          <th class="text-left px-6 py-3 font-semibold text-gray-600">Time</th>
+          <th class="text-left px-6 py-3 font-semibold text-gray-600">Event</th>
+          <th class="text-left px-6 py-3 font-semibold text-gray-600">User</th>
+          <th class="text-left px-6 py-3 font-semibold text-gray-600">IP</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for log in recent %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-6 py-3 text-gray-500 whitespace-nowrap">{{ log.timestamp|date:"M d H:i" }}</td>
+          <td class="px-6 py-3">
+            <span class="px-2 py-0.5 rounded-full text-xs font-semibold
+              {% if log.event == 'login' %}bg-green-100 text-green-700
+              {% elif log.event == 'logout' %}bg-gray-100 text-gray-600
+              {% elif log.event == 'login_failed' %}bg-red-100 text-red-700
+              {% elif log.event == 'user_deleted' %}bg-red-100 text-red-700
+              {% else %}bg-indigo-100 text-indigo-700{% endif %}">
+              {{ log.get_event_display }}
+            </span>
+          </td>
+          <td class="px-6 py-3 text-gray-700">{{ log.user_email|default:"—" }}</td>
+          <td class="px-6 py-3 text-gray-400 text-xs">{{ log.ip_address|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="px-6 py-10 text-center text-gray-400 text-sm">No activity yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

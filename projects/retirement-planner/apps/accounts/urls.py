@@ -14,10 +14,7 @@ urlpatterns = [
 
     # Password change (logged-in users)
     path("password/change/",
-         auth_views.PasswordChangeView.as_view(
-             template_name="accounts/password_change.html",
-             success_url="/accounts/password/change/done/",
-         ),
+         views.CustomPasswordChangeView.as_view(),
          name="password_change"),
     path("password/change/done/",
          auth_views.PasswordChangeDoneView.as_view(
@@ -27,12 +24,7 @@ urlpatterns = [
 
     # Password reset (unauthenticated)
     path("password/reset/",
-         auth_views.PasswordResetView.as_view(
-             template_name="accounts/password_reset.html",
-             email_template_name="accounts/email/password_reset.txt",
-             subject_template_name="accounts/email/password_reset_subject.txt",
-             success_url="/accounts/password/reset/done/",
-         ),
+         views.CustomPasswordResetView.as_view(),
          name="password_reset"),
     path("password/reset/done/",
          auth_views.PasswordResetDoneView.as_view(
@@ -40,10 +32,7 @@ urlpatterns = [
          ),
          name="password_reset_done"),
     path("password/reset/<uidb64>/<token>/",
-         auth_views.PasswordResetConfirmView.as_view(
-             template_name="accounts/password_reset_confirm.html",
-             success_url="/accounts/password/reset/complete/",
-         ),
+         views.CustomPasswordResetConfirmView.as_view(),
          name="password_reset_confirm"),
     path("password/reset/complete/",
          auth_views.PasswordResetCompleteView.as_view(
@@ -54,4 +43,11 @@ urlpatterns = [
     # Invitations (staff only)
     path("invitations/",     views.invite_list,   name="invite_list"),
     path("invitations/new/", views.invite_create, name="invite_create"),
+
+    # Admin panel
+    path("admin-panel/",                            views.admin_dashboard,           name="admin_dashboard"),
+    path("admin-panel/users/",                      views.admin_user_list,           name="admin_user_list"),
+    path("admin-panel/users/<int:pk>/delete/",      views.admin_user_delete,         name="admin_user_delete"),
+    path("admin-panel/users/<int:pk>/reset/",       views.admin_user_reset_password, name="admin_user_reset_password"),
+    path("admin-panel/audit/",                      views.admin_audit_log,           name="admin_audit_log"),
 ]
