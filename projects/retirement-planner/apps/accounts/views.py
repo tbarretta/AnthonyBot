@@ -13,6 +13,8 @@ from django.conf import settings
 
 from .forms import AccountSettingsForm, InvitationForm, RegisterForm
 from .models import Invitation, User
+from apps.profiles.forms import UserProfileForm, SpouseProfileForm
+from apps.profiles.models import UserProfile, SpouseProfile
 
 
 def is_admin(user):
@@ -111,12 +113,48 @@ def invite_list(request):
 
 @login_required
 def account_settings(request):
+    profile = UserProfile.objects.filter(user=request.user).first()
+    spouse = SpouseProfile.objects.filter(user_profile=profile).first() if profile else None
+
+    account_form = AccountSettingsForm(instance=request.user)
+    profile_form = UserProfileForm(instance=profile) if profile else None
+    spouse_form = SpouseProfileForm(instance=spouse)
+
     if request.method == "POST":
-        form = AccountSettingsForm(request.POST, instance=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, "Account details updated.")
+        action = request.POST.get("action")
+
+        if action == "save_account":
+            account_form = AccountSettingsForm(request.POST, instance=request.user)
+            if account_form.is_valid():
+                account_form.save()
+                messages.success(request, "Account details updated.")
+                return redirect("accounts:settings")
+
+        elif action == "save_profile" and profile:
+            profile_form = UserProfileForm(request.POST, instance=profile)
+            if profile_form.is_valid():
+                profile_form.save()
+                messages.success(request, "Profile updated.")
+                return redirect("accounts:settings")
+
+        elif action == "save_spouse":
+            spouse_form = SpouseProfileForm(request.POST, instance=spouse)
+            if spouse_form.is_valid():
+                sp = spouse_form.save(commit=False)
+                sp.user_profile = profile
+                sp.save()
+                messages.success(request, "Spouse profile saved.")
+                return redirect("accounts:settings")
+
+        elif action == "remove_spouse" and spouse:
+            spouse.delete()
+            messages.success(request, "Spouse profile removed.")
             return redirect("accounts:settings")
-    else:
-        form = AccountSettingsForm(instance=request.user)
-    return render(request, "accounts/account_settings.html", {"form": form})
+
+    return render(request, "accounts/account_settings.html", {
+        "form": account_form,
+        "profile_form": profile_form,
+        "spouse_form": spouse_form,
+        "profile": profile,
+        "spouse": spouse,
+    })

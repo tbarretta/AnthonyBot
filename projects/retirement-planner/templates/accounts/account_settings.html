@@ -1,30 +1,179 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
 {% block title %}Account Settings — RetireSim{% endblock %}
-{% block content %}
-<div class="max-w-lg mx-auto">
-  <h1 class="text-2xl font-bold text-gray-900 mb-6">Account Settings</h1>
 
-  <!-- Personal Info -->
-  <div class="bg-white rounded-xl shadow p-6 mb-6">
-    <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Personal Information</h2>
-    <form method="post" class="space-y-4">
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+  <h1 class="text-2xl font-bold text-gray-900">Account Settings</h1>
+
+  <!-- ── Your Profile ─────────────────────────────────────────── -->
+  {% if profile_form %}
+  <div class="bg-white rounded-xl shadow p-6">
+    <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-5">Your Profile</h2>
+    <form method="post" id="profile-settings-form" class="space-y-5">
       {% csrf_token %}
+      <input type="hidden" name="action" value="save_profile">
+
+      {% if profile_form.errors %}
+      <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">Please correct the errors below.</div>
+      {% endif %}
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+          {% render_field profile_form.birth_date class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" type="date" %}
+          {% if profile_form.birth_date.errors %}<p class="text-xs text-red-600 mt-1">{{ profile_form.birth_date.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
+          {% render_field profile_form.state class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. NY" maxlength="2" style="text-transform:uppercase" %}
+          {% if profile_form.state.errors %}<p class="text-xs text-red-600 mt-1">{{ profile_form.state.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Tax Filing Status</label>
+        {% render_field profile_form.filing_status class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+      </div>
+
+      <div class="border-t pt-4">
+        <p class="text-sm font-semibold text-gray-700 mb-3">Employment Income</p>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Annual Income</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm leading-none">$</span>
+              {% render_field profile_form.annual_income class="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2 text-sm" id="id_profile_income" %}
+            </div>
+            {% if profile_form.annual_income.errors %}<p class="text-xs text-red-600 mt-1">{{ profile_form.annual_income.errors.0 }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Expected Annual Raise (%)</label>
+            {% render_field profile_form.income_growth_rate class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+            <p class="text-xs text-gray-400 mt-1">e.g. 3.0 for 3%</p>
+            {% if profile_form.income_growth_rate.errors %}<p class="text-xs text-red-600 mt-1">{{ profile_form.income_growth_rate.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t pt-4">
+        <p class="text-sm font-semibold text-gray-700 mb-3">Longevity</p>
+        <div class="w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Life Expectancy (age)</label>
+          {% render_field profile_form.life_expectancy_age class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+          {% if profile_form.life_expectancy_age.errors %}<p class="text-xs text-red-600 mt-1">{{ profile_form.life_expectancy_age.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      <button type="submit" class="bg-indigo-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-indigo-700 transition text-sm">
+        Save Profile
+      </button>
+    </form>
+  </div>
+  {% endif %}
+
+  <!-- ── Spouse / Partner ──────────────────────────────────────── -->
+  {% if profile %}
+  <div class="bg-white rounded-xl shadow p-6">
+    <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-5">
+      Spouse / Partner
+      {% if not spouse %}<span class="text-sm font-normal text-gray-400 ml-2">— not added</span>{% endif %}
+    </h2>
+
+    <form method="post" id="spouse-settings-form" class="space-y-5">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save_spouse">
+
+      {% if spouse_form.errors %}
+      <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">Please correct the errors below.</div>
+      {% endif %}
+
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-          {% render_field form.first_name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
+          {% render_field spouse_form.first_name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+          {% if spouse_form.first_name.errors %}<p class="text-xs text-red-600 mt-1">{{ spouse_form.first_name.errors.0 }}</p>{% endif %}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+          {% render_field spouse_form.birth_date class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" type="date" %}
+          {% if spouse_form.birth_date.errors %}<p class="text-xs text-red-600 mt-1">{{ spouse_form.birth_date.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      <div class="border-t pt-4">
+        <p class="text-sm font-semibold text-gray-700 mb-3">Employment Income</p>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Annual Income</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm leading-none">$</span>
+              {% render_field spouse_form.annual_income class="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2 text-sm" id="id_spouse_income_settings" %}
+            </div>
+            {% if spouse_form.annual_income.errors %}<p class="text-xs text-red-600 mt-1">{{ spouse_form.annual_income.errors.0 }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Expected Annual Raise (%)</label>
+            {% render_field spouse_form.income_growth_rate class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+            <p class="text-xs text-gray-400 mt-1">e.g. 3.0 for 3%</p>
+            {% if spouse_form.income_growth_rate.errors %}<p class="text-xs text-red-600 mt-1">{{ spouse_form.income_growth_rate.errors.0 }}</p>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t pt-4">
+        <p class="text-sm font-semibold text-gray-700 mb-3">Longevity</p>
+        <div class="w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Life Expectancy (age)</label>
+          {% render_field spouse_form.life_expectancy_age class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+          {% if spouse_form.life_expectancy_age.errors %}<p class="text-xs text-red-600 mt-1">{{ spouse_form.life_expectancy_age.errors.0 }}</p>{% endif %}
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3 pt-1">
+        <button type="submit" class="bg-indigo-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-indigo-700 transition text-sm">
+          {% if spouse %}Save Spouse{% else %}Add Spouse{% endif %}
+        </button>
+        {% if spouse %}
+        <form method="post" class="inline" onsubmit="return confirm('Remove spouse profile?')">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="remove_spouse">
+          <button type="submit" class="text-sm text-red-500 hover:text-red-700 font-medium px-3 py-2">
+            Remove Spouse
+          </button>
+        </form>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+  <!-- ── Personal Information ──────────────────────────────────── -->
+  <div class="bg-white rounded-xl shadow p-6">
+    <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-5">Personal Information</h2>
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="save_account">
+
+      {% if form.errors %}
+      <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-700">Please correct the errors below.</div>
+      {% endif %}
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+          {% render_field form.first_name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
           {% if form.first_name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.first_name.errors.0 }}</p>{% endif %}
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-          {% render_field form.last_name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
+          {% render_field form.last_name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
           {% if form.last_name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.last_name.errors.0 }}</p>{% endif %}
         </div>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-        {% render_field form.email class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
+        {% render_field form.email class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
         {% if form.email.errors %}<p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>{% endif %}
         <p class="text-xs text-gray-400 mt-1">This is also your sign-in email. Changing it takes effect immediately.</p>
       </div>
@@ -34,7 +183,7 @@
     </form>
   </div>
 
-  <!-- Password -->
+  <!-- ── Password ─────────────────────────────────────────────── -->
   <div class="bg-white rounded-xl shadow p-6">
     <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Password</h2>
     <p class="text-sm text-gray-600 mb-4">Change your password to keep your account secure.</p>
@@ -43,5 +192,29 @@
       Change Password →
     </a>
   </div>
+
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Currency formatting — Your Profile income
+const profileIncome = document.getElementById('id_profile_income');
+const spouseIncome  = document.getElementById('id_spouse_income_settings');
+
+function fmt(v)   { const n = parseFloat(v.replace(/[^0-9.]/g,'')); return isNaN(n) ? '' : Math.round(n).toLocaleString('en-US'); }
+function strip(v) { return v.replace(/,/g,''); }
+
+function attachCurrency(field, formId) {
+  if (!field) return;
+  if (field.value) field.value = fmt(field.value);
+  field.addEventListener('blur',  () => { field.value = fmt(field.value); });
+  field.addEventListener('focus', () => { field.value = strip(field.value); });
+  const form = document.getElementById(formId);
+  if (form) form.addEventListener('submit', () => { field.value = strip(field.value); });
+}
+
+attachCurrency(profileIncome, 'profile-settings-form');
+attachCurrency(spouseIncome,  'spouse-settings-form');
+</script>
 {% endblock %}
