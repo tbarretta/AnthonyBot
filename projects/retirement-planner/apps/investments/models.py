@@ -170,7 +170,7 @@ class IncomeSource(models.Model):
     A guaranteed or recurring income stream (not a growing investment account).
     Examples: Social Security, pension, IUL distributions, rental income.
 
-    Social Security:  populate ss_monthly_at_62 (from SSA statement); annual_amount left 0.
+    Social Security:  populate ss_monthly_at_67 (FRA benefit from SSA statement); annual_amount left 0.
                       The Scenario supplies claim_age; benefits at other ages are
                       computed via official SSA early-reduction / delayed-credit rules.
     All other types:  populate annual_amount + start_age. SS fields left null.
@@ -191,9 +191,9 @@ class IncomeSource(models.Model):
     source_type = models.CharField(max_length=20, choices=IncomeSourceType.choices)
 
     # ── Social Security only ──────────────────────────────────────────────────
-    ss_monthly_at_62 = models.DecimalField(
+    ss_monthly_at_67 = models.DecimalField(
         max_digits=8, decimal_places=2, null=True, blank=True,
-        help_text="Monthly SS benefit if claimed at 62 (from SSA statement)",
+        help_text="Monthly SS benefit at Full Retirement Age / 67 (from SSA statement)",
     )
     ss_cola_rate = models.DecimalField(
         max_digits=4, decimal_places=2, default=2.5,
@@ -270,14 +270,11 @@ class IncomeSource(models.Model):
 
         Delayed credits (68–70): +8% per year after FRA, up to age 70.
         """
-        at_62 = float(self.ss_monthly_at_62 or 0)
-        if at_62 == 0:
+        fra_benefit = float(self.ss_monthly_at_67 or 0)
+        if fra_benefit == 0:
             return 0.0
 
         fra_age = 67
-        # At-62 is always 30% below FRA (60 months early under SSA rules)
-        fra_benefit = at_62 / 0.70
-
         claim_age = max(62, min(70, claim_age))
 
         if claim_age == fra_age:
