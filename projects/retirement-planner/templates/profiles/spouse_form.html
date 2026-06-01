@@ -38,8 +38,8 @@
           {% if form.first_name.errors %}<p class="text-xs text-red-600 mt-1">{{ form.first_name.errors.0 }}</p>{% endif %}
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-          {% render_field form.birth_date class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" type="date" %}
+          <label class="block text-sm font-medium text-gray-700 mb-1">Birth Month & Year</label>
+          {% render_field form.birth_date class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           {% if form.birth_date.errors %}<p class="text-xs text-red-600 mt-1">{{ form.birth_date.errors.0 }}</p>{% endif %}
         </div>
       </div>

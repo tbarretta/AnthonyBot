@@ -20,8 +20,8 @@
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-          {% render_field profile_form.birth_date class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" type="date" %}
+          <label class="block text-sm font-medium text-gray-700 mb-1">Birth Month & Year</label>
+          {% render_field profile_form.birth_date class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
           {% if profile_form.birth_date.errors %}<p class="text-xs text-red-600 mt-1">{{ profile_form.birth_date.errors.0 }}</p>{% endif %}
         </div>
         <div>
@@ -95,8 +95,8 @@
           {% if spouse_form.first_name.errors %}<p class="text-xs text-red-600 mt-1">{{ spouse_form.first_name.errors.0 }}</p>{% endif %}
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
-          {% render_field spouse_form.birth_date class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" type="date" %}
+          <label class="block text-sm font-medium text-gray-700 mb-1">Birth Month & Year</label>
+          {% render_field spouse_form.birth_date class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
           {% if spouse_form.birth_date.errors %}<p class="text-xs text-red-600 mt-1">{{ spouse_form.birth_date.errors.0 }}</p>{% endif %}
         </div>
       </div>
