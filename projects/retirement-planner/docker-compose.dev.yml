@@ -1,0 +1,14 @@
+# Local dev overrides: binds ports to host for direct access (TablePlus, redis-cli, etc.)
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+services:
+  db:
+    ports:
+      - "5432:5432"
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  web:
+    ports:
+      - "8000:8000"
