@@ -85,12 +85,12 @@ class InvestmentAccount(models.Model):
     )
 
     # Asset Allocation
-    asset_allocation_stocks = models.DecimalField(
-        max_digits=5, decimal_places=2, default=80,
+    asset_allocation_stocks = models.PositiveSmallIntegerField(
+        default=80,
         help_text="% allocated to equities (0–100)"
     )
-    asset_allocation_bonds = models.DecimalField(
-        max_digits=5, decimal_places=2, default=20,
+    asset_allocation_bonds = models.PositiveSmallIntegerField(
+        default=20,
         help_text="% allocated to bonds/fixed income (0–100)"
     )
 
