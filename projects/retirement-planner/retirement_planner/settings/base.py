@@ -147,7 +147,8 @@ SIMPLE_JWT = {
 }
 
 # ----- CORS (for mobile) -----
-CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", default="").split(",")
+_cors_raw = config("CORS_ALLOWED_ORIGINS", default="")
+CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_raw.split(",") if o.strip()]
 CORS_ALLOW_CREDENTIALS = True
 
 # ----- Email -----
