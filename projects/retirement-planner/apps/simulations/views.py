@@ -9,7 +9,7 @@ from django.utils import timezone
 from apps.profiles.models import UserProfile
 from .forms import ScenarioForm
 from .models import Scenario, SimulationResult, SimulationStatus
-from .services import run_deterministic_sync
+from .services import run_deterministic_sync, build_simulation_input
 from .tasks import run_monte_carlo_task
 
 
