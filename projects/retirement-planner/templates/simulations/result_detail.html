@@ -10,7 +10,7 @@
     <div class="flex items-center gap-2 text-sm text-gray-400 mb-1">
       <a href="{% url 'simulations:list' %}" class="hover:text-indigo-600">Scenarios</a>
       <span>/</span>
-      <a href="{% url 'simulations:detail' scenario.pk %}" class="hover:text-indigo-600">{{ scenario.name }}</a>
+      <a href="{% url 'simulations:edit' scenario.pk %}" class="hover:text-indigo-600">{{ scenario.name }}</a>
       <span>/</span>
       <span class="text-gray-700">Results</span>
     </div>
