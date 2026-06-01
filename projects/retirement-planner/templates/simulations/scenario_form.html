@@ -78,15 +78,6 @@
         </div>
       </div>
 
-      <!-- Guardrails toggle (always visible, applies to either strategy) -->
-      <div class="flex items-start gap-2">
-        {% render_field form.guardrails_enabled class="mt-0.5 rounded" %}
-        <div>
-          <span class="text-sm font-medium text-gray-700">Enable Guardrails</span>
-          <p class="text-xs text-gray-400 mt-0.5">Reduce spending by 10% in any year your portfolio drops more than 20% below its peak. Works with either strategy above.</p>
-        </div>
-      </div>
-
       <!-- Fixed / Guardrails fields -->
       <div id="spending-fixed-fields" class="grid grid-cols-2 gap-4">
         <div>
@@ -117,6 +108,13 @@
       <label class="flex items-center gap-2 cursor-pointer">
         {% render_field form.black_swan_enabled class="rounded" %}
         <span class="text-sm font-medium text-gray-700">Enable black swan simulations</span>
+      </label>
+      <label class="flex items-start gap-2 cursor-pointer">
+        {% render_field form.guardrails_enabled class="mt-0.5 rounded" %}
+        <div>
+          <span class="text-sm font-medium text-gray-700">Enable Guardrails</span>
+          <p class="text-xs text-gray-400 mt-0.5">Reduce spending by 10% in any year the portfolio drops more than 20% below its peak. Most effective when combined with Black Swan events.</p>
+        </div>
       </label>
       <div class="grid grid-cols-2 gap-4">
         <div>
