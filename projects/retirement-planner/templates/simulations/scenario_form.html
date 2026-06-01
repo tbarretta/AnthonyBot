@@ -28,7 +28,7 @@
     <div class="bg-white rounded-xl shadow p-6 space-y-4">
       <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Retirement Ages</h2>
       <p class="text-sm text-gray-500">When does income stop and withdrawals begin? Different scenarios can model different retirement timelines.</p>
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Your Retirement Age</label>
           {% render_field form.retirement_age_self class="input" %}
@@ -45,7 +45,7 @@
     <!-- Return Assumptions -->
     <div class="bg-white rounded-xl shadow p-6 space-y-4">
       <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Return Assumptions</h2>
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label class="label">Stock Return %</label>
           {% render_field form.expected_annual_return_stocks class="input" %}
@@ -79,7 +79,7 @@
       </div>
 
       <!-- Fixed / Guardrails fields -->
-      <div id="spending-fixed-fields" class="grid grid-cols-2 gap-4">
+      <div id="spending-fixed-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Annual Spending, After Tax (today's $)</label>
           <div class="relative">
@@ -116,7 +116,7 @@
           <p class="text-xs text-gray-400 mt-0.5">Reduce spending by 10% in any year the portfolio drops more than 20% below its peak. Most effective when combined with Black Swan events.</p>
         </div>
       </label>
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Annual Probability %</label>
           {% render_field form.black_swan_annual_probability class="input" %}
@@ -144,7 +144,7 @@
         <a href="{% url 'investments:income_list' %}" class="text-indigo-600 hover:underline">Income Sources</a>.
         Set the claiming age(s) for each person below &mdash; this is the scenario variable you're optimising.
       </p>
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Your Claim Age</label>
           {% render_field form.ss_claim_age_self class="input w-32" %}
@@ -165,7 +165,7 @@
     <!-- Tax -->
     <div class="bg-white rounded-xl shadow p-6 space-y-4">
       <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Tax Assumptions</h2>
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label class="label">Effective Rate (Working) %</label>
           {% render_field form.effective_tax_rate_working class="input" %}
@@ -184,7 +184,7 @@
     <!-- Longevity -->
     <div class="bg-white rounded-xl shadow p-6 space-y-4">
       <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Longevity</h2>
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Your Life Expectancy Age</label>
           {% render_field form.user_life_expectancy_age class="input" %}
@@ -196,7 +196,7 @@
       </div>
     </div>
 
-    <div class="flex gap-4">
+    <div class="flex flex-wrap gap-4">
       <button type="submit" class="bg-indigo-600 text-white font-semibold px-6 py-2.5 rounded-lg hover:bg-indigo-700 transition">
         {% if scenario %}Save Changes{% else %}Create Scenario{% endif %}
       </button>

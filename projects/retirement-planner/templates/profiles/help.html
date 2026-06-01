@@ -9,10 +9,10 @@
     <p class="text-gray-500 mt-1">Everything you need to get the most out of RetireSim.</p>
   </div>
 
-  <div class="flex gap-8 items-start">
+  <div class="flex flex-col md:flex-row gap-8 items-start">
 
     <!-- Sidebar nav -->
-    <aside class="w-56 flex-shrink-0 sticky top-8">
+    <aside class="w-full md:w-56 md:flex-shrink-0 md:sticky md:top-8">
       <nav class="bg-white rounded-xl shadow p-4 space-y-1 text-sm" id="help-nav">
         <a href="#getting-started"  class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 font-medium">🚀 Getting Started</a>
         <a href="#workflow"         class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">Workflow</a>
@@ -107,30 +107,30 @@
         <p class="text-gray-600 mb-4">Your profile holds the personal data that stays constant across all scenarios.</p>
 
         <div class="space-y-4 text-sm">
-          <div class="grid grid-cols-3 gap-2 border-b pb-2 font-semibold text-gray-500">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-2 font-semibold text-gray-500">
             <span>Field</span><span class="col-span-2">What to enter</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-3">
             <span class="font-medium text-gray-700">Current Age</span>
             <span class="col-span-2 text-gray-600">Your age today. The simulation starts here and runs year-by-year to your life expectancy.</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-3">
             <span class="font-medium text-gray-700">Annual Income</span>
             <span class="col-span-2 text-gray-600">Your current gross employment income. Used to calculate contributions during the accumulation phase.</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-3">
             <span class="font-medium text-gray-700">Income Growth Rate</span>
             <span class="col-span-2 text-gray-600">Expected annual salary increase %. Used to grow your income (and thus contribution capacity) each year before retirement.</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-3">
             <span class="font-medium text-gray-700">Life Expectancy</span>
             <span class="col-span-2 text-gray-600">The age your plan runs to. Default is 90. Increase this to plan conservatively for a longer life.</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-3">
             <span class="font-medium text-gray-700">Filing Status</span>
             <span class="col-span-2 text-gray-600">Used in Social Security taxation calculations (IRS combined income thresholds differ for single vs married filing jointly).</span>
           </div>
-          <div class="grid grid-cols-3 gap-2">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <span class="font-medium text-gray-700">Spouse</span>
             <span class="col-span-2 text-gray-600">Add a spouse to include their income, retirement age, life expectancy, and SS claim age in the simulation. Spouse retirement age is set per-scenario.</span>
           </div>
@@ -208,34 +208,34 @@
 
         <h3 class="font-semibold text-gray-800 mb-3">Key Scenario Parameters</h3>
         <div class="space-y-3 text-sm">
-          <div class="grid grid-cols-3 gap-2 border-b pb-2 font-semibold text-gray-500">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-2 font-semibold text-gray-500">
             <span>Parameter</span><span class="col-span-2">Description</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-3">
             <span class="font-medium text-gray-700">Retirement Age</span>
             <span class="col-span-2 text-gray-600">The age at which you stop working and start drawing down your portfolio. Contributions stop; withdrawals begin.</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-3">
             <span class="font-medium text-gray-700">Annual Spending (After Tax)</span>
             <span class="col-span-2 text-gray-600">The amount you want to <em>spend</em> each year in retirement, after taxes — what actually hits your bank account. The simulation automatically grosses up withdrawals to cover taxes before sending you this net amount.</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-3">
             <span class="font-medium text-gray-700">Stock / Bond Returns</span>
             <span class="col-span-2 text-gray-600">Expected annual returns for stocks and bonds. Each account grows using its allocation-weighted blend of these rates. Historical long-run stock returns are ~7% real; bonds ~3.5%.</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-3">
             <span class="font-medium text-gray-700">Inflation Rate</span>
             <span class="col-span-2 text-gray-600">Annual inflation %. Your spending target and inflation-adjusted income sources grow at this rate each year.</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-3">
             <span class="font-medium text-gray-700">SS Claim Age</span>
             <span class="col-span-2 text-gray-600">The age at which you (and your spouse) claim Social Security. This is the primary lever — claiming at 70 vs 62 can mean a 77% higher monthly benefit for life.</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-3">
             <span class="font-medium text-gray-700">Spending Strategy</span>
             <span class="col-span-2 text-gray-600"><strong>Fixed:</strong> inflation-adjusted spending every year. <strong>% of Portfolio:</strong> spend a fixed % of your portfolio value (the "4% rule"). <strong>Guardrails:</strong> reduce spending by 10% if your portfolio drops more than 20% below its peak.</span>
           </div>
-          <div class="grid grid-cols-3 gap-2">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <span class="font-medium text-gray-700">Life Expectancy Override</span>
             <span class="col-span-2 text-gray-600">Override the profile-level life expectancy for this scenario. Useful for planning conservatively (e.g. plan to 95) while keeping your default profile at 90.</span>
           </div>
@@ -361,18 +361,18 @@
         <p class="text-gray-600 mb-4">Black swan events model sudden, severe market crashes — 2008, 2020, dot-com bust. Enabling this adds randomised crash events to your simulation so you can stress-test your plan against bad luck.</p>
 
         <div class="space-y-3 text-sm text-gray-600">
-          <div class="grid grid-cols-3 gap-2 border-b pb-2 font-semibold text-gray-500">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-2 font-semibold text-gray-500">
             <span>Parameter</span><span class="col-span-2">Description</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-3">
             <span class="font-medium text-gray-700">Annual Probability %</span>
             <span class="col-span-2">The chance of a crash occurring in any given year. 3% means roughly one event per 33 years on average.</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 border-b pb-3">
             <span class="font-medium text-gray-700">Min / Max Loss %</span>
             <span class="col-span-2">The range of portfolio loss when a crash hits. A loss is drawn randomly from this range. Default 20–50%.</span>
           </div>
-          <div class="grid grid-cols-3 gap-2">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <span class="font-medium text-gray-700">Recovery Years</span>
             <span class="col-span-2">How many years the portfolio's return rate is suppressed after the crash as it gradually recovers. Default 3 years.</span>
           </div>

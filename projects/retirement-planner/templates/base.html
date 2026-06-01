@@ -40,26 +40,60 @@
 
 <!-- Nav -->
 <nav class="bg-indigo-700 text-white shadow-md">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-    <a href="{% url 'profiles:dashboard' %}" class="text-xl font-bold tracking-tight">💰 RetireSim</a>
-    {% if user.is_authenticated %}
-    <div class="flex items-center gap-6 text-sm">
-      <a href="{% url 'profiles:dashboard' %}" class="hover:text-indigo-200">Dashboard</a>
-      <a href="{% url 'investments:list' %}" class="hover:text-indigo-200">Accounts</a>
-      <a href="{% url 'investments:income_list' %}" class="hover:text-indigo-200">Income Sources</a>
-      <a href="{% url 'simulations:list' %}" class="hover:text-indigo-200">Scenarios</a>
-      {% if user.is_staff %}
-      <a href="{% url 'accounts:invite_list' %}" class="hover:text-indigo-200">Invitations</a>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <a href="{% url 'profiles:dashboard' %}" class="text-xl font-bold tracking-tight">💰 RetireSim</a>
+      {% if user.is_authenticated %}
+      <!-- Desktop links -->
+      <div class="hidden md:flex items-center gap-6 text-sm">
+        <a href="{% url 'profiles:dashboard' %}" class="hover:text-indigo-200">Dashboard</a>
+        <a href="{% url 'investments:list' %}" class="hover:text-indigo-200">Accounts</a>
+        <a href="{% url 'investments:income_list' %}" class="hover:text-indigo-200">Income Sources</a>
+        <a href="{% url 'simulations:list' %}" class="hover:text-indigo-200">Scenarios</a>
+        {% if user.is_staff %}
+        <a href="{% url 'accounts:invite_list' %}" class="hover:text-indigo-200">Invitations</a>
+        {% endif %}
+        <a href="{% url 'profiles:help' %}" class="hover:text-indigo-200">Help</a>
+        <a href="{% url 'accounts:settings' %}" class="hover:text-indigo-200 text-indigo-300">{{ user.email }}</a>
+        <form method="post" action="{% url 'accounts:logout' %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="hover:text-indigo-200">Sign out</button>
+        </form>
+      </div>
+      <!-- Mobile hamburger -->
+      <button id="nav-toggle" class="md:hidden p-2 rounded-md hover:bg-indigo-600 focus:outline-none" aria-label="Toggle menu">
+        <svg id="nav-icon-open" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg id="nav-icon-close" class="h-6 w-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
       {% endif %}
-      <a href="{% url 'profiles:help' %}" class="hover:text-indigo-200">Help</a>
-      <a href="{% url 'accounts:settings' %}" class="hover:text-indigo-200 text-indigo-300">{{ user.email }}</a>
-      <form method="post" action="{% url 'accounts:logout' %}" class="inline">
-        {% csrf_token %}
-        <button type="submit" class="hover:text-indigo-200">Sign out</button>
-      </form>
     </div>
-    {% endif %}
   </div>
+  <!-- Mobile menu -->
+  {% if user.is_authenticated %}
+  <div id="mobile-menu" class="hidden md:hidden border-t border-indigo-600">
+    <div class="px-4 py-3 space-y-1 text-sm">
+      <a href="{% url 'profiles:dashboard' %}" class="block px-2 py-2 rounded hover:bg-indigo-600">Dashboard</a>
+      <a href="{% url 'investments:list' %}" class="block px-2 py-2 rounded hover:bg-indigo-600">Accounts</a>
+      <a href="{% url 'investments:income_list' %}" class="block px-2 py-2 rounded hover:bg-indigo-600">Income Sources</a>
+      <a href="{% url 'simulations:list' %}" class="block px-2 py-2 rounded hover:bg-indigo-600">Scenarios</a>
+      {% if user.is_staff %}
+      <a href="{% url 'accounts:invite_list' %}" class="block px-2 py-2 rounded hover:bg-indigo-600">Invitations</a>
+      {% endif %}
+      <a href="{% url 'profiles:help' %}" class="block px-2 py-2 rounded hover:bg-indigo-600">Help</a>
+      <a href="{% url 'accounts:settings' %}" class="block px-2 py-2 rounded hover:bg-indigo-600 text-indigo-300">{{ user.email }}</a>
+      <div class="border-t border-indigo-600 pt-1">
+        <form method="post" action="{% url 'accounts:logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="block w-full text-left px-2 py-2 rounded hover:bg-indigo-600">Sign out</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </nav>
 
 <!-- Toast messages -->
@@ -88,6 +122,17 @@
 
 {% block extra_scripts %}{% endblock %}
 <script>
+// Mobile nav toggle
+const navToggle = document.getElementById('nav-toggle');
+const mobileMenu = document.getElementById('mobile-menu');
+const navIconOpen = document.getElementById('nav-icon-open');
+const navIconClose = document.getElementById('nav-icon-close');
+navToggle?.addEventListener('click', () => {
+  mobileMenu.classList.toggle('hidden');
+  navIconOpen.classList.toggle('hidden');
+  navIconClose.classList.toggle('hidden');
+});
+
 function togglePassword(btn) {
   const wrapper = btn.closest('.pw-toggle-wrapper');
   const input = wrapper.querySelector('input');

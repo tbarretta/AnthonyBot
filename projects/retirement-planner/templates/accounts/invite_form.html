@@ -13,7 +13,7 @@
         {% render_field form.email class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="user@example.com" %}
         {% if form.email.errors %}<p class="text-xs text-red-600 mt-1">{{ form.email.errors.0 }}</p>{% endif %}
       </div>
-      <div class="flex gap-3">
+      <div class="flex flex-wrap gap-3">
         <button type="submit" class="flex-1 bg-indigo-600 text-white font-semibold py-2.5 rounded-lg hover:bg-indigo-700 transition">Send Invitation</button>
         <a href="{% url 'accounts:invite_list' %}" class="flex-1 text-center border border-gray-300 text-gray-600 py-2.5 rounded-lg hover:bg-gray-50 transition">Cancel</a>
       </div>

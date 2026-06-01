@@ -24,7 +24,7 @@
         {% render_field form.name class="input" %}
         {% if form.name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>{% endif %}
       </div>
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Type <span class="text-red-500">*</span></label>
           {% render_field form.source_type class="input" id="id_source_type" %}
@@ -72,14 +72,14 @@
     <!-- Non-SS Amount & Schedule (hidden when type = social_security) -->
     <div id="amount-section" class="bg-white rounded-xl shadow p-6 space-y-4">
       <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Amount &amp; Schedule</h2>
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Annual Amount (today's $) <span class="text-red-500">*</span></label>
           {% render_field form.annual_amount class="input" %}
           {% if form.annual_amount.errors %}<p class="text-red-500 text-xs mt-1">{{ form.annual_amount.errors.0 }}</p>{% endif %}
         </div>
       </div>
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Start Age</label>
           {% render_field form.start_age class="input" %}
@@ -135,7 +135,7 @@
       {% render_field form.notes class="input" placeholder="Optional notes about this income source..." %}
     </div>
 
-    <div class="flex gap-4">
+    <div class="flex flex-wrap gap-4">
       <button type="submit"
               class="bg-indigo-600 text-white font-semibold px-6 py-2.5 rounded-lg hover:bg-indigo-700 transition">
         {% if income_source %}Save Changes{% else %}Add Income Source{% endif %}
