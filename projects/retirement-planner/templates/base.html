@@ -32,6 +32,7 @@
       <a href="{% url 'accounts:invite_list' %}" class="hover:text-indigo-200">Invitations</a>
       {% endif %}
       <a href="{% url 'profiles:help' %}" class="hover:text-indigo-200">Help</a>
+      <a href="{% url 'accounts:settings' %}" class="hover:text-indigo-200 text-indigo-300">{{ user.email }}</a>
       <form method="post" action="{% url 'accounts:logout' %}" class="inline">
         {% csrf_token %}
         <button type="submit" class="hover:text-indigo-200">Sign out</button>

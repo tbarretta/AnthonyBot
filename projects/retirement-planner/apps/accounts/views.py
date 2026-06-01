@@ -11,7 +11,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.conf import settings
 
-from .forms import InvitationForm, RegisterForm
+from .forms import AccountSettingsForm, InvitationForm, RegisterForm
 from .models import Invitation, User
 
 
@@ -107,3 +107,16 @@ def invite_create(request):
 def invite_list(request):
     invitations = Invitation.objects.select_related("used_by", "created_by").all()
     return render(request, "accounts/invite_list.html", {"invitations": invitations})
+
+
+@login_required
+def account_settings(request):
+    if request.method == "POST":
+        form = AccountSettingsForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Account details updated.")
+            return redirect("accounts:settings")
+    else:
+        form = AccountSettingsForm(instance=request.user)
+    return render(request, "accounts/account_settings.html", {"form": form})

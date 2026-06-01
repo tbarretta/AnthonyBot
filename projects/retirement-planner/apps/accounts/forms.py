@@ -3,6 +3,25 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import User, Invitation
 
 
+class AccountSettingsForm(forms.ModelForm):
+    """Allow users to update their name and email address."""
+    class Meta:
+        model = User
+        fields = ["first_name", "last_name", "email"]
+        widgets = {
+            "first_name": forms.TextInput(attrs={"placeholder": "First name"}),
+            "last_name":  forms.TextInput(attrs={"placeholder": "Last name"}),
+            "email":      forms.EmailInput(attrs={"placeholder": "you@example.com"}),
+        }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.username = user.email   # keep username in sync with email
+        if commit:
+            user.save()
+        return user
+
+
 class InvitationForm(forms.ModelForm):
     """Master Admin form to create a new invitation."""
     class Meta:
