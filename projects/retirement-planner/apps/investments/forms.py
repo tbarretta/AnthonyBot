@@ -20,9 +20,9 @@ class InvestmentAccountForm(forms.ModelForm):
         max_digits=10, decimal_places=0,
         widget=forms.TextInput(attrs={"inputmode": "numeric", "data-currency": "true", "placeholder": "0"})
     )
-    employer_match_pct = forms.DecimalField(
-        max_digits=5, decimal_places=2, required=False, initial=0,
-        widget=forms.NumberInput(attrs={"step": "0.1", "min": "0", "max": "100", "placeholder": "0.0"})
+    employer_match_pct = forms.IntegerField(
+        min_value=0, max_value=100, required=False, initial=0,
+        widget=forms.NumberInput(attrs={"step": "1", "min": "0", "max": "100", "placeholder": "0"})
     )
     asset_allocation_stocks = forms.IntegerField(
         min_value=0, max_value=100,

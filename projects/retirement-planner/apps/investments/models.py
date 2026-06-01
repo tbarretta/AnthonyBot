@@ -79,8 +79,8 @@ class InvestmentAccount(models.Model):
     )
 
     # Employer Match (applies to 401k-type accounts)
-    employer_match_pct = models.DecimalField(
-        max_digits=5, decimal_places=2, default=0,
+    employer_match_pct = models.PositiveSmallIntegerField(
+        default=0,
         help_text="Employer matches this % of your contribution, e.g. 100 = dollar for dollar, 50 = 50 cents per dollar"
     )
 
