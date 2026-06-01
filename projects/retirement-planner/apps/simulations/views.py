@@ -257,4 +257,6 @@ def sensitivity_update(request, pk):
         "spending_override":  spending,
         "stocks_override":    stocks,
         "bonds_override":     bonds,
+        "years":              data.get("years", []),
+        "black_swan_events":  summary.get("black_swan_events", []),
     })
