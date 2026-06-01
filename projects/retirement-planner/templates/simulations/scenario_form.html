@@ -64,7 +64,22 @@
     <!-- Retirement Spending -->
     <div class="bg-white rounded-xl shadow p-6 space-y-4">
       <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Retirement Spending</h2>
-      <div class="grid grid-cols-2 gap-4">
+
+      <!-- Strategy selector always visible -->
+      <div>
+        <label class="label">Spending Strategy</label>
+        <div class="flex flex-col gap-2 mt-1" id="spending-strategy-radios">
+          {% for choice in form.spending_strategy %}
+          <label class="flex items-center gap-2 cursor-pointer">
+            {{ choice.tag }}
+            <span class="text-sm text-gray-700">{{ choice.choice_label }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Fixed / Guardrails fields -->
+      <div id="spending-fixed-fields" class="grid grid-cols-2 gap-4">
         <div>
           <label class="label">Annual Spending, After Tax (today's $)</label>
           <div class="relative">
@@ -78,20 +93,12 @@
           {% render_field form.spending_growth_rate class="input" %}
         </div>
       </div>
-      <div>
-        <label class="label">Spending Strategy</label>
-        <div class="flex flex-col gap-2 mt-1">
-          {% for choice in form.spending_strategy %}
-          <label class="flex items-center gap-2 cursor-pointer">
-            {{ choice.tag }}
-            <span class="text-sm text-gray-700">{{ choice.choice_label }}</span>
-          </label>
-          {% endfor %}
-        </div>
-      </div>
-      <div>
-        <label class="label">Withdrawal Rate % (for % of Portfolio strategy)</label>
+
+      <!-- % of Portfolio field -->
+      <div id="spending-portfolio-fields">
+        <label class="label">Withdrawal Rate %</label>
         {% render_field form.withdrawal_rate_pct class="input w-32" %}
+        <p class="text-xs text-gray-400 mt-1">e.g. 4 for the "4% rule" — withdraws this % of your portfolio value each year.</p>
       </div>
     </div>
 
@@ -201,6 +208,24 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script>
+// Spending strategy show/hide
+(function () {
+  const radios = document.querySelectorAll('input[name="spending_strategy"]');
+  const fixedFields     = document.getElementById('spending-fixed-fields');
+  const portfolioFields = document.getElementById('spending-portfolio-fields');
+
+  function updateSpendingFields() {
+    const selected = document.querySelector('input[name="spending_strategy"]:checked');
+    const isPortfolio = selected && selected.value === 'percent_portfolio';
+    fixedFields.style.display     = isPortfolio ? 'none' : '';
+    portfolioFields.style.display = isPortfolio ? '' : 'none';
+  }
+
+  radios.forEach(r => r.addEventListener('change', updateSpendingFields));
+  updateSpendingFields(); // run on page load
+}());
+</script>
 <script>
 (function () {
   function fmt(v) {
