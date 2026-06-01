@@ -47,7 +47,7 @@ def scenario_edit(request, pk):
         if form.is_valid():
             form.save()
             messages.success(request, "Scenario updated.")
-            return redirect("simulations:run", pk=scenario.pk)
+            return redirect("simulations:list")
     else:
         form = ScenarioForm(instance=scenario, profile=profile)
     return render(request, "simulations/scenario_form.html", {
