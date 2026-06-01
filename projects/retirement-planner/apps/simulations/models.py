@@ -10,7 +10,6 @@ class SimulationType(models.TextChoices):
 class SpendingStrategy(models.TextChoices):
     FIXED = "fixed", "Fixed (inflation-adjusted)"
     PERCENT_OF_PORTFOLIO = "percent_portfolio", "% of Portfolio (e.g. 4% rule)"
-    GUARDRAILS = "guardrails", "Guardrails (reduce on downturns)"
 
 
 class SimulationStatus(models.TextChoices):
@@ -75,6 +74,10 @@ class Scenario(models.Model):
         max_length=20,
         choices=SpendingStrategy.choices,
         default=SpendingStrategy.FIXED,
+    )
+    guardrails_enabled = models.BooleanField(
+        default=False,
+        help_text="Reduce spending by 10% in any year the portfolio drops >20% below its peak",
     )
     # For percent_portfolio strategy
     withdrawal_rate_pct = models.DecimalField(

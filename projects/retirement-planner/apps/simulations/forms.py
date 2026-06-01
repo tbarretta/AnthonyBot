@@ -16,7 +16,7 @@ class ScenarioForm(forms.ModelForm):
             # Retirement ages (moved from profile)
             "retirement_age_self", "retirement_age_spouse",
             "expected_annual_return_stocks", "expected_annual_return_bonds", "inflation_rate",
-            "annual_retirement_spending", "spending_growth_rate", "spending_strategy", "withdrawal_rate_pct",
+            "annual_retirement_spending", "spending_growth_rate", "spending_strategy", "withdrawal_rate_pct", "guardrails_enabled",
             # mc_* fields omitted from UI until Monte Carlo is enabled
             "black_swan_enabled", "black_swan_annual_probability",
             "black_swan_min_loss_pct", "black_swan_max_loss_pct", "black_swan_recovery_years",

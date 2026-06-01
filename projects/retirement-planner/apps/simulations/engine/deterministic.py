@@ -153,6 +153,7 @@ class SimulationInput:
     spending_growth_pct: float = 2.5
     spending_strategy: str = "fixed"
     withdrawal_rate_pct: float = 4.0
+    guardrails_enabled: bool = False
 
     # Taxes
     tax_rate_working_pct: float = 22.0
@@ -348,18 +349,19 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
         inflation_factor = (1 + inputs.inflation_pct / 100) ** current_year_index
 
         if retired_self or (retired_spouse and spouse_age is not None):
-            # Inflation-adjusted spending target
-            if inputs.spending_strategy == "fixed":
-                target_spending = annual_spending * inflation_factor
-            elif inputs.spending_strategy == "percent_portfolio":
+            # Base spending target
+            if inputs.spending_strategy == "percent_portfolio":
                 total_port = sum(a.balance for a in accounts)
                 target_spending = total_port * (inputs.withdrawal_rate_pct / 100)
-            else:  # guardrails
+            else:  # fixed (inflation-adjusted)
                 target_spending = annual_spending * inflation_factor
+
+            # Guardrails modifier: reduce 10% if portfolio > 20% below its peak
+            if inputs.guardrails_enabled:
                 total_port = sum(a.balance for a in accounts)
-                peak = max(target_spending, total_port * 0.04)  # simplified
+                peak = max(target_spending, total_port * 0.04)  # simplified floor
                 if total_port < peak * 0.80:
-                    target_spending *= 0.90  # reduce 10% if down 20%
+                    target_spending *= 0.90
 
             # net_gap = after-tax dollars still needed from the portfolio
             net_gap = max(0.0, target_spending - total_guaranteed_income)

@@ -135,6 +135,7 @@ def build_simulation_input(scenario: Scenario) -> SimulationInput:
         annual_retirement_spending=float(scenario.annual_retirement_spending),
         spending_growth_pct=float(scenario.spending_growth_rate),
         spending_strategy=scenario.spending_strategy,
+        guardrails_enabled=scenario.guardrails_enabled,
         withdrawal_rate_pct=float(scenario.withdrawal_rate_pct),
 
         tax_rate_working_pct=float(scenario.effective_tax_rate_working),
