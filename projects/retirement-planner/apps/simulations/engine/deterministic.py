@@ -380,7 +380,7 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
                 )
                 taxes_paid = gross_gap - net_gap
                 withdrawn = _withdraw_from_accounts(accounts, gross_gap, "tax_efficient", owner="self")
-                if withdrawn < gross_gap - 0.01:  # accounts exhausted
+                if withdrawn < gross_gap - 0.01 and not portfolio_exhausted:  # first year portfolio hits $0
                     portfolio_exhausted = True
                     exhaustion_age = age
             gap = net_gap  # keep as net spending gap for display
