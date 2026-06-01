@@ -2,6 +2,9 @@ from .base import *  # noqa
 
 DEBUG = False
 
+# Trust Nginx's X-Forwarded-Proto header so SECURE_SSL_REDIRECT doesn't loop
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_SSL_REDIRECT = True
