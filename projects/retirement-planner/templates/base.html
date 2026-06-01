@@ -26,10 +26,12 @@
     <div class="flex items-center gap-6 text-sm">
       <a href="{% url 'profiles:dashboard' %}" class="hover:text-indigo-200">Dashboard</a>
       <a href="{% url 'investments:list' %}" class="hover:text-indigo-200">Accounts</a>
+      <a href="{% url 'investments:income_list' %}" class="hover:text-indigo-200">Income Sources</a>
       <a href="{% url 'simulations:list' %}" class="hover:text-indigo-200">Scenarios</a>
       {% if user.is_staff %}
       <a href="{% url 'accounts:invite_list' %}" class="hover:text-indigo-200">Invitations</a>
       {% endif %}
+      <a href="{% url 'profiles:help' %}" class="hover:text-indigo-200">Help</a>
       <form method="post" action="{% url 'accounts:logout' %}" class="inline">
         {% csrf_token %}
         <button type="submit" class="hover:text-indigo-200">Sign out</button>

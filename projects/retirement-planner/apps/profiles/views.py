@@ -98,3 +98,8 @@ def profile_edit(request):
     else:
         form = UserProfileForm(instance=profile)
     return render(request, "profiles/profile_form.html", {"form": form})
+
+
+@login_required
+def help_view(request):
+    return render(request, "profiles/help.html")

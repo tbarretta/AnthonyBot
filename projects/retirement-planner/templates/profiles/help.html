@@ -1,0 +1,559 @@
+{% extends "base.html" %}
+{% block title %}Help — RetireSim{% endblock %}
+{% block content %}
+
+<div class="max-w-6xl mx-auto">
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Help &amp; Documentation</h1>
+    <p class="text-gray-500 mt-1">Everything you need to get the most out of RetireSim.</p>
+  </div>
+
+  <div class="flex gap-8 items-start">
+
+    <!-- Sidebar nav -->
+    <aside class="w-56 flex-shrink-0 sticky top-8">
+      <nav class="bg-white rounded-xl shadow p-4 space-y-1 text-sm" id="help-nav">
+        <a href="#getting-started"  class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 font-medium">🚀 Getting Started</a>
+        <a href="#workflow"         class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">Workflow</a>
+        <a href="#profile"          class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">Your Profile</a>
+        <a href="#accounts"         class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">Investment Accounts</a>
+        <a href="#income-sources"   class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">Income Sources</a>
+        <a href="#scenarios"        class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">Scenarios</a>
+        <a href="#simulations"      class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">Running Simulations</a>
+        <a href="#results"          class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">Reading Results</a>
+        <a href="#social-security"  class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">Social Security</a>
+        <a href="#taxes"            class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">Taxes</a>
+        <a href="#black-swan"       class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">Black Swan Events</a>
+        <a href="#invitations"      class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">Invitations</a>
+        <a href="#faq"              class="help-nav-link block px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">FAQ</a>
+      </nav>
+    </aside>
+
+    <!-- Content -->
+    <div class="flex-1 space-y-10 min-w-0">
+
+      <!-- Getting Started -->
+      <section id="getting-started" class="bg-white rounded-xl shadow p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">🚀 Getting Started</h2>
+        <p class="text-gray-600 mb-4">
+          RetireSim is a personal retirement planning tool that lets you model different "what if" scenarios
+          for your retirement — adjusting retirement age, spending, investment returns, Social Security
+          claiming strategy, and more.
+        </p>
+        <p class="text-gray-600 mb-4">
+          Unlike generic online calculators, RetireSim uses your actual account balances, income sources,
+          and tax situation to produce a personalized projection. You can create multiple scenarios and
+          compare them side by side.
+        </p>
+        <div class="rounded-lg bg-indigo-50 border border-indigo-100 p-4 text-sm text-indigo-800">
+          <p class="font-semibold mb-2">⚡ Quick Start — 4 steps to your first simulation:</p>
+          <ol class="list-decimal list-inside space-y-1">
+            <li>Complete your <strong>Profile</strong> (age, income, life expectancy)</li>
+            <li>Add your <strong>Investment Accounts</strong> (balances, contributions)</li>
+            <li>Add your <strong>Income Sources</strong> (Social Security, pension, etc.)</li>
+            <li>Create a <strong>Scenario</strong> and click <strong>Run Simulation</strong></li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Workflow -->
+      <section id="workflow" class="bg-white rounded-xl shadow p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Workflow</h2>
+        <p class="text-gray-600 mb-6">RetireSim follows a layered data model. Your profile and accounts are shared across all scenarios; scenarios are where you change the variables.</p>
+
+        <div class="space-y-4">
+          <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">1</div>
+            <div>
+              <h3 class="font-semibold text-gray-800">Set up your Profile</h3>
+              <p class="text-sm text-gray-500 mt-1">Enter your current age, annual income, income growth rate, and expected life expectancy. If you have a spouse, add their details too. This data is the foundation every simulation is built on.</p>
+            </div>
+          </div>
+          <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">2</div>
+            <div>
+              <h3 class="font-semibold text-gray-800">Add Investment Accounts</h3>
+              <p class="text-sm text-gray-500 mt-1">Enter each account — 401(k), IRA, Roth IRA, brokerage, HSA, etc. — with its current balance, annual contribution, employer match, and asset allocation. The simulation grows each account separately according to its tax type and allocation.</p>
+            </div>
+          </div>
+          <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">3</div>
+            <div>
+              <h3 class="font-semibold text-gray-800">Add Income Sources</h3>
+              <p class="text-sm text-gray-500 mt-1">Add Social Security, pension, rental income, IUL distributions, part-time work, or any other guaranteed/recurring income. These reduce how much you need to withdraw from your portfolio in retirement.</p>
+            </div>
+          </div>
+          <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">4</div>
+            <div>
+              <h3 class="font-semibold text-gray-800">Create Scenarios</h3>
+              <p class="text-sm text-gray-500 mt-1">A scenario is a set of assumptions: retirement age, spending target, return expectations, SS claiming age, tax rates, etc. Create multiple scenarios to compare outcomes — e.g. "Retire at 60 aggressive" vs "Retire at 67 conservative".</p>
+            </div>
+          </div>
+          <div class="flex gap-4 items-start">
+            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-bold">5</div>
+            <div>
+              <h3 class="font-semibold text-gray-800">Run &amp; Analyze</h3>
+              <p class="text-sm text-gray-500 mt-1">Run the simulation from the Scenarios page. Review the year-by-year projection, final balance, portfolio chart, and withdrawal breakdown. Adjust assumptions and re-run to see how changes affect the outcome.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Profile -->
+      <section id="profile" class="bg-white rounded-xl shadow p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Your Profile</h2>
+        <p class="text-gray-600 mb-4">Your profile holds the personal data that stays constant across all scenarios.</p>
+
+        <div class="space-y-4 text-sm">
+          <div class="grid grid-cols-3 gap-2 border-b pb-2 font-semibold text-gray-500">
+            <span>Field</span><span class="col-span-2">What to enter</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+            <span class="font-medium text-gray-700">Current Age</span>
+            <span class="col-span-2 text-gray-600">Your age today. The simulation starts here and runs year-by-year to your life expectancy.</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+            <span class="font-medium text-gray-700">Annual Income</span>
+            <span class="col-span-2 text-gray-600">Your current gross employment income. Used to calculate contributions during the accumulation phase.</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+            <span class="font-medium text-gray-700">Income Growth Rate</span>
+            <span class="col-span-2 text-gray-600">Expected annual salary increase %. Used to grow your income (and thus contribution capacity) each year before retirement.</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+            <span class="font-medium text-gray-700">Life Expectancy</span>
+            <span class="col-span-2 text-gray-600">The age your plan runs to. Default is 90. Increase this to plan conservatively for a longer life.</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+            <span class="font-medium text-gray-700">Filing Status</span>
+            <span class="col-span-2 text-gray-600">Used in Social Security taxation calculations (IRS combined income thresholds differ for single vs married filing jointly).</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <span class="font-medium text-gray-700">Spouse</span>
+            <span class="col-span-2 text-gray-600">Add a spouse to include their income, retirement age, life expectancy, and SS claim age in the simulation. Spouse retirement age is set per-scenario.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Accounts -->
+      <section id="accounts" class="bg-white rounded-xl shadow p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Investment Accounts</h2>
+        <p class="text-gray-600 mb-4">Investment accounts are the growing assets that fund your retirement. The simulation grows each account separately during accumulation, then draws them down in tax-efficient order during retirement.</p>
+
+        <h3 class="font-semibold text-gray-800 mb-3">Account Types &amp; Tax Treatment</h3>
+        <div class="overflow-x-auto mb-6">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b">
+              <tr>
+                <th class="text-left px-4 py-2 font-semibold text-gray-600">Type</th>
+                <th class="text-left px-4 py-2 font-semibold text-gray-600">Examples</th>
+                <th class="text-left px-4 py-2 font-semibold text-gray-600">Contributions</th>
+                <th class="text-left px-4 py-2 font-semibold text-gray-600">Withdrawals</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr><td class="px-4 py-2 font-medium">Pre-tax <span class="text-amber-600">(amber)</span></td><td class="px-4 py-2 text-gray-600">401(k), 403(b), Trad. IRA</td><td class="px-4 py-2 text-gray-600">Pre-tax dollars</td><td class="px-4 py-2 text-gray-600">Taxed as ordinary income</td></tr>
+              <tr><td class="px-4 py-2 font-medium">Roth <span class="text-purple-600">(purple)</span></td><td class="px-4 py-2 text-gray-600">Roth 401(k), Roth IRA</td><td class="px-4 py-2 text-gray-600">After-tax dollars</td><td class="px-4 py-2 text-gray-600">Tax-free</td></tr>
+              <tr><td class="px-4 py-2 font-medium">Taxable <span class="text-blue-600">(blue)</span></td><td class="px-4 py-2 text-gray-600">Brokerage account</td><td class="px-4 py-2 text-gray-600">After-tax dollars</td><td class="px-4 py-2 text-gray-600">Cap gains on growth</td></tr>
+              <tr><td class="px-4 py-2 font-medium">HSA <span class="text-green-600">(green)</span></td><td class="px-4 py-2 text-gray-600">Health Savings Account</td><td class="px-4 py-2 text-gray-600">Pre-tax dollars</td><td class="px-4 py-2 text-gray-600">Tax-free for medical</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="font-semibold text-gray-800 mb-2">Withdrawal Order</h3>
+        <p class="text-sm text-gray-600 mb-4">The simulation withdraws from accounts in tax-efficient order: <strong>Taxable → Pre-tax → Roth</strong>. This minimises lifetime taxes by spending taxable gains first and letting tax-advantaged accounts compound longer.</p>
+
+        <h3 class="font-semibold text-gray-800 mb-2">Employer Match</h3>
+        <p class="text-sm text-gray-600 mb-4">Enter the match rate (% of your contribution the employer matches) and the match cap (% of salary). For example, "50% match up to 6% of salary" means if you contribute 6% of salary, the employer adds another 3%.</p>
+
+        <h3 class="font-semibold text-gray-800 mb-2">Asset Allocation</h3>
+        <p class="text-sm text-gray-600">Enter the stock % and bond % for each account (must sum to 100%). The simulation applies the blended return based on your allocation and the scenario's expected stock/bond returns.</p>
+      </section>
+
+      <!-- Income Sources -->
+      <section id="income-sources" class="bg-white rounded-xl shadow p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Income Sources</h2>
+        <p class="text-gray-600 mb-4">Income sources are guaranteed or recurring streams of income in retirement that reduce how much you need to withdraw from your portfolio. The more reliable income you have, the less portfolio risk you carry.</p>
+
+        <div class="space-y-5">
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-1">Social Security</h3>
+            <p class="text-sm text-gray-600">Enter the <strong>monthly benefit at your Full Retirement Age (67)</strong> from your SSA statement at <a href="https://ssa.gov/myaccount" class="text-indigo-600 hover:underline" target="_blank">ssa.gov/myaccount</a>. The benefit at other claim ages is calculated automatically using official SSA rules. The <strong>claim age</strong> is set per-scenario, so you can compare claiming at 62 vs 67 vs 70 across scenarios.</p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-1">Pension</h3>
+            <p class="text-sm text-gray-600">Enter the annual pension amount in today's dollars, the age it begins, and optionally a survivor benefit % for your spouse. Pensions can be marked as inflation-adjusted if they include a COLA.</p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-1">Rental Income</h3>
+            <p class="text-sm text-gray-600">Enter the expected net annual rental income, the age it starts (and optionally ends). Enable inflation adjustment if you expect rent to grow over time.</p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-1">IUL / Annuity / Other</h3>
+            <p class="text-sm text-gray-600">Use the same pattern: annual amount, start/end ages, inflation adjustment, and tax treatment. IUL distributions are typically tax-free — uncheck "This income is taxable" for those.</p>
+          </div>
+        </div>
+
+        <div class="mt-5 rounded-lg bg-amber-50 border border-amber-100 px-4 py-3 text-sm text-amber-800">
+          <strong>Note:</strong> Income sources are shared across all scenarios. The <strong>SS claim age</strong> is the one income-source variable that changes per scenario — everything else (the FRA benefit amount, COLA rate, pension amount, etc.) is fixed.
+        </div>
+      </section>
+
+      <!-- Scenarios -->
+      <section id="scenarios" class="bg-white rounded-xl shadow p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Scenarios</h2>
+        <p class="text-gray-600 mb-4">A scenario is a named set of assumptions for a single simulation run. You can create as many scenarios as you like and compare their outcomes. Use the <strong>Copy</strong> button on the Scenarios page to duplicate a scenario and tweak one variable at a time.</p>
+
+        <h3 class="font-semibold text-gray-800 mb-3">Key Scenario Parameters</h3>
+        <div class="space-y-3 text-sm">
+          <div class="grid grid-cols-3 gap-2 border-b pb-2 font-semibold text-gray-500">
+            <span>Parameter</span><span class="col-span-2">Description</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+            <span class="font-medium text-gray-700">Retirement Age</span>
+            <span class="col-span-2 text-gray-600">The age at which you stop working and start drawing down your portfolio. Contributions stop; withdrawals begin.</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+            <span class="font-medium text-gray-700">Annual Spending (After Tax)</span>
+            <span class="col-span-2 text-gray-600">The amount you want to <em>spend</em> each year in retirement, after taxes — what actually hits your bank account. The simulation automatically grosses up withdrawals to cover taxes before sending you this net amount.</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+            <span class="font-medium text-gray-700">Stock / Bond Returns</span>
+            <span class="col-span-2 text-gray-600">Expected annual returns for stocks and bonds. Each account grows using its allocation-weighted blend of these rates. Historical long-run stock returns are ~7% real; bonds ~3.5%.</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+            <span class="font-medium text-gray-700">Inflation Rate</span>
+            <span class="col-span-2 text-gray-600">Annual inflation %. Your spending target and inflation-adjusted income sources grow at this rate each year.</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+            <span class="font-medium text-gray-700">SS Claim Age</span>
+            <span class="col-span-2 text-gray-600">The age at which you (and your spouse) claim Social Security. This is the primary lever — claiming at 70 vs 62 can mean a 77% higher monthly benefit for life.</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+            <span class="font-medium text-gray-700">Spending Strategy</span>
+            <span class="col-span-2 text-gray-600"><strong>Fixed:</strong> inflation-adjusted spending every year. <strong>% of Portfolio:</strong> spend a fixed % of your portfolio value (the "4% rule"). <strong>Guardrails:</strong> reduce spending by 10% if your portfolio drops more than 20% below its peak.</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <span class="font-medium text-gray-700">Life Expectancy Override</span>
+            <span class="col-span-2 text-gray-600">Override the profile-level life expectancy for this scenario. Useful for planning conservatively (e.g. plan to 95) while keeping your default profile at 90.</span>
+          </div>
+        </div>
+
+        <div class="mt-5 rounded-lg bg-indigo-50 border border-indigo-100 px-4 py-3 text-sm text-indigo-700">
+          <strong>Tip:</strong> Use the <strong>Copy</strong> button on the Scenarios list to duplicate an existing scenario with "<em>-copy</em>" appended to the name. You'll land directly on the edit form — perfect for tweaking one variable at a time.
+        </div>
+      </section>
+
+      <!-- Simulations -->
+      <section id="simulations" class="bg-white rounded-xl shadow p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Running Simulations</h2>
+
+        <h3 class="font-semibold text-gray-800 mb-2">Deterministic Simulation</h3>
+        <p class="text-sm text-gray-600 mb-4">The deterministic engine runs a single year-by-year projection using your fixed return rates. It's fast (&lt;1 second) and gives you a clear baseline answer to "what happens if returns are exactly what I expect?"</p>
+
+        <h3 class="font-semibold text-gray-800 mb-2">How the Simulation Works</h3>
+        <div class="text-sm text-gray-600 space-y-2 mb-6">
+          <p><strong>Accumulation phase</strong> (now → retirement): Each year, your income grows, contributions are added to accounts, employer match is applied, and accounts grow by their blended return rate.</p>
+          <p><strong>Retirement phase</strong> (retirement → life expectancy): Employment income stops. Each year, the simulation calculates your inflation-adjusted spending target, subtracts guaranteed income (SS, pension, etc.), and withdraws the remaining gross amount from your portfolio in tax-efficient order.</p>
+          <p><strong>RMDs</strong>: Required Minimum Distributions are automatically calculated and applied to pre-tax accounts starting at age 73 (per SECURE 2.0).</p>
+          <p><strong>Depletion</strong>: If the portfolio runs out before your life expectancy age, the simulation flags the age at which it was depleted.</p>
+        </div>
+
+        <h3 class="font-semibold text-gray-800 mb-2">Re-running</h3>
+        <p class="text-sm text-gray-600">You can re-run a scenario at any time from the Scenarios list. Each run creates a new result record; the most recent completed result is shown as the active result.</p>
+      </section>
+
+      <!-- Results -->
+      <section id="results" class="bg-white rounded-xl shadow p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Reading Results</h2>
+
+        <div class="space-y-5 text-sm text-gray-600">
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-1">Final Balance</h3>
+            <p>The portfolio value at your life expectancy age. <span class="text-green-600 font-medium">Green = portfolio survived</span>. <span class="text-red-600 font-medium">Red = depleted</span>, showing the age it ran out. A positive final balance means you have a buffer; a depleted result means you need to adjust assumptions.</p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-1">Balance at Retirement</h3>
+            <p>Your total portfolio value on the first day of retirement. This is the nest egg you're drawing from.</p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-1">Portfolio Chart</h3>
+            <p>The left axis shows portfolio balance over time. The right axis (dashed line) shows your annual after-tax spending target growing with inflation. The gap between spending and SS/pension income is what drives withdrawals.</p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-1">Year-by-Year Table</h3>
+            <p>Every year of the simulation is shown: your age, phase (accumulation / retirement), guaranteed income, after-tax spending target, gross portfolio withdrawal (grossed up for taxes), taxes paid on withdrawals, and year-end portfolio balance. RMD years are flagged.</p>
+          </div>
+          <div>
+            <h3 class="font-semibold text-gray-800 mb-1">Withdrawal vs Spending</h3>
+            <p><strong>Annual Spending</strong> is what you keep after taxes. <strong>Withdrawal Needed</strong> is the gross amount pulled from your portfolio before taxes — always larger when drawing from pre-tax accounts. The difference is <strong>Taxes Paid</strong>.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Social Security -->
+      <section id="social-security" class="bg-white rounded-xl shadow p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Social Security</h2>
+
+        <h3 class="font-semibold text-gray-800 mb-2">Entering Your Benefit</h3>
+        <p class="text-sm text-gray-600 mb-4">Enter your <strong>monthly benefit at Full Retirement Age (67)</strong> from your SSA statement. This is the headline number on <a href="https://ssa.gov/myaccount" class="text-indigo-600 hover:underline" target="_blank">ssa.gov/myaccount</a> — labeled "Your retirement benefit."</p>
+
+        <h3 class="font-semibold text-gray-800 mb-2">How Claim Age Affects Your Benefit</h3>
+        <p class="text-sm text-gray-600 mb-3">The simulation calculates your actual benefit at whatever claim age you choose per-scenario using official SSA rules (FRA = 67, born 1960 or later):</p>
+
+        <div class="overflow-x-auto mb-4">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 border-b">
+              <tr>
+                <th class="text-left px-4 py-2 font-semibold text-gray-600">Claim Age</th>
+                <th class="text-right px-4 py-2 font-semibold text-gray-600">% of FRA Benefit</th>
+                <th class="text-right px-4 py-2 font-semibold text-gray-600">Example ($2,000 FRA)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr><td class="px-4 py-2">62 (earliest)</td><td class="px-4 py-2 text-right text-red-600 font-medium">70%</td><td class="px-4 py-2 text-right">$1,400/mo</td></tr>
+              <tr><td class="px-4 py-2">64</td><td class="px-4 py-2 text-right text-orange-500 font-medium">80%</td><td class="px-4 py-2 text-right">$1,600/mo</td></tr>
+              <tr><td class="px-4 py-2">66</td><td class="px-4 py-2 text-right text-yellow-600 font-medium">93.3%</td><td class="px-4 py-2 text-right">$1,867/mo</td></tr>
+              <tr class="bg-indigo-50"><td class="px-4 py-2 font-semibold">67 (FRA)</td><td class="px-4 py-2 text-right text-indigo-600 font-bold">100%</td><td class="px-4 py-2 text-right font-semibold">$2,000/mo</td></tr>
+              <tr><td class="px-4 py-2">68</td><td class="px-4 py-2 text-right text-green-600 font-medium">108%</td><td class="px-4 py-2 text-right">$2,160/mo</td></tr>
+              <tr><td class="px-4 py-2">69</td><td class="px-4 py-2 text-right text-green-600 font-medium">116%</td><td class="px-4 py-2 text-right">$2,320/mo</td></tr>
+              <tr><td class="px-4 py-2">70 (maximum)</td><td class="px-4 py-2 text-right text-green-700 font-bold">124%</td><td class="px-4 py-2 text-right font-semibold">$2,480/mo</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="font-semibold text-gray-800 mb-2">COLA (Cost of Living Adjustment)</h3>
+        <p class="text-sm text-gray-600 mb-4">Once you start collecting, your SS benefit grows each year by the COLA rate (default 2.5%). The simulation applies this compounding from your claim age forward.</p>
+
+        <h3 class="font-semibold text-gray-800 mb-2">Claim Age Strategy</h3>
+        <p class="text-sm text-gray-600">The best claim age depends on your health, other income, and portfolio size. A key use of RetireSim is to create two identical scenarios — one claiming at 62, one at 70 — and compare the final balances. The answer often surprises people.</p>
+      </section>
+
+      <!-- Taxes -->
+      <section id="taxes" class="bg-white rounded-xl shadow p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Taxes</h2>
+
+        <h3 class="font-semibold text-gray-800 mb-2">Tax Rates in Scenarios</h3>
+        <div class="space-y-3 text-sm text-gray-600 mb-5">
+          <p><strong>Effective Rate (Working):</strong> Applied to employment income during the accumulation phase for informational purposes.</p>
+          <p><strong>Effective Rate (Retirement):</strong> The tax rate applied to pre-tax account withdrawals (401k, traditional IRA). This represents your blended effective federal + state rate on ordinary income in retirement.</p>
+          <p><strong>Capital Gains Rate:</strong> Applied to approximately 50% of taxable brokerage withdrawals (the estimated gain portion).</p>
+        </div>
+
+        <h3 class="font-semibold text-gray-800 mb-2">After-Tax Spending &amp; Gross-Up</h3>
+        <p class="text-sm text-gray-600 mb-3">The <strong>Annual Spending</strong> field is what you want to <em>spend</em> after taxes — your take-home amount. The simulation automatically computes how much more needs to come out of your portfolio to cover taxes:</p>
+        <div class="rounded-lg bg-gray-50 border px-4 py-3 text-sm font-mono text-gray-700 mb-3">
+          Pre-tax 401k: need $80,000 net → withdraw $94,118 at 15% tax<br>
+          Roth: need $80,000 net → withdraw $80,000 (tax-free)<br>
+          Taxable: need $80,000 net → withdraw ~$86,486 at 15% cap gains (50% gain)
+        </div>
+        <p class="text-sm text-gray-600">The gross-up uses the actual mix of account types being drawn from in tax-efficient order, so accounts are never over- or under-taxed.</p>
+
+        <h3 class="font-semibold text-gray-800 mt-4 mb-2">Social Security Taxation</h3>
+        <p class="text-sm text-gray-600">Up to 85% of SS benefits can be taxable depending on your combined income. The simulation uses IRS thresholds to determine the taxable portion of SS each year.</p>
+      </section>
+
+      <!-- Black Swan -->
+      <section id="black-swan" class="bg-white rounded-xl shadow p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">🌪️ Black Swan Events</h2>
+        <p class="text-gray-600 mb-4">Black swan events model sudden, severe market crashes — 2008, 2020, dot-com bust. Enabling this adds randomised crash events to your simulation so you can stress-test your plan against bad luck.</p>
+
+        <div class="space-y-3 text-sm text-gray-600">
+          <div class="grid grid-cols-3 gap-2 border-b pb-2 font-semibold text-gray-500">
+            <span>Parameter</span><span class="col-span-2">Description</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+            <span class="font-medium text-gray-700">Annual Probability %</span>
+            <span class="col-span-2">The chance of a crash occurring in any given year. 3% means roughly one event per 33 years on average.</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 border-b pb-3">
+            <span class="font-medium text-gray-700">Min / Max Loss %</span>
+            <span class="col-span-2">The range of portfolio loss when a crash hits. A loss is drawn randomly from this range. Default 20–50%.</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <span class="font-medium text-gray-700">Recovery Years</span>
+            <span class="col-span-2">How many years the portfolio's return rate is suppressed after the crash as it gradually recovers. Default 3 years.</span>
+          </div>
+        </div>
+
+        <div class="mt-5 rounded-lg bg-amber-50 border border-amber-100 px-4 py-3 text-sm text-amber-800">
+          Black swan events are applied in the deterministic simulation using a seeded random process. If you re-run the same scenario, the crash timing may differ. Use this feature to explore worst-case planning, not as a statistical model.
+        </div>
+      </section>
+
+      <!-- Invitations -->
+      <section id="invitations" class="bg-white rounded-xl shadow p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Invitations</h2>
+        <p class="text-gray-600 mb-4">RetireSim is invite-only. New users can only register using a valid invitation link — there is no open sign-up. This keeps the user base controlled and the application personal.</p>
+
+        <h3 class="font-semibold text-gray-800 mb-2">For Administrators</h3>
+        <p class="text-sm text-gray-600 mb-4">Staff users can create invitation links from the <strong>Invitations</strong> page in the navigation bar. Each invitation link is single-use — once a user registers with it, the link is consumed. You can generate as many as needed and share them via email or message.</p>
+
+        <h3 class="font-semibold text-gray-800 mb-2">For New Users</h3>
+        <p class="text-sm text-gray-600 mb-2">If you've been given an invitation link:</p>
+        <ol class="list-decimal list-inside text-sm text-gray-600 space-y-1 mb-4">
+          <li>Click the invitation link</li>
+          <li>Create a username and password on the registration page</li>
+          <li>You'll be taken directly to the profile setup wizard</li>
+          <li>Complete your profile and start building your plan</li>
+        </ol>
+
+        <div class="rounded-lg bg-indigo-50 border border-indigo-100 px-4 py-3 text-sm text-indigo-700">
+          Invitation links expire after 7 days. If your link has expired, ask the administrator to generate a new one.
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq" class="bg-white rounded-xl shadow p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
+
+        <div class="space-y-0 divide-y" id="faq-list">
+
+          <div class="faq-item py-4">
+            <button class="faq-q flex items-center justify-between w-full text-left font-medium text-gray-800 hover:text-indigo-700">
+              <span>Should I enter gross or net income in my profile?</span>
+              <span class="faq-icon text-gray-400 text-lg leading-none">+</span>
+            </button>
+            <div class="faq-a hidden mt-2 text-sm text-gray-600">
+              Enter your <strong>gross (pre-tax) income</strong>. The simulation uses this to calculate contribution amounts and employer match during the accumulation phase.
+            </div>
+          </div>
+
+          <div class="faq-item py-4">
+            <button class="faq-q flex items-center justify-between w-full text-left font-medium text-gray-800 hover:text-indigo-700">
+              <span>Why does my scenario show a higher withdrawal than my spending target?</span>
+              <span class="faq-icon text-gray-400 text-lg leading-none">+</span>
+            </button>
+            <div class="faq-a hidden mt-2 text-sm text-gray-600">
+              The <strong>Annual Spending</strong> you set is your after-tax target — what lands in your bank account. The <strong>Withdrawal Needed</strong> shown in results is the gross amount pulled from your portfolio before taxes. If most of your money is in a pre-tax 401(k), at a 15% tax rate you need to withdraw ~$94k to net $80k. The difference is shown as <strong>Taxes Paid</strong> in the year-by-year table.
+            </div>
+          </div>
+
+          <div class="faq-item py-4">
+            <button class="faq-q flex items-center justify-between w-full text-left font-medium text-gray-800 hover:text-indigo-700">
+              <span>My portfolio depletes before my life expectancy. What should I adjust?</span>
+              <span class="faq-icon text-gray-400 text-lg leading-none">+</span>
+            </button>
+            <div class="faq-a hidden mt-2 text-sm text-gray-600">
+              Common levers to try (use the Copy button to test each):
+              <ul class="list-disc list-inside mt-2 space-y-1">
+                <li>Reduce annual retirement spending</li>
+                <li>Delay retirement age by 1–3 years (more contributions, fewer withdrawal years)</li>
+                <li>Delay SS claim age to 70 (higher guaranteed income reduces portfolio withdrawals)</li>
+                <li>Increase contribution amounts today</li>
+                <li>Increase stock allocation (higher expected return, more volatility)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="faq-item py-4">
+            <button class="faq-q flex items-center justify-between w-full text-left font-medium text-gray-800 hover:text-indigo-700">
+              <span>What's the difference between Fixed spending and the 4% rule?</span>
+              <span class="faq-icon text-gray-400 text-lg leading-none">+</span>
+            </button>
+            <div class="faq-a hidden mt-2 text-sm text-gray-600">
+              <strong>Fixed</strong>: You spend a set dollar amount each year (inflation-adjusted). If the portfolio shrinks, your spending doesn't — which can accelerate depletion in bad markets.<br><br>
+              <strong>% of Portfolio</strong>: You spend a fixed percentage of whatever the portfolio is worth that year (e.g. 4%). Spending automatically drops in down years, protecting the portfolio — but your income is variable.<br><br>
+              <strong>Guardrails</strong>: A hybrid — fixed spending, but reduced by 10% if the portfolio drops more than 20% below its peak.
+            </div>
+          </div>
+
+          <div class="faq-item py-4">
+            <button class="faq-q flex items-center justify-between w-full text-left font-medium text-gray-800 hover:text-indigo-700">
+              <span>Should I claim Social Security at 62 or wait until 70?</span>
+              <span class="faq-icon text-gray-400 text-lg leading-none">+</span>
+            </button>
+            <div class="faq-a hidden mt-2 text-sm text-gray-600">
+              There's no universal answer — it depends on health, other income, and your portfolio size. The best way to use RetireSim for this: copy a scenario twice. In one, set your SS claim age to 62. In the other, set it to 70. Compare the final balances and the age at which the portfolio would be depleted. The delayed-claiming scenario typically wins if you live past your mid-80s.
+            </div>
+          </div>
+
+          <div class="faq-item py-4">
+            <button class="faq-q flex items-center justify-between w-full text-left font-medium text-gray-800 hover:text-indigo-700">
+              <span>Where do I find my SS benefit amount?</span>
+              <span class="faq-icon text-gray-400 text-lg leading-none">+</span>
+            </button>
+            <div class="faq-a hidden mt-2 text-sm text-gray-600">
+              Log in to <a href="https://ssa.gov/myaccount" class="text-indigo-600 hover:underline" target="_blank">ssa.gov/myaccount</a> and view your Social Security Statement. The headline number labeled "Your retirement benefit" at Full Retirement Age (67) is what to enter in RetireSim.
+            </div>
+          </div>
+
+          <div class="faq-item py-4">
+            <button class="faq-q flex items-center justify-between w-full text-left font-medium text-gray-800 hover:text-indigo-700">
+              <span>Are the return rates nominal or inflation-adjusted (real)?</span>
+              <span class="faq-icon text-gray-400 text-lg leading-none">+</span>
+            </button>
+            <div class="faq-a hidden mt-2 text-sm text-gray-600">
+              <strong>Nominal</strong>. Enter the total expected return before subtracting inflation. The inflation rate is applied separately to your spending target and inflation-adjusted income sources. A common conservative set of assumptions: 7% stocks, 3.5% bonds, 2.5% inflation.
+            </div>
+          </div>
+
+          <div class="faq-item py-4">
+            <button class="faq-q flex items-center justify-between w-full text-left font-medium text-gray-800 hover:text-indigo-700">
+              <span>Does RetireSim account for RMDs?</span>
+              <span class="faq-icon text-gray-400 text-lg leading-none">+</span>
+            </button>
+            <div class="faq-a hidden mt-2 text-sm text-gray-600">
+              Yes. Required Minimum Distributions are calculated automatically for pre-tax accounts starting at age 73 (per the SECURE 2.0 Act), using the IRS Uniform Lifetime Table divisors. RMD years are flagged in the year-by-year results table.
+            </div>
+          </div>
+
+          <div class="faq-item py-4">
+            <button class="faq-q flex items-center justify-between w-full text-left font-medium text-gray-800 hover:text-indigo-700">
+              <span>Can I model a spouse with a different retirement age?</span>
+              <span class="faq-icon text-gray-400 text-lg leading-none">+</span>
+            </button>
+            <div class="faq-a hidden mt-2 text-sm text-gray-600">
+              Yes. Add your spouse in the Profile section, then set their retirement age per-scenario. This lets you model scenarios where one spouse retires earlier than the other, with the later-retiring spouse's income continuing to offset spending.
+            </div>
+          </div>
+
+          <div class="faq-item py-4">
+            <button class="faq-q flex items-center justify-between w-full text-left font-medium text-gray-800 hover:text-indigo-700">
+              <span>Is my financial data safe?</span>
+              <span class="faq-icon text-gray-400 text-lg leading-none">+</span>
+            </button>
+            <div class="faq-a hidden mt-2 text-sm text-gray-600">
+              RetireSim is a self-hosted application. Your data stays on the server it's deployed on, accessible only to you and other invited users. No data is shared with third parties.
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div><!-- end content -->
+  </div><!-- end flex -->
+</div>
+
+<script>
+// FAQ accordion
+document.querySelectorAll('.faq-q').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const answer = btn.nextElementSibling;
+    const icon = btn.querySelector('.faq-icon');
+    const isOpen = !answer.classList.contains('hidden');
+    answer.classList.toggle('hidden', isOpen);
+    icon.textContent = isOpen ? '+' : '−';
+  });
+});
+
+// Highlight active nav link on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.help-nav-link');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('bg-indigo-50', 'text-indigo-700', 'font-semibold'));
+      const active = document.querySelector(`.help-nav-link[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('bg-indigo-50', 'text-indigo-700', 'font-semibold');
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+
+{% endblock %}
