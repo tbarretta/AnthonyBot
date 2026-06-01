@@ -15,6 +15,26 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer></script>
 
   {% block extra_head %}{% endblock %}
+
+  <style>
+    /* Global input contrast — white cards on white backgrounds need visible fields */
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea {
+      background-color: #f3f4f6 !important; /* gray-100 */
+      border-color: #6b7280 !important;     /* gray-500 */
+    }
+    input:not([type="checkbox"]):not([type="radio"]):focus,
+    select:focus,
+    textarea:focus {
+      background-color: #ffffff !important;
+      border-color: #4f46e5 !important;     /* indigo-600 */
+    }
+    input[readonly] {
+      background-color: #e5e7eb !important; /* gray-200 — clearly disabled */
+      color: #6b7280 !important;
+    }
+  </style>
 </head>
 <body class="h-full" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
