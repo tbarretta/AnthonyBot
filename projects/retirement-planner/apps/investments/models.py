@@ -81,11 +81,7 @@ class InvestmentAccount(models.Model):
     # Employer Match (applies to 401k-type accounts)
     employer_match_pct = models.DecimalField(
         max_digits=5, decimal_places=2, default=0,
-        help_text="Employer match rate %, e.g. 50 means 50 cents per dollar contributed"
-    )
-    employer_match_limit_pct = models.DecimalField(
-        max_digits=5, decimal_places=2, default=0,
-        help_text="Max % of salary employer will match, e.g. 6 means match up to 6% of salary"
+        help_text="Employer contributes this % of your salary, e.g. 6 means employer adds 6% of salary per year"
     )
 
     # Asset Allocation
@@ -136,18 +132,16 @@ class InvestmentAccount(models.Model):
     @property
     def effective_employer_match_annual(self):
         """
-        Compute employer match based on owner's income.
-        Returns 0 if no profile income available.
+        Employer match = employer_match_pct % of the owner's annual salary.
+        e.g. employer_match_pct=6 on a $100k salary → $6,000/yr match.
+        Returns 0 if no match configured or no income available.
         """
-        if not self.employer_match_pct or not self.employer_match_limit_pct:
+        if not self.employer_match_pct:
             return 0
         profile = self.user_profile
         income = float(profile.annual_income if self.owner == "self" else
                        profile.spouse.annual_income if profile.has_spouse else 0)
-        max_matchable = income * float(self.employer_match_limit_pct) / 100
-        actual_contribution = float(self.annual_contribution)
-        matched_contribution = min(actual_contribution, max_matchable)
-        return matched_contribution * float(self.employer_match_pct) / 100
+        return income * float(self.employer_match_pct) / 100
 
 
 # ---------------------------------------------------------------------------

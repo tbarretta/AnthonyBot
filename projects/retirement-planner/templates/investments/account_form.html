@@ -54,17 +54,11 @@
 
       <div class="border rounded-lg p-4 bg-gray-50 space-y-3">
         <p class="text-sm font-medium text-gray-700">Employer Match (optional)</p>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs text-gray-500 mb-1">Match Rate (% of contribution)</label>
-            {% render_field form.employer_match_pct class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. 50" %}
+        <div class="w-40">
+          <label class="block text-xs text-gray-500 mb-1">Employer Match (% of salary)</label>
+          {% render_field form.employer_match_pct class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. 6" %}
           {% if form.employer_match_pct.errors %}<p class="text-xs text-red-600 mt-1">{{ form.employer_match_pct.errors.0 }}</p>{% endif %}
-          </div>
-          <div>
-            <label class="block text-xs text-gray-500 mb-1">Match Cap (% of salary)</label>
-            {% render_field form.employer_match_limit_pct class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. 6" %}
-            {% if form.employer_match_limit_pct.errors %}<p class="text-xs text-red-600 mt-1">{{ form.employer_match_limit_pct.errors.0 }}</p>{% endif %}
-          </div>
+          <p class="text-xs text-gray-400 mt-1">e.g. 6 = employer contributes 6% of your salary/yr.</p>
         </div>
       </div>
 

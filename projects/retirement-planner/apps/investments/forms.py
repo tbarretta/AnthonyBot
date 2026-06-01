@@ -24,10 +24,6 @@ class InvestmentAccountForm(forms.ModelForm):
         max_digits=5, decimal_places=2, required=False, initial=0,
         widget=forms.NumberInput(attrs={"step": "0.1", "min": "0", "max": "100", "placeholder": "0.0"})
     )
-    employer_match_limit_pct = forms.DecimalField(
-        max_digits=5, decimal_places=2, required=False, initial=0,
-        widget=forms.NumberInput(attrs={"step": "0.1", "min": "0", "max": "100", "placeholder": "0.0"})
-    )
     asset_allocation_stocks = forms.IntegerField(
         min_value=0, max_value=100,
         widget=forms.NumberInput(attrs={"step": "1", "min": "0", "max": "100", "placeholder": "80"})
@@ -45,7 +41,7 @@ class InvestmentAccountForm(forms.ModelForm):
         fields = [
             "name", "account_type", "owner",
             "current_balance", "annual_contribution",
-            "employer_match_pct", "employer_match_limit_pct",
+            "employer_match_pct",
             "asset_allocation_stocks", "asset_allocation_bonds",
             "is_active",
         ]
