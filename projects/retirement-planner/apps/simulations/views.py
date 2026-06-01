@@ -32,7 +32,7 @@ def scenario_create(request):
             scenario.user_profile = profile
             scenario.save()
             messages.success(request, f"Scenario '{scenario.name}' created.")
-            return redirect("simulations:detail", pk=scenario.pk)
+            return redirect("simulations:run", pk=scenario.pk)
     else:
         form = ScenarioForm(profile=profile)
     return render(request, "simulations/scenario_form.html", {"form": form, "profile": profile})
