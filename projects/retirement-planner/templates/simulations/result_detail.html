@@ -20,6 +20,9 @@
   <a href="{% url 'simulations:edit' scenario.pk %}" class="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg text-sm hover:bg-gray-50">Edit Scenario</a>
 </div>
 
+<!-- Sensitivity zone: summary cards + chart replaced by HTMX slider updates -->
+<div id="sensitivity-zone">
+
 <!-- Summary cards -->
 <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
   <div class="bg-white rounded-xl shadow p-5 text-center">
@@ -115,23 +118,99 @@
 </div>
 
 <!-- Chart -->
-<div id="result-area">
-  <div class="bg-white rounded-xl shadow p-6 mb-6">
-    <h2 class="text-base font-semibold text-gray-800 mb-4">Portfolio Projection</h2>
-    <canvas id="mainChart" height="100"></canvas>
-  </div>
-
-  {% if result.result_data.summary.black_swan_events %}
-  <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">
-    <h3 class="font-semibold text-amber-800 mb-2">🌪️ Black Swan Events</h3>
-    <ul class="space-y-1 text-sm text-amber-700">
-      {% for event in result.result_data.summary.black_swan_events %}
-      <li>Age {{ event.age }} ({{ event.year }}): -{{ event.loss_pct }}% loss — ${{ event.loss_amount|floatformat:0 }} wiped out</li>
-      {% endfor %}
-    </ul>
-  </div>
-  {% endif %}
+<div class="bg-white rounded-xl shadow p-6 mb-4">
+  <h2 class="text-base font-semibold text-gray-800 mb-4">Portfolio Projection</h2>
+  <canvas id="mainChart" height="100"></canvas>
 </div>
+
+</div><!-- end #sensitivity-zone -->
+
+<!-- Sensitivity Sliders -->
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-base font-semibold text-gray-800">What-If Analysis</h2>
+    <button type="button" id="reset-sliders"
+      class="text-xs text-indigo-600 hover:text-indigo-800 font-medium border border-indigo-200 rounded px-3 py-1 hover:bg-indigo-50 transition">
+      Reset to saved values
+    </button>
+  </div>
+  <p class="text-xs text-gray-400 mb-5">Adjust sliders to explore how spending or returns affect your projection. Summary cards and chart update automatically.</p>
+
+  <form id="sensitivity-form"
+        hx-get="{% url 'simulations:sensitivity' pk=result.pk %}"
+        hx-target="#sensitivity-zone"
+        hx-swap="innerHTML"
+        hx-trigger="input from:find input[type=range] delay:300ms"
+        class="space-y-5">
+
+    <!-- Annual Spending -->
+    {% if scenario.spending_strategy == 'fixed' %}
+    <div>
+      <div class="flex justify-between text-sm mb-1">
+        <label class="font-medium text-gray-700">Annual Spending</label>
+        <span id="spending-label" class="font-semibold text-indigo-700"></span>
+      </div>
+      <input type="range" name="spending" id="spending-slider"
+             min="{{ spending_min }}" max="{{ spending_max }}" step="500"
+             value="{{ base_spending|floatformat:0 }}"
+             class="w-full accent-indigo-600">
+      <div class="flex justify-between text-xs text-gray-400 mt-1">
+        <span>${{ spending_min|floatformat:0 }}</span>
+        <span class="text-gray-500">Saved: ${{ base_spending|floatformat:0 }}</span>
+        <span>${{ spending_max|floatformat:0 }}</span>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <!-- Stock Return -->
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <label class="font-medium text-gray-700">Stock Return</label>
+          <span id="stocks-label" class="font-semibold text-indigo-700"></span>
+        </div>
+        <input type="range" name="stocks" id="stocks-slider"
+               min="2" max="12" step="0.25"
+               value="{{ base_stocks }}"
+               class="w-full accent-indigo-600">
+        <div class="flex justify-between text-xs text-gray-400 mt-1">
+          <span>2%</span>
+          <span class="text-gray-500">Saved: {{ base_stocks }}%</span>
+          <span>12%</span>
+        </div>
+      </div>
+
+      <!-- Bond Return -->
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <label class="font-medium text-gray-700">Bond Return</label>
+          <span id="bonds-label" class="font-semibold text-indigo-700"></span>
+        </div>
+        <input type="range" name="bonds" id="bonds-slider"
+               min="1" max="8" step="0.25"
+               value="{{ base_bonds }}"
+               class="w-full accent-indigo-600">
+        <div class="flex justify-between text-xs text-gray-400 mt-1">
+          <span>1%</span>
+          <span class="text-gray-500">Saved: {{ base_bonds }}%</span>
+          <span>8%</span>
+        </div>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+{% if result.result_data.summary.black_swan_events %}
+<div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">
+  <h3 class="font-semibold text-amber-800 mb-2">🌪️ Black Swan Events</h3>
+  <ul class="space-y-1 text-sm text-amber-700">
+    {% for event in result.result_data.summary.black_swan_events %}
+    <li>Age {{ event.age }} ({{ event.year }}): -{{ event.loss_pct }}% loss — ${{ event.loss_amount|floatformat:0 }} wiped out</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
 
 <!-- Year-by-Year Data Table -->
 {% if years %}
@@ -198,18 +277,25 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const chartData = {{ chart_data_json|safe }};
+const BASE_SPENDING = {{ base_spending|default:0 }};
+const BASE_STOCKS   = {{ base_stocks|default:7 }};
+const BASE_BONDS    = {{ base_bonds|default:3.5 }};
 
-document.addEventListener('DOMContentLoaded', () => {
-  renderDeterministicChart(chartData);
-});
+window.mainChart = null;
 
 function currency(val) {
   return '$' + Math.round(val).toLocaleString();
 }
 
 function renderDeterministicChart(data) {
-  const ctx = document.getElementById('mainChart').getContext('2d');
-  new Chart(ctx, {
+  const canvas = document.getElementById('mainChart');
+  if (!canvas) return;
+  if (window.mainChart) {
+    window.mainChart.destroy();
+    window.mainChart = null;
+  }
+  const ctx = canvas.getContext('2d');
+  window.mainChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: data.ages,
@@ -253,5 +339,64 @@ function renderDeterministicChart(data) {
     }
   });
 }
+
+// Label helpers
+function fmtCurrency(v) {
+  return '$' + Math.round(v).toLocaleString();
+}
+function fmtPct(v) {
+  return parseFloat(v).toFixed(2).replace(/\.?0+$/, '') + '%';
+}
+
+function updateLabels() {
+  const sSpending = document.getElementById('spending-slider');
+  const sStocks   = document.getElementById('stocks-slider');
+  const sBonds    = document.getElementById('bonds-slider');
+  const lSpending = document.getElementById('spending-label');
+  const lStocks   = document.getElementById('stocks-label');
+  const lBonds    = document.getElementById('bonds-label');
+  if (sSpending && lSpending) lSpending.textContent = fmtCurrency(sSpending.value);
+  if (sStocks   && lStocks)   lStocks.textContent   = fmtPct(sStocks.value);
+  if (sBonds    && lBonds)    lBonds.textContent     = fmtPct(sBonds.value);
+}
+
+function initSliders() {
+  updateLabels();
+  const inputs = document.querySelectorAll('#sensitivity-form input[type=range]');
+  inputs.forEach(inp => inp.addEventListener('input', updateLabels));
+
+  const resetBtn = document.getElementById('reset-sliders');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      const sSpending = document.getElementById('spending-slider');
+      const sStocks   = document.getElementById('stocks-slider');
+      const sBonds    = document.getElementById('bonds-slider');
+      if (sSpending) sSpending.value = BASE_SPENDING;
+      if (sStocks)   sStocks.value   = BASE_STOCKS;
+      if (sBonds)    sBonds.value    = BASE_BONDS;
+      updateLabels();
+      // Trigger HTMX re-run with base values
+      htmx.trigger('#sensitivity-form', 'input');
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderDeterministicChart(chartData);
+  initSliders();
+});
+
+// After each HTMX swap, re-render chart from the payload script tag
+document.body.addEventListener('htmx:afterSettle', function(evt) {
+  if (!evt.detail.target || evt.detail.target.id !== 'sensitivity-zone') return;
+  const payload = document.getElementById('sensitivity-chart-payload');
+  if (!payload) return;
+  try {
+    const newData = JSON.parse(payload.textContent);
+    renderDeterministicChart(newData);
+  } catch(e) {
+    console.error('Chart payload parse error', e);
+  }
+});
 </script>
 {% endblock %}

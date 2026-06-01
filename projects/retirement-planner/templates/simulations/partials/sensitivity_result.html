@@ -1,0 +1,40 @@
+{% load humanize %}
+<!-- Summary cards -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">At Retirement</p>
+    <p class="text-2xl font-bold text-indigo-700">
+      {% if balance_at_retirement >= 0 %}${{ balance_at_retirement|floatformat:0|intcomma }}{% else %}-${{ balance_at_retirement|floatformat:0|intcomma|cut:"-" }}{% endif %}
+    </p>
+  </div>
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Final Balance</p>
+    <p class="text-2xl font-bold {% if final_balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+      {% if final_balance >= 0 %}${{ final_balance|floatformat:0|intcomma }}{% else %}-${{ final_balance|floatformat:0|intcomma|cut:"-" }}{% endif %}
+    </p>
+  </div>
+  {% if exhaustion_age %}
+  <div class="bg-red-50 rounded-xl shadow p-5 text-center border border-red-200">
+    <p class="text-xs text-red-400 uppercase tracking-wide mb-1">⚠️ Exhausted at</p>
+    <p class="text-2xl font-bold text-red-600">Age {{ exhaustion_age }}</p>
+  </div>
+  {% else %}
+  <div class="bg-green-50 rounded-xl shadow p-5 text-center border border-green-200">
+    <p class="text-xs text-green-600 uppercase tracking-wide mb-1">✓ Portfolio Survives</p>
+    <p class="text-sm font-semibold text-green-700">To age {{ life_expectancy }}</p>
+  </div>
+  {% endif %}
+  <div class="bg-white rounded-xl shadow p-5 text-center">
+    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Retire at Age</p>
+    <p class="text-2xl font-bold text-gray-800">{{ scenario.retirement_age_self }}</p>
+  </div>
+</div>
+
+<!-- Chart -->
+<div class="bg-white rounded-xl shadow p-6 mb-4">
+  <h2 class="text-base font-semibold text-gray-800 mb-4">Portfolio Projection</h2>
+  <canvas id="mainChart" height="100"></canvas>
+</div>
+
+<!-- Chart payload — read by htmx:afterSettle handler -->
+<script type="application/json" id="sensitivity-chart-payload">{{ chart_data_json|safe }}</script>

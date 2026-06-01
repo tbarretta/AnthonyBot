@@ -1,3 +1,4 @@
+import dataclasses
 import json
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -149,21 +150,28 @@ def result_detail(request, pk):
 
     years = result.result_data.get("years", []) if result.result_data else []
 
+    base_spending = float(scenario.annual_retirement_spending)
+    spending_min = max(500, int(base_spending * 0.5 / 500) * 500)
+    spending_max = int(base_spending * 1.5 / 500 + 1) * 500
+
     return render(request, "simulations/result_detail.html", {
         "result": result,
         "scenario": scenario,
         "profile": profile,
         "chart_data_json": json.dumps(chart_data),
         "years": years,
+        "base_spending": base_spending,
+        "spending_min": spending_min,
+        "spending_max": spending_max,
+        "base_stocks": float(scenario.expected_annual_return_stocks),
+        "base_bonds": float(scenario.expected_annual_return_bonds),
     })
 
 
-def _build_chart_data(result: SimulationResult) -> dict:
-    """Extract chart-ready data from result_data JSON."""
-    data = result.result_data
+def _build_chart_data_from_raw(data: dict) -> dict:
+    """Build chart-ready data dict from raw engine output."""
     if not data:
         return {}
-
     if data.get("simulation_type") == "deterministic":
         years = data.get("years", [])
         return {
@@ -171,8 +179,8 @@ def _build_chart_data(result: SimulationResult) -> dict:
             "labels": [str(y["year"]) for y in years],
             "ages": [y["age"] for y in years],
             "total_portfolio": [y["total_portfolio"] for y in years],
-            "ss_income": [y["ss_income"] for y in years],
-            "pension_income": [y["pension_income"] for y in years],
+            "ss_income": [y.get("ss_income", 0) for y in years],
+            "pension_income": [y.get("pension_income", 0) for y in years],
             "annual_spending": [y["annual_spending"] for y in years],
             "total_contributions": [y["total_contributions"] for y in years],
             "black_swan_events": [
@@ -193,3 +201,60 @@ def _build_chart_data(result: SimulationResult) -> dict:
             "histogram": data.get("histogram", {}),
             "success_probability": data.get("success_probability"),
         }
+
+
+def _build_chart_data(result: SimulationResult) -> dict:
+    """Extract chart-ready data from a SimulationResult."""
+    return _build_chart_data_from_raw(result.result_data)
+
+
+@login_required
+def sensitivity_update(request, pk):
+    """
+    HTMX endpoint for sensitivity sliders.
+    Re-runs deterministic engine with overridden spending / return rates.
+    Does NOT save a new SimulationResult — purely ephemeral.
+    """
+    if not request.headers.get("HX-Request"):
+        return redirect("simulations:result_detail", pk=pk)
+
+    profile = get_object_or_404(UserProfile, user=request.user)
+    result = get_object_or_404(SimulationResult, pk=pk, scenario__user_profile=profile)
+    scenario = result.scenario
+
+    try:
+        spending = float(request.GET.get("spending", scenario.annual_retirement_spending))
+        stocks   = float(request.GET.get("stocks",   scenario.expected_annual_return_stocks))
+        bonds    = float(request.GET.get("bonds",    scenario.expected_annual_return_bonds))
+    except (TypeError, ValueError):
+        spending = float(scenario.annual_retirement_spending)
+        stocks   = float(scenario.expected_annual_return_stocks)
+        bonds    = float(scenario.expected_annual_return_bonds)
+
+    from .engine.deterministic import run_deterministic
+    sim_input = build_simulation_input(scenario)
+    sim_input = dataclasses.replace(
+        sim_input,
+        annual_retirement_spending=spending,
+        return_stocks_pct=stocks,
+        return_bonds_pct=bonds,
+    )
+
+    data    = run_deterministic(sim_input)
+    summary = data["summary"]
+
+    life_expectancy = scenario.user_life_expectancy_age or profile.life_expectancy_age
+
+    return render(request, "simulations/partials/sensitivity_result.html", {
+        "summary":            summary,
+        "scenario":           scenario,
+        "profile":            profile,
+        "chart_data_json":    json.dumps(_build_chart_data_from_raw(data)),
+        "final_balance":      summary["final_balance"],
+        "balance_at_retirement": summary["balance_at_user_retirement"],
+        "exhaustion_age":     summary.get("exhaustion_age"),
+        "life_expectancy":    life_expectancy,
+        "spending_override":  spending,
+        "stocks_override":    stocks,
+        "bonds_override":     bonds,
+    })

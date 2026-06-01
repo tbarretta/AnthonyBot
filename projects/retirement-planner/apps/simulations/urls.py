@@ -13,4 +13,5 @@ urlpatterns = [
     path("<int:pk>/run/", views.run_simulation, name="run"),
     path("results/<int:pk>/", views.result_detail, name="result_detail"),
     path("results/<int:pk>/status/", views.result_status, name="result_status"),
+    path("results/<int:pk>/sensitivity/", views.sensitivity_update, name="sensitivity"),
 ]
