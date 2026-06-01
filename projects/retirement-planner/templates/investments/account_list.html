@@ -71,60 +71,6 @@
 </div>
 {% endif %}
 
-<div class="flex items-center justify-between mb-4">
-  <div>
-    <h2 class="text-xl font-bold text-gray-900">Income Sources</h2>
-    <p class="text-sm text-gray-500 mt-1">Guaranteed payouts — Social Security, pension, IUL, rental, etc.</p>
-  </div>
-  <a href="{% url 'investments:income_create' %}" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700">+ Add Income Source</a>
-</div>
 
-{% if income_sources %}
-<div class="bg-white rounded-xl shadow overflow-hidden">
-  <div class="overflow-x-auto">
-  <table class="w-full text-sm">
-    <thead class="bg-gray-50 border-b">
-      <tr>
-        <th class="text-left px-6 py-3 font-semibold text-gray-600">Source</th>
-        <th class="text-left px-6 py-3 font-semibold text-gray-600">Owner</th>
-        <th class="text-right px-6 py-3 font-semibold text-gray-600">Annual Amount</th>
-        <th class="text-right px-6 py-3 font-semibold text-gray-600">Starts at Age</th>
-        <th class="text-right px-6 py-3 font-semibold text-gray-600">Ends at Age</th>
-        <th class="px-6 py-3"></th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-gray-100">
-      {% for src in income_sources %}
-      <tr class="hover:bg-gray-50">
-        <td class="px-6 py-4">
-          <div class="font-medium text-gray-900">{{ src.name }}</div>
-          <div class="text-xs text-gray-400">{{ src.get_source_type_display }}{% if not src.is_taxable %} · Tax-free{% endif %}</div>
-        </td>
-        <td class="px-6 py-4 text-gray-600">{{ src.get_owner_display }}</td>
-        <td class="px-6 py-4 text-right font-semibold text-gray-800">
-          {% if src.is_social_security %}
-            <span class="text-gray-400 text-xs">See SS estimates</span>
-          {% else %}
-            ${{ src.annual_amount|floatformat:0|intcomma }}/yr
-          {% endif %}
-        </td>
-        <td class="px-6 py-4 text-right text-gray-600">{{ src.start_age }}</td>
-        <td class="px-6 py-4 text-right text-gray-500">{{ src.end_age|default:"Lifetime" }}</td>
-        <td class="px-6 py-4 text-right">
-          <a href="{% url 'investments:income_edit' src.pk %}" class="text-indigo-600 hover:text-indigo-800 text-xs font-medium mr-3">Edit</a>
-          <a href="{% url 'investments:income_delete' src.pk %}" class="text-red-500 hover:text-red-700 text-xs font-medium">Delete</a>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  </div>
-</div>
-{% else %}
-<div class="bg-white rounded-xl shadow p-10 text-center text-gray-400">
-  <p class="text-lg mb-2">No income sources yet.</p>
-  <a href="{% url 'investments:income_create' %}" class="text-indigo-600 hover:underline text-sm">Add Social Security, pension, rental income, IUL →</a>
-</div>
-{% endif %}
 
 {% endblock %}
