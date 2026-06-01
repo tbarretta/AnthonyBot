@@ -18,7 +18,7 @@
   <div class="bg-white rounded-xl shadow p-6 flex items-start justify-between gap-4">
     <div class="flex-1 min-w-0">
       <div class="flex items-center gap-3 mb-1">
-        <a href="{% url 'simulations:detail' scenario.pk %}" class="text-lg font-semibold text-indigo-700 hover:underline truncate">{{ scenario.name }}</a>
+        <span class="text-lg font-semibold text-gray-900 truncate">{{ scenario.name }}</span>
         {% if scenario.black_swan_enabled %}
         <span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium flex-shrink-0">🌪️ Black Swan</span>
         {% endif %}
