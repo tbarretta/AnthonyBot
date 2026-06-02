@@ -33,7 +33,9 @@
 <!-- Chart -->
 <div class="bg-white rounded-xl shadow p-6 mb-4">
   <h2 class="text-base font-semibold text-gray-800 mb-4">Portfolio Projection</h2>
-  <canvas id="mainChart" height="100"></canvas>
+  <div class="relative h-64 sm:h-80">
+    <canvas id="mainChart"></canvas>
+  </div>
 </div>
 
 <!-- Chart payload — read by htmx:afterSettle handler -->
