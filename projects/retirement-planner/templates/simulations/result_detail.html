@@ -17,7 +17,13 @@
     <h1 class="text-2xl font-bold text-gray-900">{{ scenario.name }}</h1>
     <p class="text-gray-500 text-sm mt-1">Deterministic simulation{% if scenario.black_swan_enabled %} · 🌪️ Black Swan enabled{% endif %} · Run {{ result.completed_at|date:"M j, Y g:i a" }}</p>
   </div>
-  <a href="{% url 'simulations:edit' scenario.pk %}" class="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg text-sm hover:bg-gray-50">Edit Scenario</a>
+  <div class="flex gap-2">
+    <a href="{% url 'simulations:result_pdf' pk=result.pk %}" class="border border-indigo-200 text-indigo-600 px-4 py-2 rounded-lg text-sm hover:bg-indigo-50 flex items-center gap-1.5">
+      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+      Export PDF
+    </a>
+    <a href="{% url 'simulations:edit' scenario.pk %}" class="border border-gray-300 text-gray-600 px-4 py-2 rounded-lg text-sm hover:bg-gray-50">Edit Scenario</a>
+  </div>
 </div>
 
 <!-- Sensitivity zone: summary cards + chart replaced by HTMX slider updates -->

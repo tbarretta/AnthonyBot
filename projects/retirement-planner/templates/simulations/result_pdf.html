@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+{% load humanize %}
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page {
+    size: letter;
+    margin: 0.75in 0.75in 0.85in 0.75in;
+    @bottom-center {
+      content: "RetireSim  ·  Generated {{ generated_at|date:'N j, Y' }}  ·  Page " counter(page) " of " counter(pages);
+      font-size: 8pt;
+      color: #9ca3af;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "Liberation Sans", "Arial", sans-serif;
+    font-size: 10pt;
+    color: #1f2937;
+    line-height: 1.4;
+  }
+
+  /* ── Header ─────────────────────────────────────── */
+  .header {
+    border-bottom: 2.5pt solid #4f46e5;
+    padding-bottom: 10pt;
+    margin-bottom: 16pt;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .header-title { font-size: 18pt; font-weight: bold; color: #4f46e5; }
+  .header-sub   { font-size: 9pt;  color: #6b7280; margin-top: 2pt; }
+  .header-meta  { text-align: right; font-size: 8pt; color: #6b7280; }
+
+  /* ── Section headings ───────────────────────────── */
+  h2 {
+    font-size: 11pt;
+    font-weight: bold;
+    color: #374151;
+    border-bottom: 1pt solid #e5e7eb;
+    padding-bottom: 4pt;
+    margin: 16pt 0 8pt;
+  }
+
+  /* ── Summary cards ──────────────────────────────── */
+  .summary-grid {
+    display: flex;
+    gap: 10pt;
+    margin-bottom: 4pt;
+  }
+  .card {
+    flex: 1;
+    border: 1pt solid #e5e7eb;
+    border-radius: 6pt;
+    padding: 10pt;
+    text-align: center;
+    background: #f9fafb;
+  }
+  .card-label  { font-size: 7.5pt; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4pt; }
+  .card-value  { font-size: 15pt; font-weight: bold; color: #4f46e5; }
+  .card-value.green  { color: #059669; }
+  .card-value.red    { color: #dc2626; }
+  .card-value.dark   { color: #1f2937; }
+  .card-survive { background: #f0fdf4; border-color: #bbf7d0; }
+  .card-deplete { background: #fef2f2; border-color: #fecaca; }
+  .card-survive .card-label { color: #059669; }
+  .card-deplete .card-label { color: #dc2626; }
+
+  /* ── Assumptions grid ───────────────────────────── */
+  .assumptions-grid {
+    display: flex;
+    gap: 10pt;
+  }
+  .assumptions-col { flex: 1; }
+  .assumption-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4pt 0;
+    border-bottom: 0.5pt solid #f3f4f6;
+    font-size: 9pt;
+  }
+  .assumption-row:last-child { border-bottom: none; }
+  .assumption-label { color: #6b7280; }
+  .assumption-value { font-weight: 600; color: #1f2937; }
+
+  /* ── Chart ──────────────────────────────────────── */
+  .chart-wrap {
+    border: 1pt solid #e5e7eb;
+    border-radius: 6pt;
+    padding: 10pt 6pt 6pt;
+    background: #fff;
+    margin-bottom: 4pt;
+  }
+
+  /* ── Year-by-year table ─────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+    page-break-inside: auto;
+  }
+  thead th {
+    background: #f3f4f6;
+    color: #4b5563;
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 5pt 6pt;
+    text-align: right;
+    border-bottom: 1pt solid #d1d5db;
+  }
+  thead th:first-child { text-align: left; }
+  tbody tr { page-break-inside: avoid; }
+  tbody tr:nth-child(even) { background: #f9fafb; }
+  tbody td {
+    padding: 4pt 6pt;
+    border-bottom: 0.5pt solid #f3f4f6;
+    text-align: right;
+    color: #374151;
+  }
+  tbody td:first-child { text-align: left; font-weight: 600; }
+  .phase-badge {
+    display: inline-block;
+    padding: 1pt 4pt;
+    border-radius: 3pt;
+    font-size: 7.5pt;
+    font-weight: 600;
+  }
+  .phase-accumulation { background: #dbeafe; color: #1d4ed8; }
+  .phase-retirement   { background: #fef3c7; color: #b45309; }
+  .phase-both_retired { background: #dcfce7; color: #15803d; }
+  .text-red    { color: #dc2626; }
+  .text-green  { color: #059669; }
+  .text-blue   { color: #2563eb; }
+  .text-amber  { color: #d97706; }
+  .text-muted  { color: #9ca3af; }
+  .row-depleted { background: #fef2f2 !important; }
+
+  /* ── Scenario note ──────────────────────────────── */
+  .scenario-note {
+    font-size: 8pt;
+    color: #6b7280;
+    margin-top: 4pt;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div>
+    <div class="header-title">RetireSim</div>
+    <div class="header-sub">Retirement Projection Report</div>
+  </div>
+  <div class="header-meta">
+    <div><strong>{{ scenario.name }}</strong></div>
+    <div>Generated {{ generated_at|date:"N j, Y g:i a" }}</div>
+    {% if scenario.black_swan_enabled %}<div>⚠ Black Swan enabled</div>{% endif %}
+  </div>
+</div>
+
+<!-- Summary Cards -->
+<h2>Summary</h2>
+<div class="summary-grid">
+  <div class="card">
+    <div class="card-label">Portfolio at Retirement</div>
+    <div class="card-value">${{ result.median_balance_at_retirement|floatformat:0|intcomma }}</div>
+  </div>
+  <div class="card">
+    <div class="card-label">Final Balance</div>
+    <div class="card-value {% if result.deterministic_final_balance >= 0 %}green{% else %}red{% endif %}">
+      {% if result.deterministic_final_balance >= 0 %}
+        ${{ result.deterministic_final_balance|floatformat:0|intcomma }}
+      {% else %}
+        -${{ result.deterministic_final_balance|floatformat:0|intcomma|cut:"-" }}
+      {% endif %}
+    </div>
+  </div>
+  {% if result.portfolio_exhaustion_age %}
+  <div class="card card-deplete">
+    <div class="card-label">⚠ Portfolio Depletes</div>
+    <div class="card-value red">Age {{ result.portfolio_exhaustion_age }}</div>
+  </div>
+  {% else %}
+  <div class="card card-survive">
+    <div class="card-label">✓ Portfolio Survives</div>
+    <div class="card-value green">To age {{ scenario.user_life_expectancy_age|default:profile.life_expectancy_age }}</div>
+  </div>
+  {% endif %}
+  <div class="card">
+    <div class="card-label">Retire at Age</div>
+    <div class="card-value dark">{{ scenario.retirement_age_self }}</div>
+  </div>
+</div>
+
+<!-- Assumptions -->
+<h2>Scenario Assumptions</h2>
+<div class="assumptions-grid">
+  <div class="assumptions-col">
+    <div class="assumption-row"><span class="assumption-label">Retirement Age</span><span class="assumption-value">{{ scenario.retirement_age_self }}{% if profile.has_spouse %} / {{ scenario.retirement_age_spouse }} (spouse){% endif %}</span></div>
+    <div class="assumption-row"><span class="assumption-label">Life Expectancy</span><span class="assumption-value">{{ scenario.user_life_expectancy_age|default:profile.life_expectancy_age }}{% if profile.has_spouse %} / {{ scenario.spouse_life_expectancy_age|default:profile.spouse.life_expectancy_age }} (spouse){% endif %}</span></div>
+    <div class="assumption-row"><span class="assumption-label">Annual Spending</span><span class="assumption-value">${{ scenario.annual_retirement_spending|floatformat:0|intcomma }}/yr ({{ scenario.get_spending_strategy_display }})</span></div>
+    <div class="assumption-row"><span class="assumption-label">Spending Growth</span><span class="assumption-value">{{ scenario.spending_growth_rate }}% / yr</span></div>
+    <div class="assumption-row"><span class="assumption-label">SS Claim Age</span><span class="assumption-value">{{ scenario.ss_claim_age_self }}{% if profile.has_spouse %} / {{ scenario.ss_claim_age_spouse }} (spouse){% endif %}</span></div>
+    <div class="assumption-row"><span class="assumption-label">Guardrails</span><span class="assumption-value">{% if scenario.guardrails_enabled %}Yes{% else %}No{% endif %}</span></div>
+  </div>
+  <div class="assumptions-col">
+    <div class="assumption-row"><span class="assumption-label">Stock Return</span><span class="assumption-value">{{ scenario.expected_annual_return_stocks }}%</span></div>
+    <div class="assumption-row"><span class="assumption-label">Bond Return</span><span class="assumption-value">{{ scenario.expected_annual_return_bonds }}%</span></div>
+    <div class="assumption-row"><span class="assumption-label">Inflation Rate</span><span class="assumption-value">{{ scenario.inflation_rate }}%</span></div>
+    <div class="assumption-row"><span class="assumption-label">Tax Rate (Working)</span><span class="assumption-value">{{ scenario.effective_tax_rate_working }}%</span></div>
+    <div class="assumption-row"><span class="assumption-label">Tax Rate (Retirement)</span><span class="assumption-value">{{ scenario.effective_tax_rate_retirement }}%</span></div>
+    <div class="assumption-row"><span class="assumption-label">Capital Gains Rate</span><span class="assumption-value">{{ scenario.capital_gains_rate }}%</span></div>
+  </div>
+</div>
+
+<!-- Chart -->
+<h2>Portfolio Projection</h2>
+<div class="chart-wrap">
+  {{ svg_chart|safe }}
+</div>
+<p class="scenario-note">Blue line: portfolio balance · Red dashed line: annual spending · Values in simulation-year dollars</p>
+
+<!-- Year-by-Year Table -->
+<h2>Year-by-Year Detail</h2>
+<table>
+  <thead>
+    <tr>
+      <th style="text-align:left">Age</th>
+      {% if profile.has_spouse %}<th>Spouse Age</th>{% endif %}
+      <th style="text-align:left">Phase</th>
+      <th>Portfolio Balance</th>
+      <th>Contributions</th>
+      <th>Guar. Income</th>
+      <th>Spending</th>
+      <th>Withdrawal</th>
+      <th>RMD</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in years %}
+    <tr class="{% if result.portfolio_exhaustion_age and row.age >= result.portfolio_exhaustion_age %}row-depleted{% endif %}">
+      <td>{{ row.age }}</td>
+      {% if profile.has_spouse %}<td>{{ row.spouse_age|default:"—" }}</td>{% endif %}
+      <td>
+        <span class="phase-badge phase-{{ row.phase }}">
+          {% if row.phase == "accumulation" %}Accum.
+          {% elif row.phase == "both_retired" %}Both Ret.
+          {% else %}Retired{% endif %}
+        </span>
+      </td>
+      <td><strong>${{ row.total_portfolio|floatformat:0|intcomma }}</strong></td>
+      <td class="text-blue">{% if row.total_contributions > 0 %}${{ row.total_contributions|floatformat:0|intcomma }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+      <td class="text-green">{% if row.total_guaranteed_income > 0 %}${{ row.total_guaranteed_income|floatformat:0|intcomma }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+      <td class="text-red">{% if row.annual_spending > 0 %}${{ row.annual_spending|floatformat:0|intcomma }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+      <td>{% if row.withdrawal_needed > 0 %}${{ row.withdrawal_needed|floatformat:0|intcomma }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+      <td class="text-amber">{% if row.is_rmd_year %}${{ row.rmd_amount|floatformat:0|intcomma }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+</body>
+</html>

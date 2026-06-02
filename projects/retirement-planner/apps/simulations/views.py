@@ -2,8 +2,9 @@ import dataclasses
 import json
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.template.loader import render_to_string
 from django.utils import timezone
 
 from apps.profiles.models import UserProfile
@@ -356,3 +357,135 @@ def scenario_compare(request):
         "profile":          profile,
         "query_string":     request.GET.urlencode(),
     })
+
+
+# ---------------------------------------------------------------------------
+# PDF Export
+# ---------------------------------------------------------------------------
+
+def _build_svg_chart(years, width=640, height=260):
+    """Generate a standalone SVG line chart from year-by-year engine output."""
+    if not years:
+        return ""
+
+    pad_l, pad_r, pad_t, pad_b = 72, 20, 24, 36
+
+    ages      = [y["age"] for y in years]
+    portfolio = [max(0.0, y["total_portfolio"]) for y in years]
+    spending  = [y["annual_spending"] for y in years]
+
+    min_age  = ages[0]
+    max_age  = ages[-1]
+    age_span = max(max_age - min_age, 1)
+    max_val  = max(portfolio) * 1.08 if any(v > 0 for v in portfolio) else 1_000_000
+    chart_w  = width - pad_l - pad_r
+    chart_h  = height - pad_t - pad_b
+    bottom   = pad_t + chart_h
+
+    def cx(age):
+        return pad_l + (age - min_age) / age_span * chart_w
+
+    def cy(val):
+        return pad_t + (1 - min(val, max_val) / max_val) * chart_h
+
+    def fmt_money(v):
+        if v >= 1_000_000:
+            return f"${v/1_000_000:.1f}M"
+        if v >= 1_000:
+            return f"${v/1_000:.0f}K"
+        return f"${v:.0f}"
+
+    # Grid lines + Y labels
+    grid_lines, y_labels = [], []
+    y_ticks = 5
+    for i in range(y_ticks + 1):
+        val = max_val * i / y_ticks
+        yp  = cy(val)
+        grid_lines.append(
+            f'<line x1="{pad_l}" y1="{yp:.1f}" x2="{width-pad_r}" y2="{yp:.1f}" '
+            f'stroke="#e5e7eb" stroke-width="0.5"/>'
+        )
+        y_labels.append(
+            f'<text x="{pad_l-6}" y="{yp+3.5:.1f}" text-anchor="end" '
+            f'font-size="9" fill="#6b7280">{fmt_money(val)}</text>'
+        )
+
+    # X labels every 5 years
+    x_labels = []
+    for age in range(min_age, max_age + 1, 5):
+        xp = cx(age)
+        x_labels.append(
+            f'<text x="{xp:.1f}" y="{bottom+14}" text-anchor="middle" '
+            f'font-size="9" fill="#6b7280">{age}</text>'
+        )
+
+    # Portfolio filled area path
+    pts = [(cx(a), cy(p)) for a, p in zip(ages, portfolio)]
+    area_d = (f"M {pts[0][0]:.1f},{pts[0][1]:.1f} "
+              + " ".join(f"L {px:.1f},{py:.1f}" for px, py in pts[1:])
+              + f" L {pts[-1][0]:.1f},{bottom} L {pts[0][0]:.1f},{bottom} Z")
+
+    line_d = (f"M {pts[0][0]:.1f},{pts[0][1]:.1f} "
+              + " ".join(f"L {px:.1f},{py:.1f}" for px, py in pts[1:]))
+
+    # Spending dashed line
+    sp_pts   = " ".join(f"{cx(a):.1f},{cy(s):.1f}" for a, s in zip(ages, spending) if s > 0)
+    sp_first = next(((cx(a), cy(s)) for a, s in zip(ages, spending) if s > 0), None)
+    sp_path  = ""
+    if sp_first:
+        sp_data = [(cx(a), cy(s)) for a, s in zip(ages, spending) if s > 0]
+        sp_path = (f'<path d="M {sp_data[0][0]:.1f},{sp_data[0][1]:.1f} '
+                   + " ".join(f"L {px:.1f},{py:.1f}" for px, py in sp_data[1:])
+                   + '" fill="none" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="4,3"/>')
+
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}">
+  {"".join(grid_lines)}
+  <path d="{area_d}" fill="rgba(79,70,229,0.08)"/>
+  <path d="{line_d}" fill="none" stroke="#4f46e5" stroke-width="1.8"/>
+  {sp_path}
+  <line x1="{pad_l}" y1="{bottom}" x2="{width-pad_r}" y2="{bottom}" stroke="#9ca3af" stroke-width="1"/>
+  <line x1="{pad_l}" y1="{pad_t}" x2="{pad_l}" y2="{bottom}" stroke="#9ca3af" stroke-width="1"/>
+  {"".join(y_labels)}
+  {"".join(x_labels)}
+  <text x="{pad_l + chart_w//2}" y="{height}" text-anchor="middle" font-size="9" fill="#6b7280">Age</text>
+  <!-- Legend -->
+  <rect x="{pad_l}" y="4" width="12" height="6" fill="#4f46e5" opacity="0.5"/>
+  <text x="{pad_l+16}" y="11" font-size="9" fill="#374151">Portfolio Balance</text>
+  <line x1="{pad_l+110}" y1="7" x2="{pad_l+122}" y2="7" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <text x="{pad_l+126}" y="11" font-size="9" fill="#374151">Annual Spending</text>
+</svg>'''
+
+
+@login_required
+def result_pdf(request, pk):
+    """Render the simulation result as a downloadable PDF."""
+    from weasyprint import HTML as WeasyprintHTML
+
+    profile  = get_object_or_404(UserProfile, user=request.user)
+    result   = get_object_or_404(SimulationResult, pk=pk, scenario__user_profile=profile)
+    scenario = result.scenario
+
+    years   = result.result_data.get("years", [])   if result.result_data else []
+    summary = result.result_data.get("summary", {}) if result.result_data else {}
+
+    svg_chart = _build_svg_chart(years)
+
+    html_str = render_to_string("simulations/result_pdf.html", {
+        "result":       result,
+        "scenario":     scenario,
+        "profile":      profile,
+        "years":        years,
+        "summary":      summary,
+        "svg_chart":    svg_chart,
+        "generated_at": timezone.localtime(timezone.now()),
+    }, request=request)
+
+    pdf_bytes = WeasyprintHTML(string=html_str, base_url=request.build_absolute_uri("/")).write_pdf()
+
+    filename = (f"RetireSim-{scenario.name}-"
+                f"{timezone.localtime(timezone.now()).strftime('%Y%m%d')}.pdf"
+                .replace(" ", "_"))
+
+    response = HttpResponse(pdf_bytes, content_type="application/pdf")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response

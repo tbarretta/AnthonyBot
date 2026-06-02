@@ -14,5 +14,6 @@ urlpatterns = [
     path("results/<int:pk>/", views.result_detail, name="result_detail"),
     path("results/<int:pk>/status/", views.result_status, name="result_status"),
     path("results/<int:pk>/sensitivity/", views.sensitivity_update, name="sensitivity"),
+    path("results/<int:pk>/pdf/", views.result_pdf, name="result_pdf"),
     path("compare/", views.scenario_compare, name="compare"),
 ]
