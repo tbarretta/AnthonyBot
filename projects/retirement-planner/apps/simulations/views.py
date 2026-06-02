@@ -165,8 +165,12 @@ def result_detail(request, pk):
         "base_spending": base_spending,
         "spending_min": spending_min,
         "spending_max": spending_max,
-        "base_stocks": float(scenario.expected_annual_return_stocks),
-        "base_bonds": float(scenario.expected_annual_return_bonds),
+        "base_stocks":  float(scenario.expected_annual_return_stocks),
+        "base_bonds":   float(scenario.expected_annual_return_bonds),
+        "base_retire":  scenario.retirement_age_self,
+        "base_ss":      scenario.ss_claim_age_self,
+        "retire_min":   profile.current_age + 1,
+        "retire_max":   75,
     })
 
 
@@ -225,20 +229,45 @@ def sensitivity_update(request, pk):
     scenario = result.scenario
 
     try:
-        spending = float(request.GET.get("spending", scenario.annual_retirement_spending))
-        stocks   = float(request.GET.get("stocks",   scenario.expected_annual_return_stocks))
-        bonds    = float(request.GET.get("bonds",    scenario.expected_annual_return_bonds))
+        spending  = float(request.GET.get("spending", scenario.annual_retirement_spending))
+        stocks    = float(request.GET.get("stocks",   scenario.expected_annual_return_stocks))
+        bonds     = float(request.GET.get("bonds",    scenario.expected_annual_return_bonds))
+        retire    = int(float(request.GET.get("retire", scenario.retirement_age_self)))
+        ss_age    = int(float(request.GET.get("ss",    scenario.ss_claim_age_self)))
     except (TypeError, ValueError):
-        spending = float(scenario.annual_retirement_spending)
-        stocks   = float(scenario.expected_annual_return_stocks)
-        bonds    = float(scenario.expected_annual_return_bonds)
+        spending  = float(scenario.annual_retirement_spending)
+        stocks    = float(scenario.expected_annual_return_stocks)
+        bonds     = float(scenario.expected_annual_return_bonds)
+        retire    = scenario.retirement_age_self
+        ss_age    = scenario.ss_claim_age_self
+
+    ss_age = max(62, min(70, ss_age))
+    retire = max(profile.current_age + 1, min(75, retire))
 
     sim_input = build_simulation_input(scenario)
+
+    # Rebuild SS income sources with recalculated monthly benefit at new claim age
+    from apps.investments.models import IncomeSource as IncomeSourceModel
+    ss_sources = {s.id: s for s in IncomeSourceModel.objects.filter(
+        user_profile=scenario.user_profile, source_type='social_security'
+    )}
+    new_income_sources = []
+    for src in sim_input.income_sources:
+        if src.source_type == 'social_security' and src.owner == 'self' and src.id in ss_sources:
+            new_monthly = ss_sources[src.id].monthly_ss_at_claim_age(ss_age)
+            new_income_sources.append(dataclasses.replace(
+                src, ss_claim_age=ss_age, ss_monthly_at_claim_age=new_monthly
+            ))
+        else:
+            new_income_sources.append(src)
+
     sim_input = dataclasses.replace(
         sim_input,
         annual_retirement_spending=spending,
         return_stocks_pct=stocks,
         return_bonds_pct=bonds,
+        target_retirement_age=retire,
+        income_sources=new_income_sources,
     )
 
     data    = run_deterministic(sim_input)
@@ -258,6 +287,8 @@ def sensitivity_update(request, pk):
         "spending_override":  spending,
         "stocks_override":    stocks,
         "bonds_override":     bonds,
+        "retire_override":    retire,
+        "ss_override":        ss_age,
         "years":              data.get("years", []),
         "black_swan_events":  summary.get("black_swan_events", []),
     })

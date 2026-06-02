@@ -146,6 +146,51 @@
 
   <form id="sensitivity-form" class="space-y-5">
 
+    <!-- Retirement Age + SS Claim Age -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <label class="font-medium text-gray-700">Retirement Age</label>
+          <span id="retire-label" class="font-semibold text-indigo-700"></span>
+        </div>
+        <input type="range" name="retire" id="retire-slider"
+               min="{{ retire_min }}" max="{{ retire_max }}" step="1"
+               value="{{ base_retire }}"
+               class="w-full accent-indigo-600"
+               hx-get="{% url 'simulations:sensitivity' pk=result.pk %}"
+               hx-target="#sensitivity-zone"
+               hx-swap="innerHTML"
+               hx-trigger="input delay:350ms, change"
+               hx-include="#sensitivity-form">
+        <div class="flex justify-between text-xs text-gray-400 mt-1">
+          <span>{{ retire_min }}</span>
+          <span class="text-gray-500">Saved: {{ base_retire }}</span>
+          <span>{{ retire_max }}</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex justify-between text-sm mb-1">
+          <label class="font-medium text-gray-700">SS Claim Age</label>
+          <span id="ss-label" class="font-semibold text-indigo-700"></span>
+        </div>
+        <input type="range" name="ss" id="ss-slider"
+               min="62" max="70" step="1"
+               value="{{ base_ss }}"
+               class="w-full accent-indigo-600"
+               hx-get="{% url 'simulations:sensitivity' pk=result.pk %}"
+               hx-target="#sensitivity-zone"
+               hx-swap="innerHTML"
+               hx-trigger="input delay:350ms, change"
+               hx-include="#sensitivity-form">
+        <div class="flex justify-between text-xs text-gray-400 mt-1">
+          <span>62</span>
+          <span class="text-gray-500">Saved: {{ base_ss }}</span>
+          <span>70</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Annual Spending -->
     {% if scenario.spending_strategy == 'fixed' %}
     <div>
@@ -289,6 +334,8 @@ const chartData = {{ chart_data_json|safe }};
 const BASE_SPENDING = {{ base_spending|default:0 }};
 const BASE_STOCKS   = {{ base_stocks|default:7 }};
 const BASE_BONDS    = {{ base_bonds|default:3.5 }};
+const BASE_RETIRE   = {{ base_retire|default:65 }};
+const BASE_SS       = {{ base_ss|default:67 }};
 
 window.mainChart = null;
 
@@ -363,12 +410,18 @@ function updateLabels() {
   const sSpending = document.getElementById('spending-slider');
   const sStocks   = document.getElementById('stocks-slider');
   const sBonds    = document.getElementById('bonds-slider');
+  const sRetire   = document.getElementById('retire-slider');
+  const sSS       = document.getElementById('ss-slider');
   const lSpending = document.getElementById('spending-label');
   const lStocks   = document.getElementById('stocks-label');
   const lBonds    = document.getElementById('bonds-label');
+  const lRetire   = document.getElementById('retire-label');
+  const lSS       = document.getElementById('ss-label');
   if (sSpending && lSpending) lSpending.textContent = fmtCurrency(sSpending.value);
   if (sStocks   && lStocks)   lStocks.textContent   = fmtPct(sStocks.value);
   if (sBonds    && lBonds)    lBonds.textContent     = fmtPct(sBonds.value);
+  if (sRetire   && lRetire)   lRetire.textContent   = sRetire.value;
+  if (sSS       && lSS)       lSS.textContent       = sSS.value;
 }
 
 function initSliders() {
@@ -382,12 +435,16 @@ function initSliders() {
       const sSpending = document.getElementById('spending-slider');
       const sStocks   = document.getElementById('stocks-slider');
       const sBonds    = document.getElementById('bonds-slider');
+      const sRetire   = document.getElementById('retire-slider');
+      const sSS       = document.getElementById('ss-slider');
       if (sSpending) sSpending.value = BASE_SPENDING;
       if (sStocks)   sStocks.value   = BASE_STOCKS;
       if (sBonds)    sBonds.value    = BASE_BONDS;
+      if (sRetire)   sRetire.value   = BASE_RETIRE;
+      if (sSS)       sSS.value       = BASE_SS;
       updateLabels();
       // Dispatch change on any available slider to trigger HTMX
-      const trigger = sStocks || sSpending || sBonds;
+      const trigger = sRetire || sStocks || sSpending || sBonds;
       if (trigger) trigger.dispatchEvent(new Event('change', { bubbles: true }));
     });
   }
