@@ -10,6 +10,7 @@ from apps.profiles.models import UserProfile
 from .forms import ScenarioForm
 from .models import Scenario, SimulationResult, SimulationStatus
 from .services import run_deterministic_sync, build_simulation_input
+from .engine.deterministic import run_deterministic
 from .tasks import run_monte_carlo_task
 
 
@@ -231,7 +232,6 @@ def sensitivity_update(request, pk):
         stocks   = float(scenario.expected_annual_return_stocks)
         bonds    = float(scenario.expected_annual_return_bonds)
 
-    from .engine.deterministic import run_deterministic
     sim_input = build_simulation_input(scenario)
     sim_input = dataclasses.replace(
         sim_input,
@@ -259,4 +259,100 @@ def sensitivity_update(request, pk):
         "bonds_override":     bonds,
         "years":              data.get("years", []),
         "black_swan_events":  summary.get("black_swan_events", []),
+    })
+
+
+# Colours assigned to each scenario slot (indigo / emerald / amber)
+_COMPARE_COLORS = [
+    {"border": "#4f46e5", "bg": "rgba(79,70,229,0.08)",  "tailwind": "indigo"},
+    {"border": "#10b981", "bg": "rgba(16,185,129,0.08)", "tailwind": "emerald"},
+    {"border": "#f59e0b", "bg": "rgba(245,158,11,0.08)", "tailwind": "amber"},
+]
+
+_COMPARE_ASSUMPTIONS = [
+    ("Retirement Age",       lambda s: s.retirement_age_self,               None),
+    ("SS Claim Age",         lambda s: s.ss_claim_age_self,                  None),
+    ("Annual Spending",      lambda s: float(s.annual_retirement_spending),  "currency"),
+    ("Spending Strategy",    lambda s: s.get_spending_strategy_display(),    None),
+    ("Stock Return",         lambda s: float(s.expected_annual_return_stocks), "pct"),
+    ("Bond Return",          lambda s: float(s.expected_annual_return_bonds),  "pct"),
+    ("Inflation Rate",       lambda s: float(s.inflation_rate),              "pct"),
+    ("Tax Rate (Working)",   lambda s: float(s.effective_tax_rate_working),  "pct"),
+    ("Tax Rate (Retirement)",lambda s: float(s.effective_tax_rate_retirement),"pct"),
+    ("Black Swan",           lambda s: "Yes" if s.black_swan_enabled else "No", None),
+    ("Guardrails",           lambda s: "Yes" if s.guardrails_enabled else "No", None),
+]
+
+
+@login_required
+def scenario_compare(request):
+    profile = get_object_or_404(UserProfile, user=request.user)
+
+    raw_ids = request.GET.getlist("s")
+    if len(raw_ids) < 2 or len(raw_ids) > 3:
+        messages.error(request, "Select 2 or 3 scenarios to compare.")
+        return redirect("simulations:list")
+
+    scenarios = []
+    for sid in raw_ids:
+        try:
+            scenarios.append(
+                Scenario.objects.get(pk=int(sid), user_profile=profile)
+            )
+        except (Scenario.DoesNotExist, ValueError):
+            messages.error(request, "One or more selected scenarios were not found.")
+            return redirect("simulations:list")
+
+    # Run each scenario fresh
+    run_results = []
+    for scenario in scenarios:
+        sim_input = build_simulation_input(scenario)
+        data = run_deterministic(sim_input)
+        run_results.append(data)
+
+    # Build chart datasets (one line per scenario)
+    chart_datasets = []
+    for i, (scenario, data) in enumerate(zip(scenarios, run_results)):
+        color = _COMPARE_COLORS[i]
+        years = data.get("years", [])
+        chart_datasets.append({
+            "label":           scenario.name,
+            "ages":            [y["age"] for y in years],
+            "total_portfolio": [y["total_portfolio"] for y in years],
+            "annual_spending": [y["annual_spending"] for y in years],
+            "borderColor":     color["border"],
+            "backgroundColor": color["bg"],
+        })
+
+    # Build assumptions comparison rows
+    assumption_rows = []
+    for label, getter, fmt in _COMPARE_ASSUMPTIONS:
+        values = [getter(s) for s in scenarios]
+        assumption_rows.append({
+            "label":  label,
+            "values": values,
+            "format": fmt,
+            "differs": len(set(str(v) for v in values)) > 1,
+        })
+
+    # Summary rows
+    summaries = [r["summary"] for r in run_results]
+
+    # Zip scenarios + summaries + colors for easy template iteration
+    scenario_results = [
+        {
+            "scenario": scenario,
+            "summary":  run_results[i]["summary"],
+            "color":    _COMPARE_COLORS[i],
+            "slot":     i + 1,   # 1-indexed for CSS class selection
+        }
+        for i, scenario in enumerate(scenarios)
+    ]
+
+    return render(request, "simulations/compare.html", {
+        "scenario_results": scenario_results,
+        "assumption_rows":  assumption_rows,
+        "chart_data_json":  json.dumps({"datasets": chart_datasets}),
+        "profile":          profile,
+        "query_string":     request.GET.urlencode(),
     })
