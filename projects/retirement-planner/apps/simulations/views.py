@@ -317,6 +317,43 @@ _COMPARE_ASSUMPTIONS = [
 
 
 @login_required
+def sensitivity_assumptions_view(request, pk):
+    """HTMX: return the assumptions table partial (for toggling back from sliders)."""
+    profile = get_object_or_404(UserProfile, user=request.user)
+    result = get_object_or_404(SimulationResult, pk=pk, scenario__user_profile=profile)
+    return render(request, "simulations/partials/assumptions_view.html", {
+        "result": result,
+        "scenario": result.scenario,
+        "profile": profile,
+    })
+
+
+@login_required
+def sensitivity_sliders_view(request, pk):
+    """HTMX: return the sliders partial (shown when Adjust Assumptions is clicked)."""
+    profile = get_object_or_404(UserProfile, user=request.user)
+    result = get_object_or_404(SimulationResult, pk=pk, scenario__user_profile=profile)
+    scenario = result.scenario
+    base_spending = float(scenario.annual_retirement_spending)
+    spending_min = max(500, int(base_spending * 0.5 / 500) * 500)
+    spending_max = int(base_spending * 1.5 / 500 + 1) * 500
+    return render(request, "simulations/partials/sliders_view.html", {
+        "result": result,
+        "scenario": scenario,
+        "profile": profile,
+        "base_spending": base_spending,
+        "spending_min": spending_min,
+        "spending_max": spending_max,
+        "base_stocks": float(scenario.expected_annual_return_stocks),
+        "base_bonds": float(scenario.expected_annual_return_bonds),
+        "base_retire": scenario.retirement_age_self,
+        "base_ss": scenario.ss_claim_age_self,
+        "retire_min": profile.current_age + 1,
+        "retire_max": 75,
+    })
+
+
+@login_required
 def scenario_compare(request):
     profile = get_object_or_404(UserProfile, user=request.user)
 

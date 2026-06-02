@@ -58,71 +58,6 @@
   </div>
 </div>
 
-<!-- Scenario Assumptions -->
-<div class="bg-white rounded-xl shadow p-6 mb-6">
-  <h2 class="text-base font-semibold text-gray-800 mb-4 border-b pb-2">Scenario Assumptions</h2>
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-4 text-sm">
-
-    <div>
-      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Retirement Age</p>
-      <p class="font-medium text-gray-800">{{ scenario.retirement_age_self }}{% if profile.has_spouse %} / {{ scenario.retirement_age_spouse }} (spouse){% endif %}</p>
-    </div>
-
-    <div>
-      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Life Expectancy</p>
-      <p class="font-medium text-gray-800">{{ scenario.user_life_expectancy_age|default:profile.life_expectancy_age }}{% if profile.has_spouse %} / {{ scenario.spouse_life_expectancy_age|default:profile.spouse.life_expectancy_age }} (spouse){% endif %}</p>
-    </div>
-
-    <div>
-      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Annual Spending</p>
-      <p class="font-medium text-gray-800">${{ scenario.annual_retirement_spending|floatformat:0|intcomma }} / yr <span class="text-gray-400 font-normal">({{ scenario.get_spending_strategy_display }})</span></p>
-    </div>
-
-    <div>
-      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Spending Growth</p>
-      <p class="font-medium text-gray-800">{{ scenario.spending_growth_rate }}% / yr</p>
-    </div>
-
-    <div>
-      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Stock / Bond Return</p>
-      <p class="font-medium text-gray-800">{{ scenario.expected_annual_return_stocks }}% / {{ scenario.expected_annual_return_bonds }}%</p>
-    </div>
-
-    <div>
-      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Inflation Rate</p>
-      <p class="font-medium text-gray-800">{{ scenario.inflation_rate }}% / yr</p>
-    </div>
-
-    <div>
-      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">SS Claim Age</p>
-      <p class="font-medium text-gray-800">{{ scenario.ss_claim_age_self }}{% if profile.has_spouse %} / {{ scenario.ss_claim_age_spouse }} (spouse){% endif %}</p>
-    </div>
-
-    <div>
-      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Tax Rate (Working)</p>
-      <p class="font-medium text-gray-800">{{ scenario.effective_tax_rate_working }}%</p>
-    </div>
-
-    <div>
-      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Tax Rate (Retirement)</p>
-      <p class="font-medium text-gray-800">{{ scenario.effective_tax_rate_retirement }}%</p>
-    </div>
-
-    <div>
-      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Capital Gains Rate</p>
-      <p class="font-medium text-gray-800">{{ scenario.capital_gains_rate }}%</p>
-    </div>
-
-    {% if scenario.black_swan_enabled %}
-    <div>
-      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Black Swan Prob.</p>
-      <p class="font-medium text-gray-800">{{ scenario.black_swan_annual_probability }}% / yr ({{ scenario.black_swan_min_loss_pct }}–{{ scenario.black_swan_max_loss_pct }}% loss)</p>
-    </div>
-    {% endif %}
-
-  </div>
-</div>
-
 <!-- Chart -->
 <div class="bg-white rounded-xl shadow p-6 mb-4">
   <h2 class="text-base font-semibold text-gray-800 mb-4">Portfolio Projection</h2>
@@ -133,135 +68,9 @@
 
 </div><!-- end #sensitivity-zone -->
 
-<!-- Sensitivity Sliders -->
-<div class="bg-white rounded-xl shadow p-6 mb-6">
-  <div class="flex items-center justify-between mb-4">
-    <h2 class="text-base font-semibold text-gray-800">What-If Analysis</h2>
-    <button type="button" id="reset-sliders"
-      class="text-xs text-indigo-600 hover:text-indigo-800 font-medium border border-indigo-200 rounded px-3 py-1 hover:bg-indigo-50 transition">
-      Reset to saved values
-    </button>
-  </div>
-  <p class="text-xs text-gray-400 mb-5">Adjust sliders to explore how spending or returns affect your projection. Summary cards and chart update automatically.</p>
-
-  <form id="sensitivity-form" class="space-y-5">
-
-    <!-- Retirement Age + SS Claim Age -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-      <div>
-        <div class="flex justify-between text-sm mb-1">
-          <label class="font-medium text-gray-700">Retirement Age</label>
-          <span id="retire-label" class="font-semibold text-indigo-700"></span>
-        </div>
-        <input type="range" name="retire" id="retire-slider"
-               min="{{ retire_min }}" max="{{ retire_max }}" step="1"
-               value="{{ base_retire }}"
-               class="w-full accent-indigo-600"
-               hx-get="{% url 'simulations:sensitivity' pk=result.pk %}"
-               hx-target="#sensitivity-zone"
-               hx-swap="innerHTML"
-               hx-trigger="input delay:350ms, change"
-               hx-include="#sensitivity-form">
-        <div class="flex justify-between text-xs text-gray-400 mt-1">
-          <span>{{ retire_min }}</span>
-          <span class="text-gray-500">Saved: {{ base_retire }}</span>
-          <span>{{ retire_max }}</span>
-        </div>
-      </div>
-
-      <div>
-        <div class="flex justify-between text-sm mb-1">
-          <label class="font-medium text-gray-700">SS Claim Age</label>
-          <span id="ss-label" class="font-semibold text-indigo-700"></span>
-        </div>
-        <input type="range" name="ss" id="ss-slider"
-               min="62" max="70" step="1"
-               value="{{ base_ss }}"
-               class="w-full accent-indigo-600"
-               hx-get="{% url 'simulations:sensitivity' pk=result.pk %}"
-               hx-target="#sensitivity-zone"
-               hx-swap="innerHTML"
-               hx-trigger="input delay:350ms, change"
-               hx-include="#sensitivity-form">
-        <div class="flex justify-between text-xs text-gray-400 mt-1">
-          <span>62</span>
-          <span class="text-gray-500">Saved: {{ base_ss }}</span>
-          <span>70</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Annual Spending -->
-    {% if scenario.spending_strategy == 'fixed' %}
-    <div>
-      <div class="flex justify-between text-sm mb-1">
-        <label class="font-medium text-gray-700">Annual Spending</label>
-        <span id="spending-label" class="font-semibold text-indigo-700"></span>
-      </div>
-      <input type="range" name="spending" id="spending-slider"
-             min="{{ spending_min }}" max="{{ spending_max }}" step="500"
-             value="{{ base_spending|floatformat:0 }}"
-             class="w-full accent-indigo-600"
-             hx-get="{% url 'simulations:sensitivity' pk=result.pk %}"
-             hx-target="#sensitivity-zone"
-             hx-swap="innerHTML"
-             hx-trigger="input delay:350ms, change"
-             hx-include="#sensitivity-form">
-      <div class="flex justify-between text-xs text-gray-400 mt-1">
-        <span>${{ spending_min|floatformat:0 }}</span>
-        <span class="text-gray-500">Saved: ${{ base_spending|floatformat:0 }}</span>
-        <span>${{ spending_max|floatformat:0 }}</span>
-      </div>
-    </div>
-    {% endif %}
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-      <!-- Stock Return -->
-      <div>
-        <div class="flex justify-between text-sm mb-1">
-          <label class="font-medium text-gray-700">Stock Return</label>
-          <span id="stocks-label" class="font-semibold text-indigo-700"></span>
-        </div>
-        <input type="range" name="stocks" id="stocks-slider"
-               min="2" max="12" step="0.25"
-               value="{{ base_stocks }}"
-               class="w-full accent-indigo-600"
-               hx-get="{% url 'simulations:sensitivity' pk=result.pk %}"
-               hx-target="#sensitivity-zone"
-               hx-swap="innerHTML"
-               hx-trigger="input delay:350ms, change"
-               hx-include="#sensitivity-form">
-        <div class="flex justify-between text-xs text-gray-400 mt-1">
-          <span>2%</span>
-          <span class="text-gray-500">Saved: {{ base_stocks }}%</span>
-          <span>12%</span>
-        </div>
-      </div>
-
-      <!-- Bond Return -->
-      <div>
-        <div class="flex justify-between text-sm mb-1">
-          <label class="font-medium text-gray-700">Bond Return</label>
-          <span id="bonds-label" class="font-semibold text-indigo-700"></span>
-        </div>
-        <input type="range" name="bonds" id="bonds-slider"
-               min="1" max="8" step="0.25"
-               value="{{ base_bonds }}"
-               class="w-full accent-indigo-600"
-               hx-get="{% url 'simulations:sensitivity' pk=result.pk %}"
-               hx-target="#sensitivity-zone"
-               hx-swap="innerHTML"
-               hx-trigger="input delay:350ms, change"
-               hx-include="#sensitivity-form">
-        <div class="flex justify-between text-xs text-gray-400 mt-1">
-          <span>1%</span>
-          <span class="text-gray-500">Saved: {{ base_bonds }}%</span>
-          <span>8%</span>
-        </div>
-      </div>
-    </div>
-
-  </form>
+<!-- Assumptions / Sliders toggle zone -->
+<div id="assumptions-zone">
+  {% include "simulations/partials/assumptions_view.html" %}
 </div>
 
 <!-- Year-by-Year Detail — updated via OOB swap when sliders move -->
@@ -457,6 +266,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // After each HTMX swap, re-render chart from the payload script tag
 document.body.addEventListener('htmx:afterSettle', function(evt) {
+  // Re-init sliders when assumptions-zone swaps in the slider partial
+  if (evt.detail.target && evt.detail.target.id === 'assumptions-zone') {
+    initSliders();
+    return;
+  }
   if (!evt.detail.target || evt.detail.target.id !== 'sensitivity-zone') return;
   const payload = document.getElementById('sensitivity-chart-payload');
   if (!payload) return;

@@ -1,0 +1,63 @@
+{% load humanize %}
+<div class="bg-white rounded-xl shadow p-6 mb-6">
+  <div class="flex items-center justify-between mb-4 border-b pb-3">
+    <h2 class="text-base font-semibold text-gray-800">Scenario Assumptions</h2>
+    <button
+      hx-get="{% url 'simulations:sensitivity_sliders' pk=result.pk %}"
+      hx-target="#assumptions-zone"
+      hx-swap="innerHTML"
+      class="text-sm font-medium bg-indigo-600 text-white px-4 py-1.5 rounded-lg hover:bg-indigo-700 transition">
+      Adjust Assumptions →
+    </button>
+  </div>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-4 text-sm">
+
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Retirement Age</p>
+      <p class="font-medium text-gray-800">{{ scenario.retirement_age_self }}{% if profile.has_spouse %} / {{ scenario.retirement_age_spouse }} (spouse){% endif %}</p>
+    </div>
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Life Expectancy</p>
+      <p class="font-medium text-gray-800">{{ scenario.user_life_expectancy_age|default:profile.life_expectancy_age }}{% if profile.has_spouse %} / {{ scenario.spouse_life_expectancy_age|default:profile.spouse.life_expectancy_age }} (spouse){% endif %}</p>
+    </div>
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Annual Spending</p>
+      <p class="font-medium text-gray-800">${{ scenario.annual_retirement_spending|floatformat:0|intcomma }} / yr <span class="text-gray-400 font-normal">({{ scenario.get_spending_strategy_display }})</span></p>
+    </div>
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Spending Growth</p>
+      <p class="font-medium text-gray-800">{{ scenario.spending_growth_rate }}% / yr</p>
+    </div>
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Stock / Bond Return</p>
+      <p class="font-medium text-gray-800">{{ scenario.expected_annual_return_stocks }}% / {{ scenario.expected_annual_return_bonds }}%</p>
+    </div>
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Inflation Rate</p>
+      <p class="font-medium text-gray-800">{{ scenario.inflation_rate }}% / yr</p>
+    </div>
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">SS Claim Age</p>
+      <p class="font-medium text-gray-800">{{ scenario.ss_claim_age_self }}{% if profile.has_spouse %} / {{ scenario.ss_claim_age_spouse }} (spouse){% endif %}</p>
+    </div>
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Tax Rate (Working)</p>
+      <p class="font-medium text-gray-800">{{ scenario.effective_tax_rate_working }}%</p>
+    </div>
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Tax Rate (Retirement)</p>
+      <p class="font-medium text-gray-800">{{ scenario.effective_tax_rate_retirement }}%</p>
+    </div>
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Capital Gains Rate</p>
+      <p class="font-medium text-gray-800">{{ scenario.capital_gains_rate }}%</p>
+    </div>
+    {% if scenario.black_swan_enabled %}
+    <div>
+      <p class="text-xs text-gray-400 uppercase tracking-wide mb-0.5">Black Swan Prob.</p>
+      <p class="font-medium text-gray-800">{{ scenario.black_swan_annual_probability }}% / yr ({{ scenario.black_swan_min_loss_pct }}–{{ scenario.black_swan_max_loss_pct }}% loss)</p>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
