@@ -16,11 +16,11 @@
       <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Basics</h2>
       <div>
         <label class="label">Scenario Name</label>
-        {% render_field form.name class="input" %}
+        {% render_field form.name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
       </div>
       <div>
         <label class="label">Description (optional)</label>
-        {% render_field form.description class="input" %}
+        {% render_field form.description class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
       </div>
     </div>
 
@@ -31,12 +31,12 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Your Retirement Age</label>
-          {% render_field form.retirement_age_self class="input" %}
+          {% render_field form.retirement_age_self class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
         {% if profile.has_spouse %}
         <div>
           <label class="label">Spouse Retirement Age</label>
-          {% render_field form.retirement_age_spouse class="input" %}
+          {% render_field form.retirement_age_spouse class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
         {% endif %}
       </div>
@@ -48,15 +48,15 @@
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label class="label">Stock Return %</label>
-          {% render_field form.expected_annual_return_stocks class="input" %}
+          {% render_field form.expected_annual_return_stocks class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
         <div>
           <label class="label">Bond Return %</label>
-          {% render_field form.expected_annual_return_bonds class="input" %}
+          {% render_field form.expected_annual_return_bonds class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
         <div>
           <label class="label">Inflation %</label>
-          {% render_field form.inflation_rate class="input" %}
+          {% render_field form.inflation_rate class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
       </div>
     </div>
@@ -84,20 +84,20 @@
           <label class="label">Annual Spending, After Tax (today's $)</label>
           <div class="relative">
             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm leading-none">$</span>
-            {% render_field form.annual_retirement_spending class="input pl-7" %}
+            {% render_field form.annual_retirement_spending class="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           </div>
           <p class="text-xs text-gray-400 mt-1">Enter what you want to <em>spend</em> after taxes. The simulation will gross up portfolio withdrawals to cover your tax rate.</p>
         </div>
         <div>
           <label class="label">Spending Growth %</label>
-          {% render_field form.spending_growth_rate class="input" %}
+          {% render_field form.spending_growth_rate class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
       </div>
 
       <!-- % of Portfolio field -->
       <div id="spending-portfolio-fields">
         <label class="label">Withdrawal Rate %</label>
-        {% render_field form.withdrawal_rate_pct class="input w-32" %}
+        {% render_field form.withdrawal_rate_pct class="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         <p class="text-xs text-gray-400 mt-1">e.g. 4 for the "4% rule" — withdraws this % of your portfolio value each year.</p>
       </div>
     </div>
@@ -119,19 +119,19 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Annual Probability %</label>
-          {% render_field form.black_swan_annual_probability class="input" %}
+          {% render_field form.black_swan_annual_probability class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
         <div>
           <label class="label">Recovery Years</label>
-          {% render_field form.black_swan_recovery_years class="input" %}
+          {% render_field form.black_swan_recovery_years class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
         <div>
           <label class="label">Min Loss %</label>
-          {% render_field form.black_swan_min_loss_pct class="input" %}
+          {% render_field form.black_swan_min_loss_pct class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
         <div>
           <label class="label">Max Loss %</label>
-          {% render_field form.black_swan_max_loss_pct class="input" %}
+          {% render_field form.black_swan_max_loss_pct class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
       </div>
     </div>
@@ -147,13 +147,13 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Your Claim Age</label>
-          {% render_field form.ss_claim_age_self class="input w-32" %}
+          {% render_field form.ss_claim_age_self class="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           {% if form.ss_claim_age_self.errors %}<p class="text-red-500 text-xs mt-1">{{ form.ss_claim_age_self.errors.0 }}</p>{% endif %}
         </div>
         {% if profile.has_spouse %}
         <div>
           <label class="label">Spouse Claim Age</label>
-          {% render_field form.ss_claim_age_spouse class="input w-32" %}
+          {% render_field form.ss_claim_age_spouse class="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           {% if form.ss_claim_age_spouse.errors %}<p class="text-red-500 text-xs mt-1">{{ form.ss_claim_age_spouse.errors.0 }}</p>{% endif %}
         </div>
         {% else %}
@@ -168,15 +168,15 @@
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label class="label">Effective Rate (Working) %</label>
-          {% render_field form.effective_tax_rate_working class="input" %}
+          {% render_field form.effective_tax_rate_working class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
         <div>
           <label class="label">Effective Rate (Retirement) %</label>
-          {% render_field form.effective_tax_rate_retirement class="input" %}
+          {% render_field form.effective_tax_rate_retirement class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
         <div>
           <label class="label">Capital Gains Rate %</label>
-          {% render_field form.capital_gains_rate class="input" %}
+          {% render_field form.capital_gains_rate class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
       </div>
     </div>
@@ -187,11 +187,11 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Your Life Expectancy Age</label>
-          {% render_field form.user_life_expectancy_age class="input" %}
+          {% render_field form.user_life_expectancy_age class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
         <div>
           <label class="label">Spouse Life Expectancy Age</label>
-          {% render_field form.spouse_life_expectancy_age class="input" %}
+          {% render_field form.spouse_life_expectancy_age class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
       </div>
     </div>

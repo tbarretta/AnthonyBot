@@ -21,19 +21,19 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Birth Month & Year</label>
-          {% render_field profile_form.birth_date class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+          {% render_field profile_form.birth_date class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           {% if profile_form.birth_date.errors %}<p class="text-xs text-red-600 mt-1">{{ profile_form.birth_date.errors.0 }}</p>{% endif %}
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
-          {% render_field profile_form.state class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. NY" maxlength="2" style="text-transform:uppercase" %}
+          {% render_field profile_form.state class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. NY" maxlength="2" style="text-transform:uppercase" %}
           {% if profile_form.state.errors %}<p class="text-xs text-red-600 mt-1">{{ profile_form.state.errors.0 }}</p>{% endif %}
         </div>
       </div>
 
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Tax Filing Status</label>
-        {% render_field profile_form.filing_status class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+        {% render_field profile_form.filing_status class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
       </div>
 
       <div class="border-t pt-4">
@@ -43,13 +43,13 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Annual Income</label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm leading-none">$</span>
-              {% render_field profile_form.annual_income class="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2 text-sm" id="id_profile_income" %}
+              {% render_field profile_form.annual_income class="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" id="id_profile_income" %}
             </div>
             {% if profile_form.annual_income.errors %}<p class="text-xs text-red-600 mt-1">{{ profile_form.annual_income.errors.0 }}</p>{% endif %}
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Expected Annual Raise (%)</label>
-            {% render_field profile_form.income_growth_rate class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+            {% render_field profile_form.income_growth_rate class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
             <p class="text-xs text-gray-400 mt-1">e.g. 3.0 for 3%</p>
             {% if profile_form.income_growth_rate.errors %}<p class="text-xs text-red-600 mt-1">{{ profile_form.income_growth_rate.errors.0 }}</p>{% endif %}
           </div>
@@ -60,7 +60,7 @@
         <p class="text-sm font-semibold text-gray-700 mb-3">Longevity</p>
         <div class="w-48">
           <label class="block text-sm font-medium text-gray-700 mb-1">Life Expectancy (age)</label>
-          {% render_field profile_form.life_expectancy_age class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+          {% render_field profile_form.life_expectancy_age class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           {% if profile_form.life_expectancy_age.errors %}<p class="text-xs text-red-600 mt-1">{{ profile_form.life_expectancy_age.errors.0 }}</p>{% endif %}
         </div>
       </div>
@@ -91,12 +91,12 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-          {% render_field spouse_form.first_name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+          {% render_field spouse_form.first_name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           {% if spouse_form.first_name.errors %}<p class="text-xs text-red-600 mt-1">{{ spouse_form.first_name.errors.0 }}</p>{% endif %}
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Birth Month & Year</label>
-          {% render_field spouse_form.birth_date class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+          {% render_field spouse_form.birth_date class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           {% if spouse_form.birth_date.errors %}<p class="text-xs text-red-600 mt-1">{{ spouse_form.birth_date.errors.0 }}</p>{% endif %}
         </div>
       </div>
@@ -108,13 +108,13 @@
             <label class="block text-sm font-medium text-gray-700 mb-1">Annual Income</label>
             <div class="relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm leading-none">$</span>
-              {% render_field spouse_form.annual_income class="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2 text-sm" id="id_spouse_income_settings" %}
+              {% render_field spouse_form.annual_income class="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" id="id_spouse_income_settings" %}
             </div>
             {% if spouse_form.annual_income.errors %}<p class="text-xs text-red-600 mt-1">{{ spouse_form.annual_income.errors.0 }}</p>{% endif %}
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Expected Annual Raise (%)</label>
-            {% render_field spouse_form.income_growth_rate class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+            {% render_field spouse_form.income_growth_rate class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
             <p class="text-xs text-gray-400 mt-1">e.g. 3.0 for 3%</p>
             {% if spouse_form.income_growth_rate.errors %}<p class="text-xs text-red-600 mt-1">{{ spouse_form.income_growth_rate.errors.0 }}</p>{% endif %}
           </div>
@@ -125,7 +125,7 @@
         <p class="text-sm font-semibold text-gray-700 mb-3">Longevity</p>
         <div class="w-48">
           <label class="block text-sm font-medium text-gray-700 mb-1">Life Expectancy (age)</label>
-          {% render_field spouse_form.life_expectancy_age class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+          {% render_field spouse_form.life_expectancy_age class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           {% if spouse_form.life_expectancy_age.errors %}<p class="text-xs text-red-600 mt-1">{{ spouse_form.life_expectancy_age.errors.0 }}</p>{% endif %}
         </div>
       </div>
@@ -162,18 +162,18 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-          {% render_field form.first_name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+          {% render_field form.first_name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           {% if form.first_name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.first_name.errors.0 }}</p>{% endif %}
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-          {% render_field form.last_name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+          {% render_field form.last_name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           {% if form.last_name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.last_name.errors.0 }}</p>{% endif %}
         </div>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-        {% render_field form.email class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" %}
+        {% render_field form.email class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         {% if form.email.errors %}<p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>{% endif %}
         <p class="text-xs text-gray-400 mt-1">This is also your sign-in email. Changing it takes effect immediately.</p>
       </div>

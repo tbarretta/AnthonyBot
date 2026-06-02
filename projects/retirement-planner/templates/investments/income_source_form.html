@@ -21,18 +21,18 @@
       <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Basic Info</h2>
       <div>
         <label class="label">Name <span class="text-red-500">*</span></label>
-        {% render_field form.name class="input" %}
+        {% render_field form.name class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         {% if form.name.errors %}<p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>{% endif %}
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Type <span class="text-red-500">*</span></label>
-          {% render_field form.source_type class="input" id="id_source_type" %}
+          {% render_field form.source_type class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" id="id_source_type" %}
           {% if form.source_type.errors %}<p class="text-red-500 text-xs mt-1">{{ form.source_type.errors.0 }}</p>{% endif %}
         </div>
         <div>
           <label class="label">Owner <span class="text-red-500">*</span></label>
-          {% render_field form.owner class="input" %}
+          {% render_field form.owner class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         </div>
       </div>
     </div>
@@ -51,13 +51,13 @@
           <label class="label">Monthly Benefit at 67 (FRA) <span class="text-red-500">*</span></label>
           <div class="relative">
             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm leading-none">$</span>
-            {% render_field form.ss_monthly_at_67 class="input pl-7" placeholder="0.00" %}
+            {% render_field form.ss_monthly_at_67 class="w-full border border-gray-300 rounded-lg pl-7 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0.00" %}
           </div>
           {% if form.ss_monthly_at_67.errors %}<p class="text-red-500 text-xs mt-1">{{ form.ss_monthly_at_67.errors.0 }}</p>{% endif %}
         </div>
         <div class="w-28">
           <label class="label">COLA Rate %</label>
-          {% render_field form.ss_cola_rate class="input" %}
+          {% render_field form.ss_cola_rate class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           <p class="text-xs text-gray-400 mt-1">Default 2.5%</p>
         </div>
       </div>
@@ -75,19 +75,19 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Annual Amount (today's $) <span class="text-red-500">*</span></label>
-          {% render_field form.annual_amount class="input" %}
+          {% render_field form.annual_amount class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           {% if form.annual_amount.errors %}<p class="text-red-500 text-xs mt-1">{{ form.annual_amount.errors.0 }}</p>{% endif %}
         </div>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label class="label">Start Age</label>
-          {% render_field form.start_age class="input" %}
+          {% render_field form.start_age class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
           {% if form.start_age.errors %}<p class="text-red-500 text-xs mt-1">{{ form.start_age.errors.0 }}</p>{% endif %}
         </div>
         <div>
           <label class="label">End Age <span class="text-gray-400 font-normal">(blank = lifetime)</span></label>
-          {% render_field form.end_age class="input" placeholder="—" %}
+          {% render_field form.end_age class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="—" %}
           {% if form.end_age.errors %}<p class="text-red-500 text-xs mt-1">{{ form.end_age.errors.0 }}</p>{% endif %}
         </div>
       </div>
@@ -102,7 +102,7 @@
       </label>
       <div>
         <label class="label">Custom Inflation Rate % <span class="text-gray-400 font-normal">(blank = scenario rate)</span></label>
-        {% render_field form.inflation_rate_override class="input w-32" placeholder="—" %}
+        {% render_field form.inflation_rate_override class="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="—" %}
       </div>
     </div>
 
@@ -115,7 +115,7 @@
       </label>
       <div>
         <label class="label">Custom Tax Rate % <span class="text-gray-400 font-normal">(blank = scenario retirement rate)</span></label>
-        {% render_field form.tax_rate_override class="input w-32" placeholder="—" %}
+        {% render_field form.tax_rate_override class="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="—" %}
       </div>
     </div>
 
@@ -124,7 +124,7 @@
       <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Pension Survivor Benefit</h2>
       <div class="w-48">
         <label class="label">Survivor Benefit % <span class="text-gray-400 font-normal">(blank = none)</span></label>
-        {% render_field form.survivor_benefit_pct class="input" placeholder="e.g. 50" %}
+        {% render_field form.survivor_benefit_pct class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g. 50" %}
         <p class="text-xs text-gray-400 mt-1">% of pension paid to spouse after owner dies.</p>
       </div>
     </div>
@@ -132,7 +132,7 @@
     <!-- Notes -->
     <div class="bg-white rounded-xl shadow p-6 space-y-4">
       <h2 class="text-lg font-semibold text-gray-800 border-b pb-2">Notes</h2>
-      {% render_field form.notes class="input" placeholder="Optional notes about this income source..." %}
+      {% render_field form.notes class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Optional notes about this income source..." %}
     </div>
 
     <div class="flex flex-wrap gap-4">
