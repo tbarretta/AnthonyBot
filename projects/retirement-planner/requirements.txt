@@ -39,6 +39,7 @@ Faker==30.*
 
 # PDF export
 weasyprint==62.*
+pydyf==0.11.0  # WeasyPrint 62.x incompatible with pydyf 0.12+
 
 # Production
 gunicorn==23.*
