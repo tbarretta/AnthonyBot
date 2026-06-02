@@ -131,65 +131,6 @@
   </div>
 </div>
 
-<!-- Year-by-Year Data Table (inside sensitivity-zone so it updates with sliders) -->
-{% if years %}
-<div class="bg-white rounded-xl shadow overflow-hidden mb-6">
-  <div class="px-6 py-4 border-b">
-    <h2 class="text-base font-semibold text-gray-800">Year-by-Year Detail</h2>
-    <p class="text-xs text-gray-400 mt-0.5">All dollar values inflation-adjusted in simulation year dollars</p>
-  </div>
-  <div class="overflow-x-auto">
-    <table class="w-full text-sm">
-      <thead class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
-        <tr>
-          <th class="px-4 py-3 text-left">Age</th>
-          {% if profile.has_spouse %}<th class="px-4 py-3 text-left">Spouse Age</th>{% endif %}
-          <th class="px-4 py-3 text-left">Phase</th>
-          <th class="px-4 py-3 text-right">Portfolio Balance</th>
-          <th class="px-4 py-3 text-right">Contributions</th>
-          <th class="px-4 py-3 text-right">Guaranteed Income</th>
-          <th class="px-4 py-3 text-right">Annual Spending</th>
-          <th class="px-4 py-3 text-right">Withdrawal</th>
-          <th class="px-4 py-3 text-right">RMD</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-100">
-        {% for row in years %}
-        <tr class="{% if row.phase == 'accumulation' %}text-gray-500{% elif row.portfolio_exhaustion_age and row.age >= row.portfolio_exhaustion_age %}bg-red-50{% else %}text-gray-800{% endif %} hover:bg-gray-50">
-          <td class="px-4 py-2.5 font-medium">{{ row.age }}</td>
-          {% if profile.has_spouse %}<td class="px-4 py-2.5">{{ row.spouse_age|default:"—" }}</td>{% endif %}
-          <td class="px-4 py-2.5">
-            <span class="px-2 py-0.5 rounded-full text-xs font-medium
-              {% if row.phase == 'accumulation' %}bg-blue-100 text-blue-700
-              {% elif row.phase == 'both_retired' %}bg-green-100 text-green-700
-              {% else %}bg-amber-100 text-amber-700{% endif %}">
-              {{ row.phase|title|cut:"_" }}
-            </span>
-          </td>
-          <td class="px-4 py-2.5 text-right font-semibold">${{ row.total_portfolio|floatformat:0|intcomma }}</td>
-          <td class="px-4 py-2.5 text-right text-blue-600">
-            {% if row.total_contributions > 0 %}${{ row.total_contributions|floatformat:0|intcomma }}{% else %}—{% endif %}
-          </td>
-          <td class="px-4 py-2.5 text-right text-green-600">
-            {% if row.total_guaranteed_income > 0 %}${{ row.total_guaranteed_income|floatformat:0|intcomma }}{% else %}—{% endif %}
-          </td>
-          <td class="px-4 py-2.5 text-right text-red-600">
-            {% if row.annual_spending > 0 %}${{ row.annual_spending|floatformat:0|intcomma }}{% else %}—{% endif %}
-          </td>
-          <td class="px-4 py-2.5 text-right">
-            {% if row.withdrawal_needed > 0 %}${{ row.withdrawal_needed|floatformat:0|intcomma }}{% else %}—{% endif %}
-          </td>
-          <td class="px-4 py-2.5 text-right text-amber-600">
-            {% if row.is_rmd_year %}${{ row.rmd_amount|floatformat:0|intcomma }}{% else %}—{% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-{% endif %}
-
 </div><!-- end #sensitivity-zone -->
 
 <!-- Sensitivity Sliders -->
@@ -277,6 +218,67 @@
 
   </form>
 </div>
+
+<!-- Year-by-Year Detail — updated via OOB swap when sliders move -->
+<div id="sensitivity-table">
+{% if years %}
+<div class="bg-white rounded-xl shadow overflow-hidden mb-6">
+  <div class="px-6 py-4 border-b">
+    <h2 class="text-base font-semibold text-gray-800">Year-by-Year Detail</h2>
+    <p class="text-xs text-gray-400 mt-0.5">All dollar values inflation-adjusted in simulation year dollars</p>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+        <tr>
+          <th class="px-4 py-3 text-left">Age</th>
+          {% if profile.has_spouse %}<th class="px-4 py-3 text-left">Spouse Age</th>{% endif %}
+          <th class="px-4 py-3 text-left">Phase</th>
+          <th class="px-4 py-3 text-right">Portfolio Balance</th>
+          <th class="px-4 py-3 text-right">Contributions</th>
+          <th class="px-4 py-3 text-right">Guaranteed Income</th>
+          <th class="px-4 py-3 text-right">Annual Spending</th>
+          <th class="px-4 py-3 text-right">Withdrawal</th>
+          <th class="px-4 py-3 text-right">RMD</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for row in years %}
+        <tr class="{% if row.phase == 'accumulation' %}text-gray-500{% elif row.portfolio_exhaustion_age and row.age >= row.portfolio_exhaustion_age %}bg-red-50{% else %}text-gray-800{% endif %} hover:bg-gray-50">
+          <td class="px-4 py-2.5 font-medium">{{ row.age }}</td>
+          {% if profile.has_spouse %}<td class="px-4 py-2.5">{{ row.spouse_age|default:"—" }}</td>{% endif %}
+          <td class="px-4 py-2.5">
+            <span class="px-2 py-0.5 rounded-full text-xs font-medium
+              {% if row.phase == 'accumulation' %}bg-blue-100 text-blue-700
+              {% elif row.phase == 'both_retired' %}bg-green-100 text-green-700
+              {% else %}bg-amber-100 text-amber-700{% endif %}">
+              {{ row.phase|title|cut:"_" }}
+            </span>
+          </td>
+          <td class="px-4 py-2.5 text-right font-semibold">${{ row.total_portfolio|floatformat:0|intcomma }}</td>
+          <td class="px-4 py-2.5 text-right text-blue-600">
+            {% if row.total_contributions > 0 %}${{ row.total_contributions|floatformat:0|intcomma }}{% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-2.5 text-right text-green-600">
+            {% if row.total_guaranteed_income > 0 %}${{ row.total_guaranteed_income|floatformat:0|intcomma }}{% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-2.5 text-right text-red-600">
+            {% if row.annual_spending > 0 %}${{ row.annual_spending|floatformat:0|intcomma }}{% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-2.5 text-right">
+            {% if row.withdrawal_needed > 0 %}${{ row.withdrawal_needed|floatformat:0|intcomma }}{% else %}—{% endif %}
+          </td>
+          <td class="px-4 py-2.5 text-right text-amber-600">
+            {% if row.is_rmd_year %}${{ row.rmd_amount|floatformat:0|intcomma }}{% else %}—{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+</div><!-- end #sensitivity-table -->
 
 {% endblock %}
 
