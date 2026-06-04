@@ -45,19 +45,21 @@
 
       <div>
         <p class="text-xs text-gray-400">Final Balance</p>
-        <p class="text-lg font-bold {% if sr.summary.final_balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
-          {% if sr.summary.final_balance >= 0 %}
-            ${{ sr.summary.final_balance|floatformat:0|intcomma }}
-          {% else %}
-            -${{ sr.summary.final_balance|floatformat:0|intcomma|cut:"-" }}
-          {% endif %}
+        {% if sr.summary.final_balance > 0 %}
+        <p class="text-lg font-bold text-green-600">
+          ${{ sr.summary.final_balance|floatformat:0|intcomma }}
         </p>
+        {% else %}
+        <p class="text-lg font-bold text-red-600">
+          Depleted at age {{ sr.summary.exhaustion_age }}
+        </p>
+        {% endif %}
       </div>
 
       <div>
-        {% if sr.summary.exhaustion_age %}
+        {% if sr.summary.exhaustion_age and sr.summary.final_balance > 0 %}
           <p class="text-xs text-red-500 font-medium">⚠️ Depletes at age {{ sr.summary.exhaustion_age }}</p>
-        {% else %}
+        {% elif not sr.summary.exhaustion_age %}
           <p class="text-xs text-green-600 font-medium">✓ Survives to age {{ sr.scenario.user_life_expectancy_age|default:profile.life_expectancy_age }}</p>
         {% endif %}
       </div>

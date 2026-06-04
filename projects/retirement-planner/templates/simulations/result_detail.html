@@ -37,7 +37,7 @@
   </div>
   <div class="bg-white rounded-xl shadow p-5 text-center">
     <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Final Balance</p>
-    <p class="text-2xl font-bold {% if result.deterministic_final_balance >= 0 %}text-green-600{% else %}text-red-600{% endif %}">
+    <p class="text-2xl font-bold {% if result.deterministic_final_balance > 0 %}text-green-600{% else %}text-red-600{% endif %}">
       ${{ result.deterministic_final_balance|floatformat:0|intcomma }}
     </p>
   </div>

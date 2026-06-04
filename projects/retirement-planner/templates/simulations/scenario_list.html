@@ -57,7 +57,7 @@
     <div class="flex items-center justify-between pt-3 border-t border-gray-100 gap-3">
       {% if result %}
         <div>
-          {% if result.deterministic_final_balance >= 0 %}
+          {% if result.deterministic_final_balance > 0 %}
           <p class="text-base font-bold text-green-600">${{ result.deterministic_final_balance|floatformat:0|intcomma }}</p>
           <p class="text-xs text-gray-400">final balance</p>
           {% else %}

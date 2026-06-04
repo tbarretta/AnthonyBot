@@ -101,13 +101,17 @@
       {% with result=scenario.latest_result %}
       {% if result %}
       <div class="text-right text-sm">
-        {% if scenario.simulation_type == "monte_carlo" %}
+        {% if result.simulation_type == "monte_carlo" %}
         <p class="font-semibold {% if result.success_probability >= 85 %}text-green-600{% elif result.success_probability >= 70 %}text-yellow-600{% else %}text-red-600{% endif %}">
           {{ result.success_probability }}% success
         </p>
         {% else %}
-        <p class="font-semibold text-gray-700">${{ result.deterministic_final_balance|floatformat:0|intcomma }}</p>
-        <p class="text-gray-400">final balance</p>
+          {% if result.deterministic_final_balance > 0 %}
+          <p class="font-semibold text-gray-700">${{ result.deterministic_final_balance|floatformat:0|intcomma }}</p>
+          <p class="text-gray-400">final balance</p>
+          {% else %}
+          <p class="font-semibold text-red-600">Depleted at age {{ result.portfolio_exhaustion_age }}</p>
+          {% endif %}
         {% endif %}
       </div>
       {% else %}
