@@ -293,6 +293,46 @@ def sensitivity_update(request, pk):
         "black_swan_events":  summary.get("black_swan_events", []),
     })
 
+@login_required
+def sensitivity_save(request, pk):
+    """
+    Saves the values from the sensitivity sliders back to the current Scenario,
+    and returns a redirect (via HX-Redirect header) to trigger a full simulation run.
+    """
+    if request.method != "POST":
+        return redirect("simulations:result_detail", pk=pk)
+
+    profile = get_object_or_404(UserProfile, user=request.user)
+    result = get_object_or_404(SimulationResult, pk=pk, scenario__user_profile=profile)
+    scenario = result.scenario
+
+    try:
+        spending  = float(request.POST.get("spending", scenario.annual_retirement_spending))
+        stocks    = float(request.POST.get("stocks",   scenario.expected_annual_return_stocks))
+        bonds     = float(request.POST.get("bonds",    scenario.expected_annual_return_bonds))
+        retire    = int(float(request.POST.get("retire", scenario.retirement_age_self)))
+        ss_age    = int(float(request.POST.get("ss",    scenario.ss_claim_age_self)))
+    except (TypeError, ValueError):
+        messages.error(request, "Invalid input data.")
+        return redirect("simulations:result_detail", pk=pk)
+
+    scenario.annual_retirement_spending = spending
+    scenario.expected_annual_return_stocks = stocks
+    scenario.expected_annual_return_bonds = bonds
+    scenario.retirement_age_self = retire
+    scenario.ss_claim_age_self = ss_age
+    scenario.save()
+
+    messages.success(request, f"Scenario '{scenario.name}' updated with new values.")
+
+    if request.headers.get("HX-Request"):
+        from django.urls import reverse
+        response = HttpResponse()
+        response["HX-Redirect"] = reverse("simulations:run", kwargs={"pk": scenario.pk})
+        return response
+
+    return redirect("simulations:run", pk=scenario.pk)
+
 
 # Colours assigned to each scenario slot (indigo / emerald / amber)
 _COMPARE_COLORS = [

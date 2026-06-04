@@ -14,6 +14,7 @@ urlpatterns = [
     path("results/<int:pk>/", views.result_detail, name="result_detail"),
     path("results/<int:pk>/status/", views.result_status, name="result_status"),
     path("results/<int:pk>/sensitivity/",   views.sensitivity_update,           name="sensitivity"),
+    path("results/<int:pk>/sensitivity/save/", views.sensitivity_save,          name="sensitivity_save"),
     path("results/<int:pk>/assumptions/",   views.sensitivity_assumptions_view,  name="sensitivity_assumptions"),
     path("results/<int:pk>/sliders/",        views.sensitivity_sliders_view,      name="sensitivity_sliders"),
     path("results/<int:pk>/pdf/", views.result_pdf, name="result_pdf"),

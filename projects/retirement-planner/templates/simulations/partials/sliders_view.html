@@ -8,6 +8,12 @@
         Reset to saved values
       </button>
       <button
+        hx-post="{% url 'simulations:sensitivity_save' pk=result.pk %}"
+        hx-include="#sensitivity-form"
+        class="text-xs text-white bg-indigo-600 hover:bg-indigo-700 font-medium border border-indigo-600 rounded px-3 py-1 transition">
+        Update Scenario
+      </button>
+      <button
         hx-get="{% url 'simulations:sensitivity_assumptions' pk=result.pk %}"
         hx-target="#assumptions-zone"
         hx-swap="innerHTML"
