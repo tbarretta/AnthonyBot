@@ -32,7 +32,11 @@
   <div class="bg-white rounded-xl shadow p-4">
     <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Annual Spending</p>
     <p class="text-xl font-bold text-gray-800">${{ scenario.annual_retirement_spending|floatformat:0|intcomma }}</p>
-    <p class="text-xs text-gray-400">{{ scenario.get_spending_strategy_display }}</p>
+    <p class="text-xs text-gray-400">
+      {{ scenario.get_spending_strategy_display }}
+      {% if scenario.use_smile_curve %}<br><span class="text-indigo-600">😁 Smile Curve on</span>{% endif %}
+      {% if scenario.guardrails_enabled %}<br><span class="text-indigo-600">🛡️ Guardrails on</span>{% endif %}
+    </p>
   </div>
   <div class="bg-white rounded-xl shadow p-4">
     <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Inflation</p>

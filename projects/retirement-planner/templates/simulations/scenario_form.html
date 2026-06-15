@@ -100,6 +100,15 @@
         {% render_field form.withdrawal_rate_pct class="w-32 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" %}
         <p class="text-xs text-gray-400 mt-1">e.g. 4 for the "4% rule" — withdraws this % of your portfolio value each year.</p>
       </div>
+
+      <!-- Smile Curve toggle -->
+      <label class="flex items-start gap-2 cursor-pointer mt-4">
+        {% render_field form.use_smile_curve class="mt-0.5 rounded border-gray-300" %}
+        <div>
+          <span class="text-sm font-medium text-gray-700">Apply Retirement Spending "Smile Curve"</span>
+          <p class="text-xs text-gray-400 mt-0.5">Adjusts spending based on age: stays flat 65-74, declines from 75-84 as you travel less, and rises at 85+ due to healthcare costs.</p>
+        </div>
+      </label>
     </div>
 
     <!-- Black Swan -->

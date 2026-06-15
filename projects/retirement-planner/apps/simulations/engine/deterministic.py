@@ -154,6 +154,7 @@ class SimulationInput:
     spending_strategy: str = "fixed"
     withdrawal_rate_pct: float = 4.0
     guardrails_enabled: bool = False
+    use_smile_curve: bool = False
 
     # Taxes
     tax_rate_working_pct: float = 22.0
@@ -357,6 +358,20 @@ def run_deterministic(inputs: SimulationInput, rng: random.Random = None) -> dic
                 target_spending = total_port * (inputs.withdrawal_rate_pct / 100)
             else:  # fixed (inflation-adjusted)
                 target_spending = annual_spending * inflation_factor
+
+            # Smile Curve modifier (applies to both strategies but most common on fixed)
+            if inputs.use_smile_curve:
+                if age <= 74:
+                    smile_multiplier = 1.0
+                elif age <= 84:
+                    # Linear drop from 1.0 at age 74 to 0.74 at age 84
+                    # At 75, drop is 2.6%; at 84, drop is 26%
+                    drop_pct = 2.6 * (age - 74)
+                    smile_multiplier = 1.0 - (drop_pct / 100.0)
+                else: # 85+
+                    # Spikes back up due to healthcare/LTC. Let's assume it returns to 1.05
+                    smile_multiplier = 1.05
+                target_spending *= smile_multiplier
 
             # Guardrails modifier: reduce 10% if portfolio > 20% below its peak
             if inputs.guardrails_enabled:

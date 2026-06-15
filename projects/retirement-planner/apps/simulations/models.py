@@ -79,6 +79,10 @@ class Scenario(models.Model):
         default=False,
         help_text="Reduce spending by 10% in any year the portfolio drops >20% below its peak",
     )
+    use_smile_curve = models.BooleanField(
+        default=False,
+        help_text="Apply Retirement Spending Smile (spending declines in mid-retirement, rises in late retirement)"
+    )
     # For percent_portfolio strategy
     withdrawal_rate_pct = models.DecimalField(
         max_digits=4, decimal_places=2, default=4.0,
