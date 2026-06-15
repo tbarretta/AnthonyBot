@@ -43,6 +43,7 @@ urlpatterns = [
     # Invitations (staff only)
     path("invitations/",     views.invite_list,   name="invite_list"),
     path("invitations/new/", views.invite_create, name="invite_create"),
+    path("invitations/<int:pk>/delete/", views.invite_delete, name="invite_delete"),
 
     # Admin panel
     path("admin-panel/",                            views.admin_dashboard,           name="admin_dashboard"),

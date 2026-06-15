@@ -207,6 +207,18 @@ def invite_list(request):
     invitations = Invitation.objects.select_related("used_by", "created_by").all()
     return render(request, "accounts/invite_list.html", {"invitations": invitations})
 
+@login_required
+@user_passes_test(is_admin)
+def invite_delete(request, pk):
+    invitation = get_object_or_404(Invitation, pk=pk)
+    if request.method == "POST":
+        email = invitation.email
+        invitation.delete()
+        messages.success(request, f"Invitation for {email} has been removed.")
+        return redirect("accounts:invite_list")
+    
+    return render(request, "accounts/invite_confirm_delete.html", {"invitation": invitation})
+
 
 # ---------------------------------------------------------------------------
 # Account settings

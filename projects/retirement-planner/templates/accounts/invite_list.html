@@ -20,6 +20,7 @@
         <th class="text-left px-6 py-3 font-semibold text-gray-600">Expires</th>
         <th class="text-left px-6 py-3 font-semibold text-gray-600">Status</th>
         <th class="text-left px-6 py-3 font-semibold text-gray-600">Registered</th>
+        <th class="text-right px-6 py-3 font-semibold text-gray-600">Actions</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-gray-100">
@@ -38,6 +39,11 @@
           {% endif %}
         </td>
         <td class="px-6 py-4 text-gray-500">{{ inv.used_by.email|default:"—" }}</td>
+        <td class="px-6 py-4 text-right text-sm">
+          {% if not inv.is_used %}
+            <a href="{% url 'accounts:invite_delete' inv.pk %}" class="text-red-600 hover:text-red-800 hover:underline">Remove</a>
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
