@@ -162,3 +162,10 @@ DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="noreply@example.com")
 # ----- App Settings -----
 SITE_URL = config("SITE_URL", default="http://localhost:8000")
 INVITATION_EXPIRY_DAYS = config("INVITATION_EXPIRY_DAYS", default=7, cast=int)
+
+
+# ----- Session Management -----
+# Expire sessions after 30 minutes of inactivity
+SESSION_COOKIE_AGE = 30 * 60  # 30 minutes in seconds
+SESSION_SAVE_EVERY_REQUEST = True  # Reset the 30-minute timer on every request
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Also expire when the browser is closed
