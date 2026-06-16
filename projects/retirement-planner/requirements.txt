@@ -45,3 +45,7 @@ pydyf==0.11.0  # WeasyPrint 62.x incompatible with pydyf 0.12+
 gunicorn==23.*
 whitenoise==6.8.*
 sentry-sdk==2.*
+
+# Security
+django-two-factor-auth==1.18.*
+qrcode==8.2.*

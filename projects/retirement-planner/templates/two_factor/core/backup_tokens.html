@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Backup Tokens — RetireSim{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Backup Tokens</h1>
+    <a href="{% url 'two_factor:profile' %}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">&larr; Back to Security</a>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-6">
+    <p class="text-gray-700 mb-6">If you lose access to your authenticator app, you can use one of these backup tokens to log in. <strong>Each token can only be used once.</strong> Print these out or save them in your password manager.</p>
+
+    <div class="bg-gray-50 border rounded-lg p-6 mb-6">
+      <ul class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center font-mono text-lg text-gray-800">
+        {% for token in device.token_set.all %}
+          <li class="bg-white border py-2 rounded shadow-sm">{{ token.token }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <form action="" method="post">
+      {% csrf_token %}
+      <p class="text-sm text-gray-600 mb-4">Print these tokens and keep them safe. If you generate new tokens, these will be invalidated.</p>
+      <button type="submit" class="bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-indigo-700 transition">Generate New Tokens</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

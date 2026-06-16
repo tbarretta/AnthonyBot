@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Security Settings — RetireSim{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Account Security</h1>
+    <a href="{% url 'accounts:settings' %}" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">&larr; Back to Settings</a>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-6 mb-6">
+    {% if default_device %}
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Status: Enabled</h2>
+        <p class="text-gray-700">Two-factor authentication is active.</p>
+      </div>
+
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Backup Tokens</h2>
+        <p class="text-gray-700 mb-3">If you lose access to your authenticator app, you can use backup tokens to log in.</p>
+        <a href="{% url 'two_factor:backup_tokens' %}" class="inline-block bg-indigo-50 text-indigo-700 px-4 py-2 rounded-lg font-medium hover:bg-indigo-100 transition">View Backup Tokens</a>
+      </div>
+
+      <div>
+        <h2 class="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Disable 2FA</h2>
+        <p class="text-gray-600 mb-3 text-sm">Disabling two-factor authentication makes your account less secure. We do not recommend this.</p>
+        <a href="{% url 'two_factor:disable' %}" class="inline-block bg-red-50 text-red-700 px-4 py-2 rounded-lg font-medium hover:bg-red-100 transition">Disable Two-Factor Authentication</a>
+      </div>
+
+    {% else %}
+      <div class="mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 border-b pb-2 mb-4">Status: Disabled</h2>
+        <p class="text-gray-700 mb-4">Two-factor authentication is not currently enabled. Protect your account by requiring an authenticator code when signing in.</p>
+        <a href="{% url 'two_factor:setup' %}" class="inline-block bg-indigo-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">Enable Two-Factor Authentication</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
