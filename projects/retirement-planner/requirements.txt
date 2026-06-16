@@ -49,3 +49,4 @@ sentry-sdk==2.*
 # Security
 django-two-factor-auth==1.18.*
 qrcode==8.2.*
+django-axes==8.3.*

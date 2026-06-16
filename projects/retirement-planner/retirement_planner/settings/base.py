@@ -32,6 +32,7 @@ THIRD_PARTY_APPS = [
     "django_celery_results",
     "widget_tweaks",
     "django_extensions",
+    "axes",
 ]
 
 LOCAL_APPS = [
@@ -53,6 +54,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "axes.middleware.AxesMiddleware",
     "django_otp.middleware.OTPMiddleware",
     "two_factor.middleware.threadlocals.ThreadLocals",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -170,8 +172,24 @@ SITE_URL = config("SITE_URL", default="http://localhost:8000")
 INVITATION_EXPIRY_DAYS = config("INVITATION_EXPIRY_DAYS", default=7, cast=int)
 
 
+
+# ----- Authentication Backends -----
+TWO_FACTOR_REMEMBER_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 days
+
+AUTHENTICATION_BACKENDS = [
+    'axes.backends.AxesStandaloneBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 # ----- Session Management -----
 # Expire sessions after 30 minutes of inactivity
 SESSION_COOKIE_AGE = 30 * 60  # 30 minutes in seconds
 SESSION_SAVE_EVERY_REQUEST = True  # Reset the 30-minute timer on every request
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Also expire when the browser is closed
+
+
+# ----- Axes (Brute Force Protection) -----
+AXES_FAILURE_LIMIT = 5
+AXES_COOLOFF_TIME = 0.5  # 30 minutes (in hours)
+AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
+AXES_RESET_ON_SUCCESS = True

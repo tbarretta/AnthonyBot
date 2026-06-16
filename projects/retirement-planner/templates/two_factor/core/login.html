@@ -24,6 +24,11 @@
       {{ wizard.management_form }}
       
       {% for field in wizard.form %}
+        {% if field.name == 'remember' %}
+          <div class="hidden">
+            {% render_field field %}
+          </div>
+        {% else %}
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">{{ field.label }}</label>
           {% if field.name == 'password' or field.name == 'auth-password' %}
@@ -37,6 +42,7 @@
             <p class="text-sm text-red-600 mt-1">{{ field.errors.0 }}</p>
           {% endif %}
         </div>
+        {% endif %}
       {% endfor %}
 
       {% if wizard.form.non_field_errors %}
