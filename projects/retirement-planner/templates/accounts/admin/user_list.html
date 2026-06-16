@@ -23,6 +23,7 @@
           <th class="text-left px-6 py-3 font-semibold text-gray-600">Joined</th>
           <th class="text-left px-6 py-3 font-semibold text-gray-600">Last Login</th>
           <th class="text-left px-6 py-3 font-semibold text-gray-600">Staff</th>
+          <th class="text-left px-6 py-3 font-semibold text-gray-600">MFA</th>
           <th class="text-left px-6 py-3 font-semibold text-gray-600">Actions</th>
         </tr>
       </thead>
@@ -42,6 +43,13 @@
               <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">Staff</span>
             {% else %}
               <span class="text-gray-400">—</span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4">
+            {% if u.has_mfa %}
+              <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-100 text-green-700">Enabled</span>
+            {% else %}
+              <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-600">Off</span>
             {% endif %}
           </td>
           <td class="px-6 py-4">

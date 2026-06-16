@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.conf import settings
+from two_factor.utils import default_device
 
 from .forms import AccountSettingsForm, InvitationForm, RegisterForm
 from .models import Invitation, User, AuditLog, AuditEvent
@@ -299,6 +300,8 @@ def admin_dashboard(request):
 @user_passes_test(is_admin)
 def admin_user_list(request):
     users = User.objects.all().order_by('-date_joined').select_related('invitation')
+    for u in users:
+        u.has_mfa = default_device(u) is not None
     return render(request, 'accounts/admin/user_list.html', {'users': users})
 
 
