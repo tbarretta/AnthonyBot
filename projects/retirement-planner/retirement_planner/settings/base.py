@@ -191,5 +191,5 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Also expire when the browser is closed
 # ----- Axes (Brute Force Protection) -----
 AXES_FAILURE_LIMIT = 5
 AXES_COOLOFF_TIME = 0.5  # 30 minutes (in hours)
-AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
+AXES_LOCKOUT_PARAMETERS = ["username", "ip_address"]  # Lock by username+IP combo
 AXES_RESET_ON_SUCCESS = True
