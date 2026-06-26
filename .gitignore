@@ -22,3 +22,6 @@ venv/
 
 # Summaries output
 projects/*/summaries/
+
+# Local only projects
+projects/tpa-system/
