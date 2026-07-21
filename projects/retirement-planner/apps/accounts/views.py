@@ -220,6 +220,46 @@ def invite_delete(request, pk):
     
     return render(request, "accounts/invite_confirm_delete.html", {"invitation": invitation})
 
+@login_required
+@user_passes_test(is_admin)
+def invite_resend(request, pk):
+    invitation = get_object_or_404(Invitation, pk=pk)
+    
+    if request.method == "POST":
+        if invitation.is_used:
+            messages.error(request, f"Invitation for {invitation.email} has already been used.")
+            return redirect("accounts:invite_list")
+            
+        invitation.expires_at = timezone.now() + timedelta(days=settings.INVITATION_EXPIRY_DAYS)
+        invitation.save()
+        
+        # Audit
+        AuditLog.objects.create(
+            actor=request.user,
+            user_email=invitation.email,
+            event=AuditEvent.INVITATION_CREATED,
+            ip_address=_get_ip(request),
+            notes=f"Resent invitation token: {invitation.token}",
+        )
+        
+        # Send invitation email
+        register_url = f"{settings.SITE_URL}/accounts/register/{invitation.token}/"
+        body = render_to_string("accounts/email/invitation.txt", {
+            "register_url": register_url,
+            "expiry_days": settings.INVITATION_EXPIRY_DAYS,
+        })
+        send_mail(
+            subject="You've been invited to Retirement Planner",
+            message=body,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[invitation.email],
+        )
+        
+        messages.success(request, f"Invitation resent to {invitation.email}.")
+        return redirect("accounts:invite_list")
+        
+    return render(request, "accounts/invite_confirm_resend.html", {"invitation": invitation})
+
 
 # ---------------------------------------------------------------------------
 # Account settings

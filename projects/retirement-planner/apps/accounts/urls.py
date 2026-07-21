@@ -44,6 +44,7 @@ urlpatterns = [
     path("invitations/",     views.invite_list,   name="invite_list"),
     path("invitations/new/", views.invite_create, name="invite_create"),
     path("invitations/<int:pk>/delete/", views.invite_delete, name="invite_delete"),
+    path("invitations/<int:pk>/resend/", views.invite_resend, name="invite_resend"),
 
     # Admin panel
     path("admin-panel/",                            views.admin_dashboard,           name="admin_dashboard"),

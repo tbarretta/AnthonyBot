@@ -41,6 +41,7 @@
         <td class="px-6 py-4 text-gray-500">{{ inv.used_by.email|default:"—" }}</td>
         <td class="px-6 py-4 text-right text-sm">
           {% if not inv.is_used %}
+            <a href="{% url 'accounts:invite_resend' inv.pk %}" class="text-indigo-600 hover:text-indigo-800 hover:underline mr-3">Resend</a>
             <a href="{% url 'accounts:invite_delete' inv.pk %}" class="text-red-600 hover:text-red-800 hover:underline">Remove</a>
           {% endif %}
         </td>
