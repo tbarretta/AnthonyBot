@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Name The Letter | No Double-U{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-16">
+
+  <div class="text-center mb-16">
+    <h1 class="text-4xl md:text-5xl font-black text-white mb-4">Name The <span class="text-amber-400">Letter</span></h1>
+    <p class="text-xl text-zinc-400 max-w-2xl mx-auto">
+      Double-u is out. What comes next is up to you.
+    </p>
+  </div>
+
+  <div class="prose prose-invert max-w-2xl mx-auto mb-16 text-center">
+    <p class="text-lg text-zinc-300">
+      We've made the case. Now comes the fun part. Below are proposed replacements — vote for your favorite, or submit your own. The best name wins by popular vote. Let's fix the alphabet together.
+    </p>
+  </div>
+
+  <!-- Voting Section -->
+  <div class="space-y-6 mb-24">
+    <h2 class="text-2xl font-black text-white mb-6 border-b border-zinc-800 pb-2">The Contenders</h2>
+    
+    {% for suggestion in suggestions %}
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex flex-col md:flex-row gap-6 items-center justify-between hover:border-amber-400/30 transition-colors">
+      <div class="flex-grow">
+        <h3 class="text-3xl font-black text-white mb-2">{{ suggestion.name }}</h3>
+        <p class="text-zinc-400 text-sm">{{ suggestion.description }}</p>
+        {% if suggestion.submitted_by %}
+        <p class="text-zinc-600 text-xs mt-2">Suggested by {{ suggestion.submitted_by.username }}</p>
+        {% endif %}
+      </div>
+      
+      <div class="flex flex-col items-center min-w-[120px]">
+        <div class="text-3xl font-black text-amber-400 mb-2" id="vote-count-{{ suggestion.id }}">{{ suggestion.vote_count }}</div>
+        <div class="text-zinc-500 text-xs uppercase tracking-wider mb-3">Votes</div>
+        
+        {% if suggestion.id in voted_ids %}
+        <button disabled class="w-full bg-zinc-800 text-zinc-400 px-4 py-2 rounded font-bold text-sm cursor-not-allowed">
+          Voted ✓
+        </button>
+        {% else %}
+        <button hx-post="{% url 'naming:vote' suggestion.id %}" 
+                hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                hx-swap="none"
+                onclick="this.innerText='Voted ✓'; this.disabled=true; this.classList.remove('bg-amber-400', 'text-black', 'hover:bg-amber-300'); this.classList.add('bg-zinc-800', 'text-zinc-400', 'cursor-not-allowed'); let countEl = document.getElementById('vote-count-{{ suggestion.id }}'); countEl.innerText = parseInt(countEl.innerText) + 1;"
+                class="w-full bg-amber-400 text-black px-4 py-2 rounded font-bold text-sm hover:bg-amber-300 transition-colors">
+          Vote
+        </button>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-12 text-zinc-500 bg-zinc-900/50 rounded-xl border border-zinc-800 border-dashed">
+      No suggestions approved yet. Be the first!
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Suggestion Form -->
+  <div class="bg-zinc-950 border border-zinc-800 rounded-xl p-8 max-w-2xl mx-auto">
+    <div class="text-center mb-8">
+      <h2 class="text-2xl font-black text-white mb-2">Have a better idea?</h2>
+      <p class="text-zinc-400 text-sm">Submit your proposal for review.</p>
+    </div>
+    
+    <form action="{% url 'naming:suggest' %}" method="post" class="space-y-4">
+      {% csrf_token %}
+      
+      <div>
+        <label for="name" class="block text-sm font-bold text-zinc-300 mb-1">Proposed Name <span class="text-red-500">*</span></label>
+        <input type="text" id="name" name="name" required placeholder="e.g. Wuh" class="w-full bg-zinc-900 border border-zinc-700 rounded px-4 py-2 text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400">
+      </div>
+      
+      <div>
+        <label for="description" class="block text-sm font-bold text-zinc-300 mb-1">Why it works (the phonetic/historical case) <span class="text-red-500">*</span></label>
+        <textarea id="description" name="description" rows="3" required placeholder="Make your argument..." class="w-full bg-zinc-900 border border-zinc-700 rounded px-4 py-2 text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"></textarea>
+      </div>
+      
+      {% if not user.is_authenticated %}
+      <div class="text-xs text-zinc-500 mt-2 mb-4">
+        Submissions are reviewed before appearing on the board.
+      </div>
+      {% endif %}
+      
+      <button type="submit" class="w-full bg-zinc-800 border-2 border-zinc-700 text-white px-4 py-3 rounded font-bold hover:border-amber-400 hover:text-amber-400 transition-colors">
+        Submit for Review
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

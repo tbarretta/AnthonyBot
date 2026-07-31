@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}No Double-U — Great letter. Terrible name.{% endblock %}
+
+{% block content %}
+
+<!-- Hero -->
+<section class="min-h-screen flex flex-col items-center justify-center text-center px-4 relative overflow-hidden">
+  <!-- Background glow -->
+  <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+    <div class="w-96 h-96 rounded-full bg-amber-400/5 blur-3xl"></div>
+  </div>
+
+  <!-- Giant W -->
+  <div class="relative mb-6">
+    <span class="text-[20rem] md:text-[28rem] font-black text-amber-400 w-glow leading-none select-none opacity-90">W</span>
+  </div>
+
+  <h1 class="text-4xl md:text-6xl font-black text-white max-w-4xl leading-tight mb-6">
+    A Great Letter Has<br/>
+    <span class="text-amber-400">The Worst Name.</span>
+  </h1>
+
+  <p class="text-xl text-zinc-400 max-w-2xl mb-10 leading-relaxed">
+    Every other letter is named in one syllable. W gets saddled with three.
+    And they're not even accurate. It's time to fix this.
+  </p>
+
+  <div class="flex flex-col sm:flex-row gap-4">
+    <a href="{% url 'core:the_case' %}"
+       class="bg-amber-400 text-black px-8 py-4 rounded font-black text-lg hover:bg-amber-300 transition-colors">
+      Read The Case →
+    </a>
+    <a href="{% url 'naming:name_it' %}"
+       class="border-2 border-amber-400 text-amber-400 px-8 py-4 rounded font-black text-lg hover:bg-amber-400 hover:text-black transition-colors">
+      Name It
+    </a>
+  </div>
+
+  <p class="mt-8 text-zinc-600 text-sm">
+    Join the movement. Vote on a new name. End the madness.
+  </p>
+</section>
+
+<!-- Three feature cards -->
+<section class="max-w-6xl mx-auto px-4 pb-24">
+  <div class="grid md:grid-cols-3 gap-6">
+
+    <!-- The Problem -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8 hover:border-amber-400/50 transition-colors">
+      <div class="text-4xl mb-4">🚨</div>
+      <h2 class="text-xl font-black text-white mb-3">The Problem</h2>
+      <p class="text-zinc-400 leading-relaxed">
+        "Double-u" is three syllables. Every other letter is one. It's not phonetically named.
+        It doesn't even describe the shape accurately — W looks like two V's, not two U's.
+        The name is broken on every level.
+      </p>
+      <a href="{% url 'core:the_case' %}" class="inline-block mt-4 text-amber-400 font-bold hover:text-amber-300 transition-colors text-sm">
+        See the full case →
+      </a>
+    </div>
+
+    <!-- The Letter -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8 hover:border-amber-400/50 transition-colors">
+      <div class="text-4xl mb-4">🏆</div>
+      <h2 class="text-xl font-black text-white mb-3">The Letter</h2>
+      <p class="text-zinc-400 leading-relaxed">
+        Wonder. Wisdom. Water. World. War. Win. Who, What, When, Where, Why — four of the five
+        fundamental questions of human inquiry start with W. The letter is extraordinary.
+        The name is not.
+      </p>
+      <a href="{% url 'core:hall_of_fame' %}" class="inline-block mt-4 text-amber-400 font-bold hover:text-amber-300 transition-colors text-sm">
+        W's Hall of Fame →
+      </a>
+    </div>
+
+    <!-- The Solution -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8 hover:border-amber-400/50 transition-colors">
+      <div class="text-4xl mb-4">✊</div>
+      <h2 class="text-xl font-black text-white mb-3">The Solution</h2>
+      <p class="text-zinc-400 leading-relaxed">
+        We're not deciding this alone. The public gets to vote. Wee? Wuh? Way? Dub?
+        Submit your proposal, make your argument, and let the best name win.
+        History is watching.
+      </p>
+      <a href="{% url 'naming:name_it' %}" class="inline-block mt-4 text-amber-400 font-bold hover:text-amber-300 transition-colors text-sm">
+        Vote on a new name →
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- Stats bar -->
+<section class="border-y border-zinc-800 bg-zinc-950 py-12 mb-0">
+  <div class="max-w-4xl mx-auto px-4 grid grid-cols-3 gap-8 text-center">
+    <div>
+      <div class="text-4xl font-black text-amber-400">26</div>
+      <div class="text-zinc-500 text-sm mt-1">Letters in the alphabet</div>
+    </div>
+    <div>
+      <div class="text-4xl font-black text-amber-400">1</div>
+      <div class="text-zinc-500 text-sm mt-1">With a multi-syllable name</div>
+    </div>
+    <div>
+      <div class="text-4xl font-black text-amber-400">0</div>
+      <div class="text-zinc-500 text-sm mt-1">Good reasons to keep it</div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

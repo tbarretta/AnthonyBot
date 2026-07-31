@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Discussion | No Double-U{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-16">
+
+  <div class="text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-black text-white mb-4">The <span class="text-amber-400">Discussion</span></h1>
+    <p class="text-xl text-zinc-400 max-w-2xl mx-auto">
+      Make your case. Hear others out. Change some minds.
+    </p>
+  </div>
+
+  <!-- New Comment Form -->
+  <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-12">
+    <h2 class="text-xl font-bold text-white mb-4">Join the Discussion</h2>
+    <form action="{% url 'discussion:add_comment' %}" method="post" class="space-y-4">
+      {% csrf_token %}
+      
+      <div class="grid md:grid-cols-2 gap-4">
+        <div>
+          <label for="author_name" class="block text-sm font-bold text-zinc-400 mb-1">Name <span class="text-red-500">*</span></label>
+          <input type="text" id="author_name" name="author_name" required class="w-full bg-zinc-950 border border-zinc-700 rounded px-4 py-2 text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400">
+        </div>
+        <div>
+          <label for="author_email" class="block text-sm font-bold text-zinc-400 mb-1">Email (optional, not published)</label>
+          <input type="email" id="author_email" name="author_email" class="w-full bg-zinc-950 border border-zinc-700 rounded px-4 py-2 text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400">
+        </div>
+      </div>
+      
+      <div>
+        <label for="body" class="block text-sm font-bold text-zinc-400 mb-1">Comment <span class="text-red-500">*</span></label>
+        <textarea id="body" name="body" rows="4" required class="w-full bg-zinc-950 border border-zinc-700 rounded px-4 py-2 text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"></textarea>
+      </div>
+      
+      <button type="submit" class="bg-amber-400 text-black px-6 py-2 rounded font-bold text-sm hover:bg-amber-300 transition-colors">
+        Post Comment
+      </button>
+    </form>
+  </div>
+
+  <!-- Comments List -->
+  <div class="space-y-8">
+    <h2 class="text-2xl font-black text-white border-b border-zinc-800 pb-2">Comments</h2>
+    
+    {% for comment in comments %}
+    <div class="bg-zinc-950 border border-zinc-800 rounded-lg p-5">
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="font-bold text-amber-400">{{ comment.author_name }}</span>
+        <span class="text-xs text-zinc-600">{{ comment.created_at|date:"M j, Y, g:i a" }}</span>
+      </div>
+      <p class="text-zinc-300 whitespace-pre-wrap text-sm leading-relaxed">{{ comment.body }}</p>
+      
+      <div class="mt-4 flex gap-4">
+        <button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="text-xs font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-wider">
+          Reply
+        </button>
+      </div>
+      
+      <!-- Reply Form (Hidden by default) -->
+      <div id="reply-form-{{ comment.id }}" class="hidden mt-4 pt-4 border-t border-zinc-800">
+        <form action="{% url 'discussion:add_comment' %}" method="post" class="space-y-3">
+          {% csrf_token %}
+          <input type="hidden" name="parent_id" value="{{ comment.id }}">
+          
+          <div class="grid md:grid-cols-2 gap-3">
+            <input type="text" name="author_name" required placeholder="Name *" class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-400">
+            <input type="email" name="author_email" placeholder="Email (optional)" class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-400">
+          </div>
+          <textarea name="body" rows="2" required placeholder="Write a reply..." class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-400"></textarea>
+          
+          <div class="flex gap-2">
+            <button type="submit" class="bg-zinc-700 text-white px-4 py-1.5 rounded font-bold text-xs hover:bg-zinc-600 transition-colors">Post Reply</button>
+            <button type="button" onclick="document.getElementById('reply-form-{{ comment.id }}').classList.add('hidden')" class="bg-transparent text-zinc-500 px-4 py-1.5 rounded font-bold text-xs hover:text-zinc-300 transition-colors">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Replies -->
+      {% if comment.replies.all %}
+      <div class="mt-4 pl-4 md:pl-6 border-l-2 border-zinc-800 space-y-4">
+        {% for reply in comment.replies.all %}
+        {% if reply.is_approved %}
+        <div class="pt-2">
+          <div class="flex items-baseline justify-between mb-1">
+            <span class="font-bold text-zinc-400 text-sm">{{ reply.author_name }}</span>
+            <span class="text-xs text-zinc-600">{{ reply.created_at|date:"M j, Y, g:i a" }}</span>
+          </div>
+          <p class="text-zinc-300 whitespace-pre-wrap text-sm leading-relaxed">{{ reply.body }}</p>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+      
+    </div>
+    {% empty %}
+    <div class="text-center py-12 text-zinc-500">
+      No comments yet. Be the first to start the discussion!
+    </div>
+    {% endfor %}
+  </div>
+  
+  <div class="mt-12 text-center text-zinc-600 text-sm border-t border-zinc-800 pt-8">
+    Keep it civil. This is about linguistics, not politics.
+  </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+[
+  {
+    "model": "naming.namesuggestion",
+    "pk": 1,
+    "fields": {
+      "name": "Wee",
+      "slug": "wee",
+      "description": "Clean, one syllable, phonetic. \"wee\" captures the sound perfectly.",
+      "is_approved": true,
+      "created_at": "2026-07-31T00:00:00Z"
+    }
+  },
+  {
+    "model": "naming.namesuggestion",
+    "pk": 2,
+    "fields": {
+      "name": "Wuh",
+      "slug": "wuh",
+      "description": "The most phonetic option. How you actually say the letter sound. Like \"buh\" for B.",
+      "is_approved": true,
+      "created_at": "2026-07-31T00:00:01Z"
+    }
+  },
+  {
+    "model": "naming.namesuggestion",
+    "pk": 3,
+    "fields": {
+      "name": "Wah",
+      "slug": "wah",
+      "description": "Short, punchy, easy to say. Has energy.",
+      "is_approved": true,
+      "created_at": "2026-07-31T00:00:02Z"
+    }
+  },
+  {
+    "model": "naming.namesuggestion",
+    "pk": 4,
+    "fields": {
+      "name": "Way",
+      "slug": "way",
+      "description": "Sounds natural, one syllable, fits the alphabet pattern.",
+      "is_approved": true,
+      "created_at": "2026-07-31T00:00:03Z"
+    }
+  },
+  {
+    "model": "naming.namesuggestion",
+    "pk": 5,
+    "fields": {
+      "name": "Vee-Vee",
+      "slug": "vee-vee",
+      "description": "Acknowledges the double-V history while being honest about the shape.",
+      "is_approved": true,
+      "created_at": "2026-07-31T00:00:04Z"
+    }
+  },
+  {
+    "model": "naming.namesuggestion",
+    "pk": 6,
+    "fields": {
+      "name": "Dub",
+      "slug": "dub",
+      "description": "As in \"dub-ya\" — colloquial but already in common use.",
+      "is_approved": true,
+      "created_at": "2026-07-31T00:00:05Z"
+    }
+  }
+]

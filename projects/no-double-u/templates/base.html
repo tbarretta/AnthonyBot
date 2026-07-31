@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}No Double-U — Great letter. Terrible name.{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'brand': '#f59e0b',   /* amber-400 */
+            'brand-dark': '#d97706',
+          },
+          fontFamily: {
+            'display': ['Georgia', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { background-color: #0a0a0a; }
+    .w-glow { text-shadow: 0 0 40px rgba(245,158,11,0.6), 0 0 80px rgba(245,158,11,0.3); }
+    .nav-link { @apply text-zinc-300 hover:text-amber-400 transition-colors duration-200 font-medium; }
+  </style>
+</head>
+<body class="h-full text-white antialiased">
+
+  <!-- Navigation -->
+  <nav class="border-b border-zinc-800 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Logo -->
+        <a href="{% url 'core:home' %}" class="flex flex-col leading-none group">
+          <span class="text-xl font-black text-white tracking-tight group-hover:text-amber-400 transition-colors">
+            No Double-<span class="text-amber-400">U</span>
+          </span>
+          <span class="text-xs text-zinc-500 font-normal">Great letter. Terrible name.</span>
+        </a>
+
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="{% url 'core:the_case' %}" class="nav-link">The Case</a>
+          <a href="{% url 'core:hall_of_fame' %}" class="nav-link">Hall of Fame</a>
+          <a href="{% url 'naming:name_it' %}" class="nav-link">Name It</a>
+          <a href="{% url 'discussion:discussion' %}" class="nav-link">Discussion</a>
+          <a href="{% url 'naming:name_it' %}"
+             class="bg-amber-400 text-black px-4 py-2 rounded font-bold text-sm hover:bg-amber-300 transition-colors">
+            Vote Now
+          </a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <button id="mobile-menu-btn" class="md:hidden text-zinc-400 hover:text-white p-2">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Mobile nav -->
+      <div id="mobile-menu" class="hidden md:hidden pb-4 space-y-2">
+        <a href="{% url 'core:the_case' %}" class="block nav-link py-2">The Case</a>
+        <a href="{% url 'core:hall_of_fame' %}" class="block nav-link py-2">Hall of Fame</a>
+        <a href="{% url 'naming:name_it' %}" class="block nav-link py-2">Name It</a>
+        <a href="{% url 'discussion:discussion' %}" class="block nav-link py-2">Discussion</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Messages -->
+  {% if messages %}
+  <div class="max-w-6xl mx-auto px-4 pt-4">
+    {% for message in messages %}
+    <div class="p-4 rounded mb-2 {% if message.tags == 'error' %}bg-red-900/50 text-red-300 border border-red-800{% else %}bg-amber-900/50 text-amber-300 border border-amber-800{% endif %}">
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Content -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-zinc-800 mt-24 py-12 text-center text-zinc-500">
+    <div class="max-w-6xl mx-auto px-4">
+      <p class="text-2xl font-black text-zinc-700 mb-2">W</p>
+      <p class="text-sm">No Double-U Movement &nbsp;·&nbsp; <a href="/" class="hover:text-amber-400 transition-colors">nodoubleu.com</a> &nbsp;·&nbsp; Because W deserves better.</p>
+      <p class="text-xs mt-2 text-zinc-600">The letter is great. The name is not.</p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+      document.getElementById('mobile-menu').classList.toggle('hidden');
+    });
+  </script>
+</body>
+</html>

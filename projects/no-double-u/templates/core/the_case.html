@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}The Case Against Double-U | No Double-U{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-16">
+
+  <div class="text-center mb-16">
+    <h1 class="text-4xl md:text-5xl font-black text-white mb-4">The Case Against <span class="text-amber-400">Double-U</span></h1>
+    <p class="text-xl text-zinc-400">A letter this powerful deserves a name this simple.</p>
+  </div>
+
+  <div class="space-y-12">
+    <!-- Point 1 -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8 flex flex-col md:flex-row gap-8 items-start">
+      <div class="text-5xl font-black text-zinc-800 w-16">01</div>
+      <div>
+        <h2 class="text-2xl font-bold text-white mb-3">It's the only multi-syllable letter.</h2>
+        <p class="text-zinc-400 leading-relaxed text-lg">
+          Say the alphabet out loud. A, B, C, D... every single letter is one syllable. Then you get to W. Double-u. Three syllables. It breaks the rhythm of the entire alphabet. Children learning to read stumble here. Adults still slow down.
+        </p>
+      </div>
+    </div>
+
+    <!-- Point 2 -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8 flex flex-col md:flex-row gap-8 items-start">
+      <div class="text-5xl font-black text-zinc-800 w-16">02</div>
+      <div>
+        <h2 class="text-2xl font-bold text-white mb-3">It's not even accurate.</h2>
+        <p class="text-zinc-400 leading-relaxed text-lg mb-4">
+          Look at a W. Now look at two U's side by side: <span class="font-bold text-white">UU</span>. Does that look like a W to you? No.
+        </p>
+        <p class="text-zinc-400 leading-relaxed text-lg">
+          Now look at two V's: <span class="font-bold text-white">VV</span>. That's a W. The French got it right — they call it "double-vé." Spanish: "doble uve." We're the outlier, and we're wrong.
+        </p>
+      </div>
+    </div>
+
+    <!-- Point 3 -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8 flex flex-col md:flex-row gap-8 items-start">
+      <div class="text-5xl font-black text-zinc-800 w-16">03</div>
+      <div>
+        <h2 class="text-2xl font-bold text-white mb-3">It's not phonetically named.</h2>
+        <p class="text-zinc-400 leading-relaxed text-lg">
+          Every consonant in English is named phonetically — B sounds like "bee", D like "dee", F like "ef", G like "gee". The name tells you something about the sound. "Double-u" tells you nothing. It's a description of a shape that isn't even accurate.
+        </p>
+      </div>
+    </div>
+
+    <!-- Point 4 -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8 flex flex-col md:flex-row gap-8 items-start">
+      <div class="text-5xl font-black text-zinc-800 w-16">04</div>
+      <div>
+        <h2 class="text-2xl font-bold text-white mb-3">History doesn't excuse it.</h2>
+        <p class="text-zinc-400 leading-relaxed text-lg">
+          Yes, W originated from a ligature of two U's (or V's — they were the same letter in medieval Latin). But we don't keep outdated things just because of history. Languages evolve. It's time W's name caught up.
+        </p>
+      </div>
+    </div>
+
+    <!-- Point 5 -->
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8 flex flex-col md:flex-row gap-8 items-start">
+      <div class="text-5xl font-black text-zinc-800 w-16">05</div>
+      <div>
+        <h2 class="text-2xl font-bold text-white mb-3">The rest of the world has moved on.</h2>
+        <p class="text-zinc-400 leading-relaxed text-lg">
+          German: "veh". French: "double-vé". Spanish: "doble uve". Welsh: "w" (one syllable!). Even languages that borrowed W from English gave it a sensible name. We're the holdout.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-16 text-center border-t border-zinc-800 pt-16">
+    <h2 class="text-2xl font-black text-white mb-6">The letter deserves better.</h2>
+    <a href="{% url 'naming:name_it' %}" class="inline-block bg-amber-400 text-black px-8 py-4 rounded font-black text-lg hover:bg-amber-300 transition-colors">
+      Help Us Name It Right →
+    </a>
+  </div>
+
+</div>
+{% endblock %}
