@@ -16,7 +16,7 @@
     "fields": {
       "name": "Wuh",
       "slug": "wuh",
-      "description": "The most phonetic option. How you actually say the letter sound. Like \"buh\" for B.",
+      "description": "The most phonetic option. How you actually say the letter sound.",
       "is_approved": true,
       "created_at": "2026-07-31T00:00:01Z"
     }
