@@ -23,7 +23,7 @@
     <h2 class="text-2xl font-black text-white mb-6 border-b border-zinc-800 pb-2">The Contenders</h2>
     
     {% for suggestion in suggestions %}
-    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex flex-col md:flex-row gap-6 items-center justify-between hover:border-amber-400/30 transition-colors">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between hover:border-amber-400/30 transition-colors">
       <div class="flex-grow">
         <h3 class="text-3xl font-black text-white mb-2">{{ suggestion.name }}</h3>
         <p class="text-zinc-400 text-sm">{{ suggestion.description }}</p>
