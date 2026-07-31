@@ -60,6 +60,7 @@
             {% if user.is_staff %}
             <a href="{% url 'admin:index' %}" class="text-xs text-brand hover:text-brand-dark transition-colors font-bold uppercase tracking-wider">Admin</a>
             {% endif %}
+            <a href="{% url 'password_change' %}" class="text-xs text-zinc-500 hover:text-zinc-300 transition-colors uppercase tracking-wider font-bold">Password</a>
             <form method="post" action="{% url 'logout' %}" class="inline">
               {% csrf_token %}
               <button type="submit" class="text-xs text-zinc-500 hover:text-zinc-300 transition-colors uppercase tracking-wider font-bold">Log Out</button>
@@ -96,6 +97,7 @@
           {% if user.is_staff %}
           <a href="{% url 'admin:index' %}" class="block nav-link py-2">Admin Dashboard</a>
           {% endif %}
+          <a href="{% url 'password_change' %}" class="block nav-link py-2">Change Password</a>
           <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
             <button type="submit" class="block nav-link py-2 text-left w-full">Log Out</button>

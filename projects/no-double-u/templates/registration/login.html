@@ -27,6 +27,13 @@
       
       <input type="hidden" name="next" value="{{ next|default:'' }}">
       
+      <div class="bg-amber-900/20 border border-amber-900/50 rounded p-4 mt-6">
+        <p class="text-xs text-amber-500/80 leading-relaxed text-center">
+          <strong>Forgot your password?</strong> Because we don't collect emails, there's no automated reset. 
+          If you've lost your password, you can simply <a href="{% url 'core:join' %}" class="underline hover:text-amber-400">create a new account</a>.
+        </p>
+      </div>
+
       <button type="submit" class="w-full bg-amber-400 text-black px-6 py-3 rounded font-bold text-sm hover:bg-amber-300 transition-colors mt-6">
         Log In
       </button>
