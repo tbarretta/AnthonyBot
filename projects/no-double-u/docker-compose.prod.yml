@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  web:
+    # No volumes mapped in prod so it uses the code baked into the image
+    volumes: []
+    environment:
+      - DJANGO_SETTINGS_MODULE=nodoubleu.settings.production
+      - DEBUG=False
+      # We will pass the rest (SECRET_KEY, DB credentials, etc.) via a .env file on the server
+    env_file:
+      - .env
+    restart: always
+
+  db:
+    environment:
+      # These must match the .env file
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    restart: always
