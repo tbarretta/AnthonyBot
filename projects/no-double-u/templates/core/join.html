@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Join the Movement | No Double-U{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-16">
+  <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-8">
+    <h1 class="text-3xl font-black text-white mb-6 text-center">Join the <span class="text-amber-400">Movement</span></h1>
+    <p class="text-zinc-400 text-center mb-8 text-sm">Register to join the discussion and help shape the future of our language.</p>
+    
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      {% for field in form %}
+      <div>
+        <label for="{{ field.id_for_label }}" class="block text-sm font-bold text-zinc-400 mb-1">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}
+        <p class="text-xs text-zinc-500 mt-1">{{ field.help_text|safe }}</p>
+        {% endif %}
+        {% for error in field.errors %}
+        <p class="text-xs text-red-500 mt-1">{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endfor %}
+      
+      <button type="submit" class="w-full bg-amber-400 text-black px-6 py-3 rounded font-bold text-sm hover:bg-amber-300 transition-colors mt-6">
+        Join Now
+      </button>
+    </form>
+    
+    <div class="mt-6 text-center text-sm text-zinc-500">
+      Already a member? <a href="{% url 'login' %}" class="text-amber-400 hover:underline">Log In</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Style Django's default form inputs */
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    background-color: #09090b; /* zinc-950 */
+    border: 1px solid #3f3f46; /* zinc-700 */
+    border-radius: 0.25rem;
+    padding: 0.5rem 1rem;
+    color: white;
+  }
+  input[type="text"]:focus, input[type="password"]:focus {
+    outline: none;
+    border-color: #f59e0b; /* amber-400 */
+    box-shadow: 0 0 0 1px #f59e0b;
+  }
+</style>
+{% endblock %}

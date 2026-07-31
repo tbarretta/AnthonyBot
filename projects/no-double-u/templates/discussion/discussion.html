@@ -15,22 +15,12 @@
   <!-- New Comment Form -->
   <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-12">
     <h2 class="text-xl font-bold text-white mb-4">Join the Discussion</h2>
+    {% if user.is_authenticated %}
     <form action="{% url 'discussion:add_comment' %}" method="post" class="space-y-4">
       {% csrf_token %}
       
-      <div class="grid md:grid-cols-2 gap-4">
-        <div>
-          <label for="author_name" class="block text-sm font-bold text-zinc-400 mb-1">Name <span class="text-red-500">*</span></label>
-          <input type="text" id="author_name" name="author_name" required class="w-full bg-zinc-950 border border-zinc-700 rounded px-4 py-2 text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400">
-        </div>
-        <div>
-          <label for="author_email" class="block text-sm font-bold text-zinc-400 mb-1">Email (optional, not published)</label>
-          <input type="email" id="author_email" name="author_email" class="w-full bg-zinc-950 border border-zinc-700 rounded px-4 py-2 text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400">
-        </div>
-      </div>
-      
       <div>
-        <label for="body" class="block text-sm font-bold text-zinc-400 mb-1">Comment <span class="text-red-500">*</span></label>
+        <label for="body" class="block text-sm font-bold text-zinc-400 mb-1">Comment as <span class="text-amber-400">{{ user.username }}</span></label>
         <textarea id="body" name="body" rows="4" required class="w-full bg-zinc-950 border border-zinc-700 rounded px-4 py-2 text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"></textarea>
       </div>
       
@@ -38,6 +28,15 @@
         Post Comment
       </button>
     </form>
+    {% else %}
+    <div class="text-center py-8">
+      <p class="text-zinc-400 mb-4">You must be a registered member to participate in the discussion.</p>
+      <div class="flex justify-center gap-4">
+        <a href="{% url 'core:join' %}" class="bg-amber-400 text-black px-6 py-2 rounded font-bold text-sm hover:bg-amber-300 transition-colors">Join the Movement</a>
+        <a href="{% url 'login' %}?next={% url 'discussion:discussion' %}" class="bg-zinc-800 text-white px-6 py-2 rounded font-bold text-sm hover:bg-zinc-700 transition-colors">Log In</a>
+      </div>
+    </div>
+    {% endif %}
   </div>
 
   <!-- Comments List -->
@@ -53,22 +52,25 @@
       <p class="text-zinc-300 whitespace-pre-wrap text-sm leading-relaxed">{{ comment.body }}</p>
       
       <div class="mt-4 flex gap-4">
+        {% if user.is_authenticated %}
         <button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="text-xs font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-wider">
           Reply
         </button>
+        {% else %}
+        <a href="{% url 'login' %}?next={% url 'discussion:discussion' %}" class="text-xs font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-wider">
+          Reply
+        </a>
+        {% endif %}
       </div>
       
       <!-- Reply Form (Hidden by default) -->
+      {% if user.is_authenticated %}
       <div id="reply-form-{{ comment.id }}" class="hidden mt-4 pt-4 border-t border-zinc-800">
         <form action="{% url 'discussion:add_comment' %}" method="post" class="space-y-3">
           {% csrf_token %}
           <input type="hidden" name="parent_id" value="{{ comment.id }}">
           
-          <div class="grid md:grid-cols-2 gap-3">
-            <input type="text" name="author_name" required placeholder="Name *" class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-400">
-            <input type="email" name="author_email" placeholder="Email (optional)" class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-400">
-          </div>
-          <textarea name="body" rows="2" required placeholder="Write a reply..." class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-400"></textarea>
+          <textarea name="body" rows="2" required placeholder="Write a reply as {{ user.username }}..." class="w-full bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-400"></textarea>
           
           <div class="flex gap-2">
             <button type="submit" class="bg-zinc-700 text-white px-4 py-1.5 rounded font-bold text-xs hover:bg-zinc-600 transition-colors">Post Reply</button>
@@ -76,6 +78,7 @@
           </div>
         </form>
       </div>
+      {% endif %}
 
       <!-- Replies -->
       {% if comment.replies.all %}
