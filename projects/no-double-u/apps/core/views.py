@@ -1,7 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
+from django.contrib.auth.decorators import user_passes_test
 from .forms import HoneypotUserCreationForm
 
+
+def is_moderator(user):
+    return user.is_authenticated and (user.is_superuser or user.groups.filter(name='Moderators').exists())
 
 def home(request):
     return render(request, 'core/home.html')
@@ -26,11 +30,10 @@ def join(request):
         form = HoneypotUserCreationForm()
     return render(request, 'core/join.html', {'form': form})
 
-from django.contrib.admin.views.decorators import staff_member_required
 from apps.discussion.models import Comment
 from apps.naming.models import NameSuggestion
 
-@staff_member_required
+@user_passes_test(is_moderator)
 def moderation_hub(request):
     if request.method == 'POST':
         action = request.POST.get('action')
