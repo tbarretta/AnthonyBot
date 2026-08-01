@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Moderation Queue | No Double-U{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-16">
+  <div class="mb-12">
+    <h1 class="text-3xl font-black text-white mb-2">Moderation <span class="text-amber-400">Queue</span></h1>
+    <p class="text-zinc-400">Review pending topics, flagged comments, and name suggestions from a single dashboard.</p>
+  </div>
+
+  {% if not pending_topics and not flagged_comments and not pending_suggestions %}
+  <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-12 text-center">
+    <p class="text-zinc-400 text-lg">You're all caught up! 🎉</p>
+    <p class="text-zinc-500 text-sm mt-2">There are no pending actions in the queue.</p>
+  </div>
+  {% endif %}
+
+  {% if pending_topics %}
+  <h2 class="text-xl font-bold text-white mb-4 border-b border-zinc-800 pb-2">Pending Topics ({{ pending_topics|length }})</h2>
+  <div class="space-y-4 mb-12">
+    {% for topic in pending_topics %}
+    <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="font-bold text-amber-400">@{{ topic.author_name }}</span>
+        <span class="text-xs text-zinc-500">{{ topic.created_at|date:"M j, Y, g:i a" }}</span>
+      </div>
+      <p class="text-zinc-300 text-sm mb-4 whitespace-pre-wrap">{{ topic.body }}</p>
+      <div class="flex gap-3">
+        <form method="post">{% csrf_token %}
+          <input type="hidden" name="action" value="approve_topic">
+          <input type="hidden" name="item_id" value="{{ topic.id }}">
+          <button class="bg-green-600/20 text-green-400 border border-green-700/50 px-4 py-2 rounded text-xs font-bold hover:bg-green-600/40 transition-colors uppercase tracking-wider">Approve</button>
+        </form>
+        <form method="post" onsubmit="return confirm('Delete this topic permanently?');">{% csrf_token %}
+          <input type="hidden" name="action" value="delete_comment">
+          <input type="hidden" name="item_id" value="{{ topic.id }}">
+          <button class="bg-red-600/20 text-red-400 border border-red-700/50 px-4 py-2 rounded text-xs font-bold hover:bg-red-600/40 transition-colors uppercase tracking-wider">Reject & Delete</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if flagged_comments %}
+  <h2 class="text-xl font-bold text-white mb-4 border-b border-zinc-800 pb-2">Flagged Comments ({{ flagged_comments|length }})</h2>
+  <div class="space-y-4 mb-12">
+    {% for comment in flagged_comments %}
+    <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="font-bold text-red-400">Flagged: @{{ comment.author_name }}</span>
+        <span class="text-xs text-zinc-500">{{ comment.created_at|date:"M j, Y, g:i a" }}</span>
+      </div>
+      {% if comment.parent %}
+      <div class="bg-zinc-950 p-3 rounded mb-3 border-l-2 border-zinc-700">
+        <p class="text-xs text-zinc-500 mb-1">In reply to @{{ comment.parent.author_name }}:</p>
+        <p class="text-xs text-zinc-400 truncate">{{ comment.parent.body }}</p>
+      </div>
+      {% endif %}
+      <p class="text-zinc-300 text-sm mb-4 whitespace-pre-wrap">{{ comment.body }}</p>
+      <div class="flex gap-3">
+        <form method="post">{% csrf_token %}
+          <input type="hidden" name="action" value="unflag_comment">
+          <input type="hidden" name="item_id" value="{{ comment.id }}">
+          <button class="bg-green-600/20 text-green-400 border border-green-700/50 px-4 py-2 rounded text-xs font-bold hover:bg-green-600/40 transition-colors uppercase tracking-wider">Mark Safe</button>
+        </form>
+        <form method="post" onsubmit="return confirm('Delete this flagged comment permanently?');">{% csrf_token %}
+          <input type="hidden" name="action" value="delete_comment">
+          <input type="hidden" name="item_id" value="{{ comment.id }}">
+          <button class="bg-red-600/20 text-red-400 border border-red-700/50 px-4 py-2 rounded text-xs font-bold hover:bg-red-600/40 transition-colors uppercase tracking-wider">Delete Comment</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if pending_suggestions %}
+  <h2 class="text-xl font-bold text-white mb-4 border-b border-zinc-800 pb-2">Pending Name Suggestions ({{ pending_suggestions|length }})</h2>
+  <div class="space-y-4 mb-12">
+    {% for suggestion in pending_suggestions %}
+    <div class="bg-zinc-900 border border-zinc-800 rounded-lg p-5">
+      <div class="flex items-baseline justify-between mb-2">
+        <span class="font-bold text-amber-400">Suggestion: "{{ suggestion.name }}"</span>
+        <span class="text-xs text-zinc-500">By {% if suggestion.submitted_by %}@{{ suggestion.submitted_by.username }}{% else %}Anonymous{% endif %}</span>
+      </div>
+      {% if suggestion.description %}
+      <p class="text-zinc-300 text-sm mb-4">{{ suggestion.description }}</p>
+      {% else %}
+      <p class="text-zinc-500 italic text-sm mb-4">No description provided.</p>
+      {% endif %}
+      <div class="flex gap-3">
+        <form method="post">{% csrf_token %}
+          <input type="hidden" name="action" value="approve_suggestion">
+          <input type="hidden" name="item_id" value="{{ suggestion.id }}">
+          <button class="bg-green-600/20 text-green-400 border border-green-700/50 px-4 py-2 rounded text-xs font-bold hover:bg-green-600/40 transition-colors uppercase tracking-wider">Approve</button>
+        </form>
+        <form method="post" onsubmit="return confirm('Delete this suggestion?');">{% csrf_token %}
+          <input type="hidden" name="action" value="delete_suggestion">
+          <input type="hidden" name="item_id" value="{{ suggestion.id }}">
+          <button class="bg-red-600/20 text-red-400 border border-red-700/50 px-4 py-2 rounded text-xs font-bold hover:bg-red-600/40 transition-colors uppercase tracking-wider">Reject & Delete</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
