@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.mail import send_mail
 from django.conf import settings
+from apps.core.utils import get_moderator_emails
 from .models import Comment
 
 
@@ -37,17 +38,19 @@ def add_comment(request):
         )
         
         if is_new_thread:
-            # Notify the admin via email
-            try:
-                send_mail(
-                    subject='[No Double-U] New Discussion Topic Requires Approval',
-                    message=f'A new discussion topic has been posted by {request.user.username} and requires approval.\n\nBody:\n{body}\n\nPlease review it in the admin dashboard.',
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[settings.ADMIN_EMAIL],
-                    fail_silently=True,
-                )
-            except Exception:
-                pass
+            # Notify the moderators via email
+            recipient_list = get_moderator_emails()
+            if recipient_list:
+                try:
+                    send_mail(
+                        subject='[No Double-U] New Discussion Topic Requires Approval',
+                        message=f'A new discussion topic has been posted by {request.user.username} and requires approval.\n\nBody:\n{body}\n\nPlease review it in the moderation queue.',
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=recipient_list,
+                        fail_silently=True,
+                    )
+                except Exception:
+                    pass
                 
             messages.success(request, 'Your new topic has been submitted and is pending moderator approval.')
         else:
@@ -67,17 +70,19 @@ def flag_comment(request, pk):
         
     comment.flagged_by.add(request.user)
         
-    # Notify the admin via email
-    try:
-        send_mail(
-            subject='[No Double-U] Comment Flagged for Review',
-            message=f'A comment by {comment.author_name} was flagged as inappropriate by {request.user.username}.\n\nOriginal Text:\n{comment.body}\n\nPlease review it in the admin dashboard.',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[settings.ADMIN_EMAIL],
-            fail_silently=True,
-        )
-    except Exception:
-        pass
+    # Notify the moderators via email
+    recipient_list = get_moderator_emails()
+    if recipient_list:
+        try:
+            send_mail(
+                subject='[No Double-U] Comment Flagged for Review',
+                message=f'A comment by {comment.author_name} was flagged as inappropriate by {request.user.username}.\n\nOriginal Text:\n{comment.body}\n\nPlease review it in the moderation queue.',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=recipient_list,
+                fail_silently=True,
+            )
+        except Exception:
+            pass
         
     messages.success(request, 'This comment has been flagged for moderator review.')
         
