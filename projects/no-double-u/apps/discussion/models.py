@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 
 class Comment(models.Model):
     author_name = models.CharField(max_length=100)
@@ -8,6 +8,7 @@ class Comment(models.Model):
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
     is_approved = models.BooleanField(default=True)
     is_flagged = models.BooleanField(default=False)
+    flagged_by = models.ManyToManyField(User, related_name='flagged_comments', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

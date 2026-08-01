@@ -65,18 +65,20 @@ def flag_comment(request, pk):
         comment.is_flagged = True
         comment.save()
         
-        # Notify the admin via email
-        try:
-            send_mail(
-                subject='[No Double-U] Comment Flagged for Review',
-                message=f'A comment by {comment.author_name} was flagged as inappropriate by {request.user.username}.\n\nOriginal Text:\n{comment.body}\n\nPlease review it in the admin dashboard.',
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[settings.ADMIN_EMAIL],
-                fail_silently=True,
-            )
-        except Exception:
-            pass
-            
-        messages.success(request, 'This comment has been flagged for moderator review.')
+    comment.flagged_by.add(request.user)
+        
+    # Notify the admin via email
+    try:
+        send_mail(
+            subject='[No Double-U] Comment Flagged for Review',
+            message=f'A comment by {comment.author_name} was flagged as inappropriate by {request.user.username}.\n\nOriginal Text:\n{comment.body}\n\nPlease review it in the admin dashboard.',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[settings.ADMIN_EMAIL],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+        
+    messages.success(request, 'This comment has been flagged for moderator review.')
         
     return redirect('discussion:discussion')
