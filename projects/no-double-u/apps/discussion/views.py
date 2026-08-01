@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
 from .models import Comment
 
 
@@ -17,13 +20,37 @@ def add_comment(request):
 
     if body:
         parent = None
+        is_new_thread = True
+        is_approved = False
+        
         if parent_id:
             parent = get_object_or_404(Comment, pk=parent_id)
+            is_new_thread = False
+            is_approved = True  # Replies are approved by default
+            
         Comment.objects.create(
             author_name=request.user.username,
             author_email=request.user.email,
             body=body,
             parent=parent,
+            is_approved=is_approved
         )
+        
+        if is_new_thread:
+            # Notify the admin via email
+            try:
+                send_mail(
+                    subject='[No Double-U] New Discussion Topic Requires Approval',
+                    message=f'A new discussion topic has been posted by {request.user.username} and requires approval.\n\nBody:\n{body}\n\nPlease review it in the admin dashboard.',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[settings.ADMIN_EMAIL],
+                    fail_silently=True,
+                )
+            except Exception:
+                pass
+                
+            messages.success(request, 'Your new topic has been submitted and is pending moderator approval.')
+        else:
+            messages.success(request, 'Your reply has been posted.')
 
     return redirect('discussion:discussion')

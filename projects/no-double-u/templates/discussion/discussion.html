@@ -14,18 +14,19 @@
 
   <!-- New Comment Form -->
   <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-12">
-    <h2 class="text-xl font-bold text-white mb-4">Join the Discussion</h2>
+    <h2 class="text-xl font-bold text-white mb-2">Start a New Topic</h2>
+    <p class="text-sm text-zinc-400 mb-6">New topics are reviewed by a moderator before they appear publicly.</p>
     {% if user.is_authenticated %}
     <form action="{% url 'discussion:add_comment' %}" method="post" class="space-y-4">
       {% csrf_token %}
       
       <div>
-        <label for="body" class="block text-sm font-bold text-zinc-400 mb-1">Comment as <span class="text-amber-400">{{ user.username }}</span></label>
-        <textarea id="body" name="body" rows="4" required class="w-full bg-zinc-950 border border-zinc-700 rounded px-4 py-2 text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"></textarea>
+        <label for="body" class="block text-sm font-bold text-zinc-400 mb-1">Post as <span class="text-amber-400">{{ user.username }}</span></label>
+        <textarea id="body" name="body" rows="4" required placeholder="What's on your mind?" class="w-full bg-zinc-950 border border-zinc-700 rounded px-4 py-2 text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400"></textarea>
       </div>
       
       <button type="submit" class="bg-amber-400 text-black px-6 py-2 rounded font-bold text-sm hover:bg-amber-300 transition-colors">
-        Post Comment
+        Submit for Review
       </button>
     </form>
     {% else %}
@@ -41,7 +42,7 @@
 
   <!-- Comments List -->
   <div class="space-y-8">
-    <h2 class="text-2xl font-black text-white border-b border-zinc-800 pb-2">Comments</h2>
+    <h2 class="text-2xl font-black text-white border-b border-zinc-800 pb-2">Active Topics</h2>
     
     {% for comment in comments %}
     <div class="bg-zinc-950 border border-zinc-800 rounded-lg p-5">
