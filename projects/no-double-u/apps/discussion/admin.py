@@ -3,10 +3,15 @@ from .models import Comment
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
-    list_display = ('author_name', 'created_at', 'is_approved', 'is_flagged')
-    list_filter = ('is_approved', 'is_flagged', 'created_at')
+    list_display = ('author_name', 'is_topic', 'created_at', 'is_approved', 'is_flagged')
+    list_filter = ('is_approved', 'is_flagged', 'parent__isnull', 'created_at')
     search_fields = ('author_name', 'body')
     actions = ['approve_comments', 'unapprove_comments', 'unflag_comments']
+    
+    def is_topic(self, obj):
+        return obj.parent is None
+    is_topic.short_description = "Is Topic"
+    is_topic.boolean = True
 
     def approve_comments(self, request, queryset):
         queryset.update(is_approved=True)
