@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Temporarily Locked | No Double-U{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-16 text-center">
+  <div class="bg-zinc-900 border border-red-900/50 rounded-xl p-8">
+    <div class="text-red-500 mb-4">
+      <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H9m3-11a3 3 0 110 6 3 3 0 010-6zM5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+      </svg>
+    </div>
+    <h1 class="text-3xl font-black text-white mb-4">Account Locked</h1>
+    <p class="text-zinc-300 mb-6">
+      Too many failed login attempts. For security reasons, this IP address has been temporarily blocked.
+    </p>
+    <p class="text-sm text-zinc-500 mb-8">
+      Please try again in 1 hour.
+    </p>
+    
+    <a href="{% url 'core:home' %}" class="inline-block bg-zinc-800 text-white px-6 py-3 rounded font-bold text-sm hover:bg-zinc-700 transition-colors">
+      Return Home
+    </a>
+  </div>
+</div>
+{% endblock %}
