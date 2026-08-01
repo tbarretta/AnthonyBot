@@ -57,18 +57,18 @@
         <p class="text-zinc-300 whitespace-pre-wrap text-sm leading-relaxed">{{ comment.body }}</p>
       {% endif %}
       
-      <div class="mt-4 flex gap-4">
+      <div class="mt-4 flex items-center gap-4">
         {% if not comment.is_flagged %}
           {% if user.is_authenticated %}
-          <button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="text-xs font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-wider">
+          <button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="text-xs font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-wider leading-none">
             Reply
           </button>
-          <form action="{% url 'discussion:flag_comment' comment.id %}" method="post" class="inline" onsubmit="return confirm('Flag this comment as inappropriate?');">
+          <form action="{% url 'discussion:flag_comment' comment.id %}" method="post" class="flex items-center m-0 p-0" onsubmit="return confirm('Flag this comment as inappropriate?');">
             {% csrf_token %}
-            <button type="submit" class="text-xs font-bold text-zinc-500 hover:text-red-400 transition-colors uppercase tracking-wider">Flag</button>
+            <button type="submit" class="text-xs font-bold text-zinc-500 hover:text-red-400 transition-colors uppercase tracking-wider leading-none">Flag</button>
           </form>
           {% else %}
-          <a href="{% url 'login' %}?next={% url 'discussion:discussion' %}" class="text-xs font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-wider">
+          <a href="{% url 'login' %}?next={% url 'discussion:discussion' %}" class="text-xs font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-wider leading-none">
             Reply
           </a>
           {% endif %}
@@ -108,11 +108,11 @@
           {% else %}
             <p class="text-zinc-300 whitespace-pre-wrap text-sm leading-relaxed">{{ reply.body }}</p>
             
-            <div class="mt-2 flex gap-4">
+            <div class="mt-2 flex items-center gap-4">
               {% if user.is_authenticated %}
-              <form action="{% url 'discussion:flag_comment' reply.id %}" method="post" class="inline" onsubmit="return confirm('Flag this reply as inappropriate?');">
+              <form action="{% url 'discussion:flag_comment' reply.id %}" method="post" class="flex items-center m-0 p-0" onsubmit="return confirm('Flag this reply as inappropriate?');">
                 {% csrf_token %}
-                <button type="submit" class="text-xs font-bold text-zinc-500 hover:text-red-400 transition-colors uppercase tracking-wider">Flag</button>
+                <button type="submit" class="text-xs font-bold text-zinc-500 hover:text-red-400 transition-colors uppercase tracking-wider leading-none">Flag</button>
               </form>
               {% endif %}
             </div>
