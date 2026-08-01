@@ -61,9 +61,9 @@
             <a href="{% url 'admin:index' %}" class="text-xs text-brand hover:text-brand-dark transition-colors font-bold uppercase tracking-wider">Admin</a>
             {% endif %}
             <a href="{% url 'password_change' %}" class="text-xs text-zinc-500 hover:text-zinc-300 transition-colors uppercase tracking-wider font-bold">Password</a>
-            <form method="post" action="{% url 'logout' %}" class="inline">
+            <form method="post" action="{% url 'logout' %}" class="inline flex items-center">
               {% csrf_token %}
-              <button type="submit" class="text-xs text-zinc-500 hover:text-zinc-300 transition-colors uppercase tracking-wider font-bold">Log Out</button>
+              <button type="submit" class="text-xs text-zinc-500 hover:text-zinc-300 transition-colors uppercase tracking-wider font-bold leading-none">Log Out</button>
             </form>
           </div>
           {% else %}
