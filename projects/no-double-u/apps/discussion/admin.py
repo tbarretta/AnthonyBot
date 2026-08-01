@@ -7,6 +7,7 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = ('is_approved', 'is_flagged', 'parent__isnull', 'created_at')
     search_fields = ('author_name', 'body')
     actions = ['approve_comments', 'unapprove_comments', 'unflag_comments']
+    filter_horizontal = ('flagged_by',)
     
     def is_topic(self, obj):
         return obj.parent is None
