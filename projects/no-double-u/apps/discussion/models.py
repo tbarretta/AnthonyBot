@@ -7,6 +7,7 @@ class Comment(models.Model):
     body = models.TextField()
     parent = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
     is_approved = models.BooleanField(default=True)
+    is_flagged = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

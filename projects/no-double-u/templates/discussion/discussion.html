@@ -50,17 +50,28 @@
         <span class="font-bold text-amber-400">{{ comment.author_name }}</span>
         <span class="text-xs text-zinc-600">{{ comment.created_at|date:"M j, Y, g:i a" }}</span>
       </div>
-      <p class="text-zinc-300 whitespace-pre-wrap text-sm leading-relaxed">{{ comment.body }}</p>
+      
+      {% if comment.is_flagged %}
+        <p class="text-zinc-500 italic text-sm leading-relaxed border border-zinc-800 bg-zinc-900/50 p-3 rounded">[This comment has been flagged as inappropriate and is pending moderator review]</p>
+      {% else %}
+        <p class="text-zinc-300 whitespace-pre-wrap text-sm leading-relaxed">{{ comment.body }}</p>
+      {% endif %}
       
       <div class="mt-4 flex gap-4">
-        {% if user.is_authenticated %}
-        <button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="text-xs font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-wider">
-          Reply
-        </button>
-        {% else %}
-        <a href="{% url 'login' %}?next={% url 'discussion:discussion' %}" class="text-xs font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-wider">
-          Reply
-        </a>
+        {% if not comment.is_flagged %}
+          {% if user.is_authenticated %}
+          <button onclick="document.getElementById('reply-form-{{ comment.id }}').classList.toggle('hidden')" class="text-xs font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-wider">
+            Reply
+          </button>
+          <form action="{% url 'discussion:flag_comment' comment.id %}" method="post" class="inline" onsubmit="return confirm('Flag this comment as inappropriate?');">
+            {% csrf_token %}
+            <button type="submit" class="text-xs font-bold text-zinc-500 hover:text-red-400 transition-colors uppercase tracking-wider">Flag</button>
+          </form>
+          {% else %}
+          <a href="{% url 'login' %}?next={% url 'discussion:discussion' %}" class="text-xs font-bold text-zinc-500 hover:text-white transition-colors uppercase tracking-wider">
+            Reply
+          </a>
+          {% endif %}
         {% endif %}
       </div>
       
@@ -91,7 +102,21 @@
             <span class="font-bold text-zinc-400 text-sm">{{ reply.author_name }}</span>
             <span class="text-xs text-zinc-600">{{ reply.created_at|date:"M j, Y, g:i a" }}</span>
           </div>
-          <p class="text-zinc-300 whitespace-pre-wrap text-sm leading-relaxed">{{ reply.body }}</p>
+          
+          {% if reply.is_flagged %}
+            <p class="text-zinc-500 italic text-sm leading-relaxed border border-zinc-800 bg-zinc-900/50 p-3 rounded mt-2">[This reply has been flagged as inappropriate and is pending moderator review]</p>
+          {% else %}
+            <p class="text-zinc-300 whitespace-pre-wrap text-sm leading-relaxed">{{ reply.body }}</p>
+            
+            <div class="mt-2 flex gap-4">
+              {% if user.is_authenticated %}
+              <form action="{% url 'discussion:flag_comment' reply.id %}" method="post" class="inline" onsubmit="return confirm('Flag this reply as inappropriate?');">
+                {% csrf_token %}
+                <button type="submit" class="text-xs font-bold text-zinc-500 hover:text-red-400 transition-colors uppercase tracking-wider">Flag</button>
+              </form>
+              {% endif %}
+            </div>
+          {% endif %}
         </div>
         {% endif %}
         {% endfor %}
