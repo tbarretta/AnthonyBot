@@ -3,6 +3,8 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.db import IntegrityError
 from django.views.decorators.http import require_POST
+from django.core.mail import send_mail
+from django.conf import settings
 from .models import NameSuggestion, Vote
 
 
@@ -50,12 +52,26 @@ def suggest(request):
     description = request.POST.get('description', '').strip()
 
     if name:
-        NameSuggestion.objects.create(
+        suggestion = NameSuggestion.objects.create(
             name=name,
             description=description,
             submitted_by=request.user if request.user.is_authenticated else None,
             is_approved=False,
         )
+        
+        # Notify the admin via email
+        try:
+            submitter_name = request.user.username if request.user.is_authenticated else "An anonymous user"
+            send_mail(
+                subject=f'[No Double-U] New Name Suggestion: {name}',
+                message=f'A new name suggestion has been submitted.\n\nName: {name}\nDescription: {description}\nSubmitted by: {submitter_name}\n\nReview it in the admin dashboard.',
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[settings.ADMIN_EMAIL],
+                fail_silently=True,
+            )
+        except Exception:
+            pass
+            
         messages.success(request, f'Thanks! "{name}" has been submitted for review.')
     else:
         messages.error(request, 'Please enter a name.')

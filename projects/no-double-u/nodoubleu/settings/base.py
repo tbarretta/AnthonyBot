@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'apps.naming',
     'apps.discussion',
     'axes',
+    'anymail',
 ]
 
 MIDDLEWARE = [
@@ -100,3 +101,12 @@ LOGOUT_REDIRECT_URL = '/'
 
 SESSION_COOKIE_AGE = 86400 * 30  # 30 days
 LOGOUT_REDIRECT_URL = '/'
+
+# Email (Anymail/Mailgun)
+ANYMAIL = {
+    "MAILGUN_API_KEY": config("MAILGUN_API_KEY", default=""),
+    "MAILGUN_SENDER_DOMAIN": config("MAILGUN_SENDER_DOMAIN", default=""),
+}
+EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default="no-reply@barrettafamily.com")
+ADMIN_EMAIL = config("ADMIN_EMAIL", default="tom@barrettafamily.com")
