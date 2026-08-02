@@ -10,4 +10,5 @@ urlpatterns = [
     path('join/', views.join, name='join'),
     path('moderation/', views.moderation_hub, name='moderation_hub'),
     path('moderation/traffic/', views.traffic_stats, name='traffic_stats'),
+    path('donate/', views.donate, name='donate'),
 ]

@@ -52,6 +52,7 @@
           <a href="{% url 'core:hall_of_fame' %}" class="nav-link">Hall of Fame</a>
           <a href="{% url 'naming:name_it' %}" class="nav-link">Name It</a>
           <a href="{% url 'discussion:discussion' %}" class="nav-link">Discussion</a>
+          <a href="{% url 'core:donate' %}" class="nav-link">Donate</a>
           
           <div class="border-l border-zinc-700 h-6 mx-2"></div>
           
@@ -95,6 +96,7 @@
         <a href="{% url 'core:hall_of_fame' %}" class="block nav-link py-2">Hall of Fame</a>
         <a href="{% url 'naming:name_it' %}" class="block nav-link py-2">Name It</a>
         <a href="{% url 'discussion:discussion' %}" class="block nav-link py-2">Discussion</a>
+        <a href="{% url 'core:donate' %}" class="block nav-link py-2">Donate</a>
         <div class="border-t border-zinc-800 my-2 pt-2">
           {% if user.is_authenticated %}
           <div class="px-2 py-1 text-sm text-amber-400 font-bold mb-2">@{{ user.username }}</div>

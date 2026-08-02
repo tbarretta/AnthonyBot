@@ -13,6 +13,9 @@ def is_moderator(user):
 def home(request):
     return render(request, 'core/home.html')
 
+def donate(request):
+    return render(request, 'core/donate.html')
+
 
 def the_case(request):
     return render(request, 'core/the_case.html')

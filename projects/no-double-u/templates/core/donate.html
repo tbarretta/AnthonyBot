@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Donate | No Double-U{% endblock %}
+
+{% block content %}
+<main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center min-h-[70vh] flex flex-col justify-center">
+  <div class="text-6xl mb-6">🎉</div>
+  <h1 class="text-4xl sm:text-5xl font-black text-amber-400 tracking-tight mb-8">
+    Whoa, look at you!
+  </h1>
+  <p class="text-xl text-zinc-300 leading-relaxed mb-6">
+    We're not accepting donations. 
+  </p>
+  <p class="text-xl text-zinc-300 leading-relaxed mb-12 max-w-2xl mx-auto">
+    But the fact that you clicked this link is exciting. Your willingness to throw money at this ridiculous (but necessary) movement means the world to us.
+  </p>
+  <div>
+    <a href="{% url 'core:home' %}" class="inline-block bg-amber-400 text-black px-8 py-4 rounded font-black text-lg hover:bg-amber-300 transition-colors shadow-lg shadow-amber-400/20">
+      Return to the Movement
+    </a>
+  </div>
+</main>
+{% endblock %}
