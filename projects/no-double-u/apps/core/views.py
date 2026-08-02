@@ -70,6 +70,6 @@ def traffic_stats(request):
     report_path = os.path.join(settings.BASE_DIR, 'reports', 'traffic.html')
     if not os.path.exists(report_path):
         return HttpResponse("Traffic report is currently being generated. Please check back in a few minutes.", status=404)
-    with open(report_path, 'r', encoding='utf-8') as f:
+    with open(report_path, 'r', encoding='utf-8', errors='replace') as f:
         html = f.read()
     return HttpResponse(html)
