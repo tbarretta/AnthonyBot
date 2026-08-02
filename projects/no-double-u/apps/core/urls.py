@@ -9,4 +9,5 @@ urlpatterns = [
     path('hall-of-fame/', views.hall_of_fame, name='hall_of_fame'),
     path('join/', views.join, name='join'),
     path('moderation/', views.moderation_hub, name='moderation_hub'),
+    path('moderation/traffic/', views.traffic_stats, name='traffic_stats'),
 ]

@@ -4,9 +4,17 @@
 
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 py-16">
-  <div class="mb-12">
-    <h1 class="text-3xl font-black text-white mb-2">Moderation <span class="text-amber-400">Queue</span></h1>
-    <p class="text-zinc-400">Review pending topics, flagged comments, and name suggestions from a single dashboard.</p>
+  <div class="flex items-center justify-between mb-12">
+    <div>
+      <h1 class="text-3xl font-black text-white mb-2">Moderation <span class="text-amber-400">Queue</span></h1>
+      <p class="text-zinc-400">Review pending topics, flagged comments, and name suggestions from a single dashboard.</p>
+    </div>
+    <a href="{% url 'core:traffic_stats' %}" target="_blank" class="bg-zinc-800 text-zinc-300 px-4 py-2 rounded font-bold text-sm hover:bg-zinc-700 hover:text-white transition-colors flex items-center gap-2 border border-zinc-700">
+      <svg xmlns="http://www.w3.org/.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+      </svg>
+      Traffic Stats
+    </a>
   </div>
 
   {% if not pending_topics and not flagged_comments and not pending_suggestions %}

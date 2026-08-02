@@ -1,6 +1,9 @@
+import os
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import user_passes_test
+from django.http import HttpResponse, Http404
+from django.conf import settings
 from .forms import HoneypotUserCreationForm
 
 
@@ -61,3 +64,12 @@ def moderation_hub(request):
         'flagged_comments': flagged_comments,
         'pending_suggestions': pending_suggestions,
     })
+
+@user_passes_test(is_moderator)
+def traffic_stats(request):
+    report_path = os.path.join(settings.BASE_DIR, 'reports', 'traffic.html')
+    if not os.path.exists(report_path):
+        return HttpResponse("Traffic report is currently being generated. Please check back in a few minutes.", status=404)
+    with open(report_path, 'r', encoding='utf-8') as f:
+        html = f.read()
+    return HttpResponse(html)

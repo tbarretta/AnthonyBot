@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   web:
-    # No volumes mapped in prod so it uses the code baked into the image
-    volumes: []
+    volumes:
+      - ./reports:/app/reports
     environment:
       - DJANGO_SETTINGS_MODULE=nodoubleu.settings.production
       - DEBUG=False
