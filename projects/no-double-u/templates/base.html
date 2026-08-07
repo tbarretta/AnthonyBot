@@ -176,6 +176,7 @@
     document.addEventListener('DOMContentLoaded', function() {
       const pwdInputs = document.querySelectorAll('input[type="password"]');
       pwdInputs.forEach(input => {
+        input.classList.add('password-toggled');
         const wrapper = document.createElement('div');
         wrapper.className = 'relative flex items-center w-full';
         input.parentNode.insertBefore(wrapper, input);
